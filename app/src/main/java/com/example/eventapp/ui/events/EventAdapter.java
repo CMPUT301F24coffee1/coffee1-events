@@ -4,6 +4,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.eventapp.Event;
@@ -14,13 +15,18 @@ import java.util.ArrayList;
 //referenced the android developer docs
 //https://developer.android.com/develop/ui/views/layout/recyclerview
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> {
-    private ArrayList<Event> eventList;
+    private final ArrayList<Event> eventList;
+    private final OnEventClickListener onEventClickListener;
+
+    public interface OnEventClickListener {
+        void onEventClick(Event event);
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder{
         private final TextView eventName;
 
         public ViewHolder(View view){
             super(view);
-
             eventName = view.findViewById(R.id.event_name_text);
         }
 
@@ -29,10 +35,12 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         }
     }
 
-    public EventAdapter(ArrayList<Event> events) {
+    public EventAdapter(ArrayList<Event> events, OnEventClickListener onEventClickListener) {
         eventList = events;
+        this.onEventClickListener = onEventClickListener;
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType){
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.event_card, viewGroup, false);
@@ -41,7 +49,9 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position){
-        viewHolder.getTextView().setText(eventList.get(position).getEventName());
+        Event event = eventList.get(position);
+        viewHolder.getTextView().setText(event.getEventName());
+        viewHolder.itemView.setOnClickListener(v -> onEventClickListener.onEventClick(event));
     }
 
     @Override
