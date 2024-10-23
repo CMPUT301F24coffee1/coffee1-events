@@ -3,4 +3,11 @@
     <string name="title_events">Events</string>
     <string name="title_scanqr">Scan QR</string>
     <string name="title_profiles">Profiles</string>
+    <string name="lorem_ipsum">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus auctor velit diam, eu
+        venenatis neque consequat at. Etiam laoreet convallis consectetur. Donec quis arcu magna.
+        In hac habitasse platea dictumst. Donec nec rhoncus sem. Donec feugiat finibus neque convallis
+        finibus. Donec odio est, porta nec hendrerit nec, efficitur et velit. Sed vehicula faucibus odio,
+        ut porttitor leo aliquam mollis. Aliquam tristique mauris at commodo lacinia.
+    </string>
 </resources>
