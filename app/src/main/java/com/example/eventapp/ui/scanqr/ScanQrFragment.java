@@ -1,4 +1,4 @@
-package com.example.eventapp.ui.home;
+package com.example.eventapp.ui.scanqr;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,22 +10,22 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.eventapp.databinding.FragmentHomeBinding;
+import com.example.eventapp.databinding.FragmentScanQrBinding;
 
-public class HomeFragment extends Fragment {
+public class ScanQrFragment extends Fragment {
 
-    private FragmentHomeBinding binding;
+    private FragmentScanQrBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        HomeViewModel homeViewModel =
-                new ViewModelProvider(this).get(HomeViewModel.class);
+        ScanQrViewModel scanQrViewModel =
+                new ViewModelProvider(this).get(ScanQrViewModel.class);
 
-        binding = FragmentHomeBinding.inflate(inflater, container, false);
+        binding = FragmentScanQrBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textHome;
-        homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        final TextView textView = binding.textScanQr;
+        scanQrViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
 
