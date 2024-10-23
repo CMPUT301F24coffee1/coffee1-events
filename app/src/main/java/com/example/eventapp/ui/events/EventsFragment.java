@@ -1,9 +1,11 @@
 package com.example.eventapp.ui.events;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -14,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.eventapp.Event;
 import com.example.eventapp.R;
 import com.example.eventapp.databinding.FragmentEventsBinding;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
@@ -40,6 +43,7 @@ public class EventsFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
         //testing
+        boolean isOrganizer = true; //adjust later
         events = new ArrayList<>();
         events.add(new Event("event1"));
         events.add(new Event("event2"));
@@ -49,6 +53,20 @@ public class EventsFragment extends Fragment {
         eventsGrid.setLayoutManager(new GridLayoutManager(getContext(), 2));
         eventAdapter = new EventAdapter(events);
         eventsGrid.setAdapter(eventAdapter);
+
+        FloatingActionButton createEventButton = view.findViewById(R.id.create_event_button);
+        createEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("EventsFragment", "Create event button clicked");
+
+            }
+        });
+
+        if(!isOrganizer){
+            createEventButton.setVisibility(View.GONE);
+        }
+
     }
 
     @Override
