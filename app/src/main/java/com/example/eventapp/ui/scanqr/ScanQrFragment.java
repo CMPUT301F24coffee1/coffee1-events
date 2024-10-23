@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.eventapp.databinding.FragmentScanQrBinding;
+import com.example.eventapp.viewmodels.ScanQrViewModel;
 
 public class ScanQrFragment extends Fragment {
 

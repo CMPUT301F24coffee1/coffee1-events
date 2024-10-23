@@ -1,4 +1,4 @@
-package com.example.eventapp.ui.scanqr;
+package com.example.eventapp.viewmodels;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.eventapp.databinding.FragmentAdminProfilesBinding;
+import com.example.eventapp.viewmodels.AdminProfilesViewModel;
 
 public class AdminProfilesFragment extends Fragment {
 

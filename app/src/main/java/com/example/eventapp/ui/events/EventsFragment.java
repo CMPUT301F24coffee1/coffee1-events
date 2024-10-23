@@ -12,9 +12,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.eventapp.Event;
+import com.example.eventapp.models.Event;
 import com.example.eventapp.R;
 import com.example.eventapp.databinding.FragmentEventsBinding;
+import com.example.eventapp.viewmodels.EventsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.example.eventapp.ui.profiles;
+package com.example.eventapp.viewmodels;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

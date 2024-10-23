@@ -1,4 +1,4 @@
-package com.example.eventapp;
+package com.example.eventapp.models;
 
 public abstract class User {
     private String name;

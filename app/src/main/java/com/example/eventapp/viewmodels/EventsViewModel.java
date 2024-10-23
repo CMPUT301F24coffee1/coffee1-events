@@ -1,10 +1,10 @@
-package com.example.eventapp.ui.events;
+package com.example.eventapp.viewmodels;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.eventapp.Event;
+import com.example.eventapp.models.Event;
 
 import java.util.ArrayList;
 
