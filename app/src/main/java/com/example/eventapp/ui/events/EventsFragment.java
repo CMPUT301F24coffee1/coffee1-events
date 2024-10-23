@@ -65,6 +65,7 @@ public class EventsFragment extends Fragment implements
             // or move this to a separate function
             // no need to notify the adapter of anything - updateEventList handles it
             Log.d("EventsFragment", "Create event button clicked");
+            showCreateEventPopup();
         });
 
         // testing
@@ -82,6 +83,11 @@ public class EventsFragment extends Fragment implements
         // to encapsulate all the logic there
         // eventAdapter.setEvents(newEvents);
         eventAdapter.notifyDataSetChanged();
+    }
+
+    private void showCreateEventPopup(){
+        CreateEventFragment createEventFragment = new CreateEventFragment();
+        createEventFragment.show(getActivity().getSupportFragmentManager(), "create_event");
     }
 
     @Override
