@@ -1,16 +1,16 @@
-package com.example.eventapp.ui.notifications;
+package com.example.eventapp.ui.scanqr;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class NotificationsViewModel extends ViewModel {
+public class ScanQrViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public NotificationsViewModel() {
+    public ScanQrViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is notifications fragment");
+        mText.setValue("Scan QR Code");
     }
 
     public LiveData<String> getText() {

@@ -1,16 +1,16 @@
-package com.example.eventapp.ui.dashboard;
+package com.example.eventapp.ui.profiles;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class DashboardViewModel extends ViewModel {
+public class AdminProfilesViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public DashboardViewModel() {
+    public AdminProfilesViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is dashboard fragment");
+        mText.setValue("Browse Profiles");
     }
 
     public LiveData<String> getText() {
