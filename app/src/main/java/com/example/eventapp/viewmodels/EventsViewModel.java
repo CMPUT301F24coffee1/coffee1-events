@@ -26,6 +26,7 @@ public class EventsViewModel extends ViewModel {
         // add test data
         eventList.add(new Event("Event 1", "Description 1"));
         eventList.add(new Event("Event 2", "Description 2"));
+        eventList.add(new Event("Event 3", "Description 3"));
         eventsLiveData.setValue(eventList);
     }
 
