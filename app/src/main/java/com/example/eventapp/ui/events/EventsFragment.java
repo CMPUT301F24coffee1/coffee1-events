@@ -47,6 +47,7 @@ public class EventsFragment extends Fragment {
         events = new ArrayList<>();
         events.add(new Event("event1"));
         events.add(new Event("event2"));
+        events.add(new Event("event3"));
         eventsGrid = view.findViewById(R.id.events_grid);
 
         //referenced https://stackoverflow.com/a/40587169 by Suragch, on October 23, 2024
