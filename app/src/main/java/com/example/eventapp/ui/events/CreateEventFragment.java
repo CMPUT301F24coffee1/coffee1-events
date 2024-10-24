@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 
 
 import com.example.eventapp.R;
@@ -25,6 +26,8 @@ public class CreateEventFragment extends BottomSheetDialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.create_event_popup, null);
+        EditText eventName = view.findViewById(R.id.popup_create_event_name);
+        EditText eventDescription = view.findViewById(R.id.popup_create_event_description);
 
         Button createEventButton = view.findViewById(R.id.popup_create_event_button);
 
@@ -32,8 +35,10 @@ public class CreateEventFragment extends BottomSheetDialogFragment {
             @Override
             public void onClick(View view) {
                 Log.d("CreateEventFragment", "Create Button Clicked");
+                String newEventName = eventName.getText().toString();
+                String newEventDescription = eventDescription.getText().toString();
                 // placeholder event for now, replace later
-                createEventListener.createEvent(new Event("Event 4", "Event 4 Description:"));
+                createEventListener.createEvent(new Event(newEventName, newEventDescription));
             }
         });
         return view;

@@ -49,20 +49,6 @@
             tools:srcCompat="@tools:sample/avatars" />
 
         <EditText
-            android:id="@+id/popup_create_event_duration"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginEnd="8dp"
-            android:hint="Event Duration"
-            android:textSize="23sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_image" />
-
-        <EditText
             android:id="@+id/popup_create_event_registration_deadline"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -75,27 +61,38 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_duration" />
+            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_geolocation_checkbox_layout" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/popup_create_event_geolocation_checkbox_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/popup_create_event_description"
-            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_registration_deadline">
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_image">
+
+            <Button
+                android:id="@+id/popup_create_event_duration_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Set Event Duration"
+                app:layout_constraintStart_toStartOf="parent" />
 
             <CheckBox
                 android:id="@+id/popup_create_event_geolocation_checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layoutDirection="rtl"
                 android:paddingEnd="8dp"
                 android:text="Require Geolocation"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
+                android:textSize="15sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <EditText
@@ -108,7 +105,7 @@
             android:hint="@string/lorem_ipsum"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_geolocation_checkbox_layout" />
+            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_registration_deadline" />
 
         <EditText
             android:id="@+id/popup_event_entrants_count"
