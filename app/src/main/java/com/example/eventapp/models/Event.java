@@ -4,6 +4,7 @@ public class Event {
     private String eventName;
     private String eventDescription;
     private boolean geolocationRequired;
+    private int maxEntrants; //-1 for no max
 
     public Event(String name) {
         this.eventName = name;
@@ -13,12 +14,21 @@ public class Event {
     public Event(String name, String description) {
         this.eventName = name;
         this.eventDescription = description;
+        this.maxEntrants = -1;
     }
 
     public Event(String name, String description, boolean geolocationRequired) {
         this.eventName = name;
         this.eventDescription = description;
         this.geolocationRequired = geolocationRequired;
+        this.maxEntrants = -1;
+    }
+
+    public Event(String name, String description, boolean geolocationRequired, int maxEntrants) {
+        this.eventName = name;
+        this.eventDescription = description;
+        this.geolocationRequired = geolocationRequired;
+        this.maxEntrants = maxEntrants;
     }
 
     public String getEventName() {
@@ -43,5 +53,13 @@ public class Event {
 
     public void setGeolocationRequired(boolean geolocationRequired) {
         this.geolocationRequired = geolocationRequired;
+    }
+
+    public int getMaxEntrants() {
+        return maxEntrants;
+    }
+
+    public void setMaxEntrants(int maxEntrants) {
+        this.maxEntrants = maxEntrants;
     }
 }

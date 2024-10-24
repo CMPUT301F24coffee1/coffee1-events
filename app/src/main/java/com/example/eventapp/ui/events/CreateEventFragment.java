@@ -31,6 +31,7 @@ public class CreateEventFragment extends BottomSheetDialogFragment {
         EditText eventDescription = view.findViewById(R.id.popup_create_event_description);
         CheckBox geolocationRequired = view.findViewById(R.id.popup_create_event_geolocation_checkbox);
         Button createEventButton = view.findViewById(R.id.popup_create_event_button);
+        EditText maxEventEntrants = view.findViewById(R.id.popup_create_event_max_entrants);
 
         createEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -38,7 +39,24 @@ public class CreateEventFragment extends BottomSheetDialogFragment {
                 Log.d("CreateEventFragment", "Create Button Clicked");
                 String newEventName = eventName.getText().toString();
                 String newEventDescription = eventDescription.getText().toString();
-                createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked()));
+                String maxEntrants = maxEventEntrants.getText().toString();
+                if(maxEntrants.equals("")){
+                    //no max entrant count given
+                    createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked()));
+                }else{
+                    try{
+                        int max = Integer.parseInt(maxEntrants);
+                        if(max>0){
+                            createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), max));
+                        }else{
+                            createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked()));
+                        }
+                    }catch (Exception e){
+                        //could not parse input
+                        createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked()));
+                    }
+                }
+
             }
         });
         return view;

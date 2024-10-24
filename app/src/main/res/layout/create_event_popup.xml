@@ -79,7 +79,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="Set Event Duration"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <!-- referenced https://stackoverflow.com/a/44496405 by Mahesh Lad, on October 23, 2024 -->
             <CheckBox
@@ -91,9 +93,11 @@
                 android:text="Require Geolocation"
                 android:textSize="15sp"
                 android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <EditText
@@ -108,8 +112,9 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/popup_create_event_registration_deadline" />
 
+        <!-- referenced https://stackoverflow.com/a/66137898 by Anael, on October 24, 2024 -->
         <EditText
-            android:id="@+id/popup_event_entrants_count"
+            android:id="@+id/popup_create_event_max_entrants"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -119,6 +124,7 @@
             android:hint="Max Number of Entrants (Optional)"
             android:textSize="20sp"
             android:textStyle="bold"
+            android:inputType="phone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

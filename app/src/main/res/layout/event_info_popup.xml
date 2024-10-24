@@ -78,7 +78,7 @@
             app:layout_constraintTop_toBottomOf="@+id/popup_event_registration_deadline_text" />
 
         <TextView
-            android:id="@+id/popup_event_entrants_count"
+            android:id="@+id/popup_create_event_max_entrants"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
