@@ -3,6 +3,7 @@ package com.example.eventapp.models;
 public class Event {
     private String eventName;
     private String eventDescription;
+    private boolean geolocationRequired;
 
     public Event(String name) {
         this.eventName = name;
@@ -12,6 +13,12 @@ public class Event {
     public Event(String name, String description) {
         this.eventName = name;
         this.eventDescription = description;
+    }
+
+    public Event(String name, String description, boolean geolocationRequired) {
+        this.eventName = name;
+        this.eventDescription = description;
+        this.geolocationRequired = geolocationRequired;
     }
 
     public String getEventName() {
@@ -28,5 +35,13 @@ public class Event {
 
     public void setEventDescription(String eventDescription) {
         this.eventDescription = eventDescription;
+    }
+
+    public boolean isGeolocationRequired() {
+        return geolocationRequired;
+    }
+
+    public void setGeolocationRequired(boolean geolocationRequired) {
+        this.geolocationRequired = geolocationRequired;
     }
 }

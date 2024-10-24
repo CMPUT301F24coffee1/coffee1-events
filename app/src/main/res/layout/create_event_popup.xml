@@ -81,6 +81,7 @@
                 android:text="Set Event Duration"
                 app:layout_constraintStart_toStartOf="parent" />
 
+            <!-- referenced https://stackoverflow.com/a/44496405 by Mahesh Lad, on October 23, 2024 -->
             <CheckBox
                 android:id="@+id/popup_create_event_geolocation_checkbox"
                 android:layout_width="wrap_content"

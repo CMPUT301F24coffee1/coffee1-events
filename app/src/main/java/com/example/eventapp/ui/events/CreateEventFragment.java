@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 
@@ -28,7 +29,7 @@ public class CreateEventFragment extends BottomSheetDialogFragment {
         View view = inflater.inflate(R.layout.create_event_popup, null);
         EditText eventName = view.findViewById(R.id.popup_create_event_name);
         EditText eventDescription = view.findViewById(R.id.popup_create_event_description);
-
+        CheckBox geolocationRequired = view.findViewById(R.id.popup_create_event_geolocation_checkbox);
         Button createEventButton = view.findViewById(R.id.popup_create_event_button);
 
         createEventButton.setOnClickListener(new View.OnClickListener() {
@@ -37,8 +38,7 @@ public class CreateEventFragment extends BottomSheetDialogFragment {
                 Log.d("CreateEventFragment", "Create Button Clicked");
                 String newEventName = eventName.getText().toString();
                 String newEventDescription = eventDescription.getText().toString();
-                // placeholder event for now, replace later
-                createEventListener.createEvent(new Event(newEventName, newEventDescription));
+                createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked()));
             }
         });
         return view;
