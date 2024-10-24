@@ -25,12 +25,14 @@ public class EventsFragment extends Fragment implements
     private EventsViewModel eventsViewModel;
     private ArrayList<Event> events;
     private EventAdapter eventAdapter;
+    private CreateEventFragment currentCreateEventFragment;
 
     private FragmentEventsBinding binding;
 
     @Override
     public void createEvent(Event event){
         eventsViewModel.addEvent(event);
+        currentCreateEventFragment.dismiss();
     }
     @Override
     public void editEventInfo(Event event){
@@ -91,6 +93,7 @@ public class EventsFragment extends Fragment implements
 
     private void showCreateEventPopup(){
         CreateEventFragment createEventFragment = new CreateEventFragment(this);
+        currentCreateEventFragment = createEventFragment;
         createEventFragment.show(getActivity().getSupportFragmentManager(), "create_event");
     }
 
