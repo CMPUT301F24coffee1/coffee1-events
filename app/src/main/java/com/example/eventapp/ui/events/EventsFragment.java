@@ -21,13 +21,17 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 
 public class EventsFragment extends Fragment implements
-        EventAdapter.OnEventClickListener, EventInfoFragment.EditEventInfoListener {
+        EventAdapter.OnEventClickListener, EventInfoFragment.EditEventInfoListener, CreateEventFragment.CreateEventListener {
     private EventsViewModel eventsViewModel;
     private ArrayList<Event> events;
     private EventAdapter eventAdapter;
 
     private FragmentEventsBinding binding;
 
+    @Override
+    public void createEvent(Event event){
+        eventsViewModel.addEvent(event);
+    }
     @Override
     public void editEventInfo(Event event){
         Log.d("EventsFragment", "Editing event " + event.getEventName());
@@ -86,7 +90,7 @@ public class EventsFragment extends Fragment implements
     }
 
     private void showCreateEventPopup(){
-        CreateEventFragment createEventFragment = new CreateEventFragment();
+        CreateEventFragment createEventFragment = new CreateEventFragment(this);
         createEventFragment.show(getActivity().getSupportFragmentManager(), "create_event");
     }
 

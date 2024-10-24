@@ -12,8 +12,14 @@ import com.example.eventapp.models.Event;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 public class CreateEventFragment extends BottomSheetDialogFragment {
+    private CreateEventListener createEventListener;
+
     interface CreateEventListener{
         void createEvent(Event event);
+    }
+
+    public CreateEventFragment(CreateEventListener createEventListener){
+        this.createEventListener = createEventListener;
     }
 
     @Override
@@ -26,6 +32,8 @@ public class CreateEventFragment extends BottomSheetDialogFragment {
             @Override
             public void onClick(View view) {
                 Log.d("CreateEventFragment", "Create Button Clicked");
+                // placeholder event for now, replace later
+                createEventListener.createEvent(new Event("Event 4", "Event 4 Description:"));
             }
         });
         return view;
