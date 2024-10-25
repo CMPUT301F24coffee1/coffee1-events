@@ -14,13 +14,15 @@ import java.util.Calendar;
 public class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
     private Calendar calendar;
     private SetDateListener listener;
+    private int type;
 
     interface SetDateListener {
-        void setDate(long timestamp);
+        void setDate(long timestamp, int type);
     }
 
-    public DatePickerFragment(SetDateListener listener){
+    public DatePickerFragment(SetDateListener listener, int type){
         this.listener = listener;
+        this.type = type;
     }
 
     @Override
@@ -39,6 +41,6 @@ public class DatePickerFragment extends DialogFragment implements DatePickerDial
         calendar.set(Calendar.YEAR, year);
 
         long timestamp = calendar.getTimeInMillis() / 1000;
-        listener.setDate(timestamp);
+        listener.setDate(timestamp, type);
     }
 }

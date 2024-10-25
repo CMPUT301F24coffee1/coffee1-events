@@ -1,4 +1,6 @@
 package com.example.eventapp.ui.events;
+import static java.util.Arrays.asList;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,9 +15,11 @@ import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.util.ArrayList;
+
 public class CreateEventFragment extends BottomSheetDialogFragment implements DatePickerFragment.SetDateListener {
     private CreateEventListener createEventListener;
-    private long startTimeStamp;
+    private ArrayList<Long> timestamps;
 
     interface CreateEventListener{
         void createEvent(Event event);
@@ -26,15 +30,26 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
     }
 
     @Override
-    public void setDate(long timestamp){
+    public void setDate(long timestamp, int type){
         //just start time for now
-        startTimeStamp = timestamp;
-        Log.d("CreateEventsFragment", "timestamp set to: "+startTimeStamp);
+        switch(type) {
+            case 0: //startTimestamp
+                timestamps.set(0, timestamp);
+                break;
+            case 1: //endTimestamp
+                timestamps.set(1, timestamp);
+                break;
+            case 2: //deadlineTimestamp
+                timestamps.set(2, timestamp);
+                break;
+        }
+        Log.d("CreateEventsFragment", "timestamp set to: "+timestamp);
+        Log.d("CreateEventsFragment", "type: "+type);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-        startTimeStamp = 0;
+        timestamps = new ArrayList<>(asList(0L,0L,0L)); // (startTimestamp, endTimestamp, deadlineTimestamp)
         View view = inflater.inflate(R.layout.create_event_popup, null);
         EditText eventName = view.findViewById(R.id.popup_create_event_name);
         EditText eventDescription = view.findViewById(R.id.popup_create_event_description);
@@ -47,13 +62,14 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
             @Override
             public void onClick(View view) {
                 Log.d("CreateEventFragment", "set event duration button clicked");
-                showDatePickerFragment();
+                showDatePickerFragment(0);
             }
         });
 
         createEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 Log.d("CreateEventFragment", "Create Button Clicked");
                 String newEventName = eventName.getText().toString();
                 String newEventDescription = eventDescription.getText().toString();
@@ -80,8 +96,8 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
         return view;
     }
 
-    private void showDatePickerFragment(){
-        DatePickerFragment datePickerFragment = new DatePickerFragment(this);
+    private void showDatePickerFragment(int type){
+        DatePickerFragment datePickerFragment = new DatePickerFragment(this, type);
         datePickerFragment.show(getActivity().getSupportFragmentManager(), null);
     }
 }
