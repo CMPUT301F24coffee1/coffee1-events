@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:fillViewport="true">
 
+    <!-- work in progress -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -48,20 +49,20 @@
             app:layout_constraintTop_toBottomOf="@+id/popup_create_event_name"
             tools:srcCompat="@tools:sample/avatars" />
 
-        <EditText
-            android:id="@+id/popup_create_event_registration_deadline"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:hint="Event Registration Deadline"
-            android:textSize="18sp"
-            android:textStyle="italic"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_geolocation_checkbox_layout" />
+<!--        <EditText-->
+<!--            android:id="@+id/popup_create_event_registration_deadline"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginStart="8dp"-->
+<!--            android:layout_marginTop="8dp"-->
+<!--            android:layout_marginEnd="8dp"-->
+<!--            android:hint="Event Registration Deadline"-->
+<!--            android:textSize="18sp"-->
+<!--            android:textStyle="italic"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintHorizontal_bias="0.0"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_geolocation_checkbox_layout" />-->
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/popup_create_event_geolocation_checkbox_layout"
@@ -110,7 +111,8 @@
             android:hint="@string/lorem_ipsum"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_registration_deadline" />
+            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_registration_deadline_button" />
+        <!-- app:layout_constraintTop_toBottomOf="@+id/popup_create_event_registration_deadline" /> -->
 
         <!-- referenced https://stackoverflow.com/a/66137898 by Anael, on October 24, 2024 -->
         <EditText
@@ -130,6 +132,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/popup_create_event_description"
             app:layout_constraintVertical_bias="0.0" />
+
+        <Button
+            android:id="@+id/popup_create_event_registration_deadline_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="Set Registration Deadline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_geolocation_checkbox_layout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

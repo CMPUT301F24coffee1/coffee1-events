@@ -57,12 +57,23 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
         Button createEventButton = view.findViewById(R.id.popup_create_event_button);
         EditText maxEventEntrants = view.findViewById(R.id.popup_create_event_max_entrants);
         Button eventDurationButton = view.findViewById(R.id.popup_create_event_duration_button);
+        Button eventRegistrationDeadlineButton = view.findViewById(R.id.popup_create_event_registration_deadline_button);
 
         eventDurationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d("CreateEventFragment", "set event duration button clicked");
+                // closes and opens instantly, add/override animations later
                 showDatePickerFragment(0);
+                showDatePickerFragment(1);
+            }
+        });
+
+        eventRegistrationDeadlineButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("CreateEventFragment", "set event deadline button clicked");
+                showDatePickerFragment(2);
             }
         });
 
@@ -75,19 +86,19 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
                 String newEventDescription = eventDescription.getText().toString();
                 String maxEntrants = maxEventEntrants.getText().toString();
                 if(maxEntrants.equals("")){
-                    //no max entrant count given
-                    createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked()));
+                    // no max entrant count given
+                    createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                 }else{
                     try{
                         int max = Integer.parseInt(maxEntrants);
                         if(max>0){
-                            createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), max));
+                            createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                         }else{
-                            createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked()));
+                            createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                         }
                     }catch (Exception e){
-                        //could not parse input
-                        createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked()));
+                        // could not parse input
+                        createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                     }
                 }
 

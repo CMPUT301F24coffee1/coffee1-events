@@ -5,12 +5,16 @@ public class Event {
     private String eventDescription;
     private boolean geolocationRequired;
     private int maxEntrants; //-1 for no max
+    private long startDate;
+    private long endDate;
+    private long deadline;
 
     public Event(String name) {
         this.eventName = name;
         this.eventDescription = "";
     }
 
+    // for testing
     public Event(String name, String description) {
         this.eventName = name;
         this.eventDescription = description;
@@ -24,11 +28,24 @@ public class Event {
         this.maxEntrants = -1;
     }
 
-    public Event(String name, String description, boolean geolocationRequired, int maxEntrants) {
-        this.eventName = name;
-        this.eventDescription = description;
+    public Event(String eventName, String eventDescription, boolean geolocationRequired, long startDate, long endDate, long deadline) {
+        this.eventName = eventName;
+        this.eventDescription = eventDescription;
+        this.geolocationRequired = geolocationRequired;
+        this.maxEntrants = -1;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.deadline = deadline;
+    }
+
+    public Event(String eventName, String eventDescription, boolean geolocationRequired, int maxEntrants, long startDate, long endDate, long deadline) {
+        this.eventName = eventName;
+        this.eventDescription = eventDescription;
         this.geolocationRequired = geolocationRequired;
         this.maxEntrants = maxEntrants;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.deadline = deadline;
     }
 
     public String getEventName() {
@@ -61,5 +78,29 @@ public class Event {
 
     public void setMaxEntrants(int maxEntrants) {
         this.maxEntrants = maxEntrants;
+    }
+
+    public long getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(long startDate) {
+        this.startDate = startDate;
+    }
+
+    public long getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(long endDate) {
+        this.endDate = endDate;
+    }
+
+    public long getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(long deadline) {
+        this.deadline = deadline;
     }
 }
