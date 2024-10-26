@@ -1,6 +1,7 @@
 package com.example.eventapp.ui.events;
 import static java.util.Arrays.asList;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,11 +10,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-
-
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.util.ArrayList;
 
@@ -31,7 +33,6 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
 
     @Override
     public void setDate(long timestamp, int type){
-        //just start time for now
         switch(type) {
             case 0: //startTimestamp
                 timestamps.set(0, timestamp);
@@ -58,7 +59,6 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
         EditText maxEventEntrants = view.findViewById(R.id.popup_create_event_max_entrants);
         Button eventDurationButton = view.findViewById(R.id.popup_create_event_duration_button);
         Button eventRegistrationDeadlineButton = view.findViewById(R.id.popup_create_event_registration_deadline_button);
-
         eventDurationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -85,6 +85,16 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
                 String newEventName = eventName.getText().toString();
                 String newEventDescription = eventDescription.getText().toString();
                 String maxEntrants = maxEventEntrants.getText().toString();
+
+                // referenced zxing-android-embedded's "Generate Barcode" example (https://github.com/journeyapps/zxing-android-embedded)
+                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                try {
+                    String qrCodeName = newEventName+Long.toString((System.currentTimeMillis()/1000));
+                    Bitmap qrCodeBitmap = barcodeEncoder.encodeBitmap(qrCodeName, BarcodeFormat.QR_CODE, 500, 500);
+                } catch (WriterException e) {
+                    throw new RuntimeException(e);
+                };
+
                 if(maxEntrants.equals("")){
                     // no max entrant count given
                     createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
