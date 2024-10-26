@@ -1,5 +1,7 @@
 package com.example.eventapp.models;
 
+import android.graphics.Bitmap;
+
 public class Event {
     private String eventName;
     private String eventDescription;
@@ -8,11 +10,7 @@ public class Event {
     private long startDate;
     private long endDate;
     private long deadline;
-
-    public Event(String name) {
-        this.eventName = name;
-        this.eventDescription = "";
-    }
+    private Bitmap qrCode;
 
     // for testing
     public Event(String name, String description) {
@@ -21,14 +19,7 @@ public class Event {
         this.maxEntrants = -1;
     }
 
-    public Event(String name, String description, boolean geolocationRequired) {
-        this.eventName = name;
-        this.eventDescription = description;
-        this.geolocationRequired = geolocationRequired;
-        this.maxEntrants = -1;
-    }
-
-    public Event(String eventName, String eventDescription, boolean geolocationRequired, long startDate, long endDate, long deadline) {
+    public Event(String eventName, String eventDescription, boolean geolocationRequired, long startDate, long endDate, long deadline, Bitmap qrCode) {
         this.eventName = eventName;
         this.eventDescription = eventDescription;
         this.geolocationRequired = geolocationRequired;
@@ -36,9 +27,10 @@ public class Event {
         this.startDate = startDate;
         this.endDate = endDate;
         this.deadline = deadline;
+        this.qrCode = qrCode;
     }
 
-    public Event(String eventName, String eventDescription, boolean geolocationRequired, int maxEntrants, long startDate, long endDate, long deadline) {
+    public Event(String eventName, String eventDescription, boolean geolocationRequired, int maxEntrants, long startDate, long endDate, long deadline, Bitmap qrCode) {
         this.eventName = eventName;
         this.eventDescription = eventDescription;
         this.geolocationRequired = geolocationRequired;
@@ -46,6 +38,7 @@ public class Event {
         this.startDate = startDate;
         this.endDate = endDate;
         this.deadline = deadline;
+        this.qrCode = qrCode;
     }
 
     public String getEventName() {
@@ -102,5 +95,13 @@ public class Event {
 
     public void setDeadline(long deadline) {
         this.deadline = deadline;
+    }
+
+    public Bitmap getQrCode() {
+        return qrCode;
+    }
+
+    public void setQrCode(Bitmap qrCode) {
+        this.qrCode = qrCode;
     }
 }
