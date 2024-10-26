@@ -26,7 +26,7 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         TextView eventDuration = view.findViewById(R.id.popup_event_duration_text);
         TextView eventRegistrationDeadline = view.findViewById(R.id.popup_event_registration_deadline_text);
         TextView eventDescription = view.findViewById(R.id.popup_event_description_text);
-        TextView eventEntrantsCount = view.findViewById(R.id.popup_event_entrants_count);
+        TextView eventEntrantsCount = view.findViewById(R.id.popup_create_event_max_entrants);
 
         // placeholders
         eventName.setText("PLACEHOLDER NAME");

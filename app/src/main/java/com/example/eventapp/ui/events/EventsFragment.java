@@ -21,13 +21,19 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 
 public class EventsFragment extends Fragment implements
-        EventAdapter.OnEventClickListener, EventInfoFragment.EditEventInfoListener {
+        EventAdapter.OnEventClickListener, EventInfoFragment.EditEventInfoListener, CreateEventFragment.CreateEventListener {
     private EventsViewModel eventsViewModel;
     private ArrayList<Event> events;
     private EventAdapter eventAdapter;
+    private CreateEventFragment currentCreateEventFragment;
 
     private FragmentEventsBinding binding;
 
+    @Override
+    public void createEvent(Event event){
+        eventsViewModel.addEvent(event);
+        currentCreateEventFragment.dismiss();
+    }
     @Override
     public void editEventInfo(Event event){
         Log.d("EventsFragment", "Editing event " + event.getEventName());
@@ -65,6 +71,7 @@ public class EventsFragment extends Fragment implements
             // or move this to a separate function
             // no need to notify the adapter of anything - updateEventList handles it
             Log.d("EventsFragment", "Create event button clicked");
+            showCreateEventPopup();
         });
 
         // testing
@@ -82,6 +89,12 @@ public class EventsFragment extends Fragment implements
         // to encapsulate all the logic there
         // eventAdapter.setEvents(newEvents);
         eventAdapter.notifyDataSetChanged();
+    }
+
+    private void showCreateEventPopup(){
+        CreateEventFragment createEventFragment = new CreateEventFragment(this);
+        currentCreateEventFragment = createEventFragment;
+        createEventFragment.show(getActivity().getSupportFragmentManager(), "create_event");
     }
 
     @Override
