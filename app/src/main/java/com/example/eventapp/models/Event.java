@@ -18,6 +18,10 @@ public class Event {
     private long deadline;
     private Bitmap qrCode;
 
+    public Event() {
+        // default constructor for firebase
+    }
+
     // for testing
     public Event(String name, String description) {
         this.eventName = name;
