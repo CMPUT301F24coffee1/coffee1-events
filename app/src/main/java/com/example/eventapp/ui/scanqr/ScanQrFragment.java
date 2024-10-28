@@ -27,9 +27,10 @@ public class ScanQrFragment extends Fragment {
     private final ActivityResultLauncher<ScanOptions> scanLauncher =
             registerForActivityResult(new ScanContract(), result -> {
                 if (result.getContents() != null) {
-                    Toast.makeText(getContext(), "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
+                    // Display the scanned result in the TextView
+                    binding.textScanQr.setText("Scanned: " + result.getContents());
                 } else {
-                    Toast.makeText(getContext(), "Scan Cancelled", Toast.LENGTH_SHORT).show();
+                    binding.textScanQr.setText("Scan Cancelled");
                 }
             });
 
@@ -55,7 +56,6 @@ public class ScanQrFragment extends Fragment {
         ScanOptions options = new ScanOptions();
         options.setPrompt("Scan a QR Code");
         options.setOrientationLocked(true);
-        options.setBeepEnabled(true);  // Optional: Beep on successful scan
         options.setDesiredBarcodeFormats(ScanOptions.QR_CODE);  // Restrict to QR codes only
 
         scanLauncher.launch(options);  // Launch the scan
