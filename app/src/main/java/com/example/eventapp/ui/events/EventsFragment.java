@@ -19,6 +19,7 @@ import com.example.eventapp.viewmodels.EventsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class EventsFragment extends Fragment implements
         EventAdapter.OnEventClickListener, EventInfoFragment.EditEventInfoListener, CreateEventFragment.CreateEventListener {
@@ -81,7 +82,7 @@ public class EventsFragment extends Fragment implements
         }
     }
 
-    private void updateEventList(ArrayList<Event> newEvents) {
+    private void updateEventList(List<Event> newEvents) {
         events.clear();
         events.addAll(newEvents);
         // should change later, we should look into DiffUtil to not call raw notifyDataSetChanged

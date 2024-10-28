@@ -2,7 +2,13 @@ package com.example.eventapp.models;
 
 import android.graphics.Bitmap;
 
+import com.google.firebase.firestore.Exclude;
+
 public class Event {
+    @Exclude
+    private String documentId;
+    private String organizerId;
+
     private String eventName;
     private String eventDescription;
     private boolean geolocationRequired;
@@ -11,6 +17,10 @@ public class Event {
     private long endDate;
     private long deadline;
     private Bitmap qrCode;
+
+    public Event() {
+        // default constructor for firebase
+    }
 
     // for testing
     public Event(String name, String description) {
@@ -39,6 +49,22 @@ public class Event {
         this.endDate = endDate;
         this.deadline = deadline;
         this.qrCode = qrCode;
+    }
+
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
+    }
+
+    public String getOrganizerId() {
+       return organizerId;
+    }
+
+    public void setOrganizerId(String organizerId) {
+        this.organizerId = organizerId;
     }
 
     public String getEventName() {

@@ -1,19 +1,23 @@
 package com.example.eventapp.models;
 
-public class Entrant extends User{
+public class Entrant extends User {
     private String email;
     private String phoneNumber;
     private boolean notificationOptOut;
 
+    public Entrant() {
+        // default constructor for firebase
+    }
+
     public Entrant(String name, String email){
-        super(name);
+        super("Entrant", name);
         this.email = email;
         this.phoneNumber = "";
         this.notificationOptOut = false;
     }
 
     public Entrant(String name, String email, String phoneNumber) {
-        super(name);
+        super("Entrant", name);
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.notificationOptOut = false;
