@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -38,11 +37,15 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
+    - name: Create google-services.json
+      env:
+        DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
+      run: touch ./app/google-services.json && echo $DATA | base64 -di > ./app/google-services.json
+
     - name: Build with Gradle Wrapper
       run: ./gradlew assembleDebug
 
   dependency-submission:
-
     runs-on: ubuntu-latest
     permissions:
       contents: write
