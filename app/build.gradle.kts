@@ -1,3 +1,5 @@
+import java.util.ArrayList
+
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
