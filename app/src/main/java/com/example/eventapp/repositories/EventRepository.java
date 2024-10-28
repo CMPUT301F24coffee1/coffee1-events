@@ -2,17 +2,18 @@ package com.example.eventapp.repositories;
 
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.example.eventapp.models.Event;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 
-
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class EventRepository {
 
@@ -31,11 +32,7 @@ public class EventRepository {
                     event.setDocumentId(documentId);
                     Log.d(TAG, "addEvent: success - ID: " + documentId);
                 } else {
-                    Log.e(
-                            TAG,
-                            "addEvent: fail",
-                            task.getException()
-                    );
+                    Log.e(TAG, "addEvent: fail", task.getException());
                 }
             });
     }
@@ -47,11 +44,7 @@ public class EventRepository {
                     String documentId = event.getDocumentId();
                     Log.d(TAG, "updateEvent: success - ID: " + documentId);
                 } else {
-                    Log.e(
-                            TAG,
-                            "updateEvent: fail",
-                            task.getException()
-                    );
+                    Log.e(TAG, "updateEvent: fail", task.getException());
                 }
             });
     }
@@ -63,39 +56,35 @@ public class EventRepository {
                     String documentId = event.getDocumentId();
                     Log.d(TAG, "removeEvent: success - ID: " + documentId);
                 } else {
-                    Log.e(
-                            TAG,
-                            "removeEvent: fail",
-                            task.getException()
-                    );
+                    Log.e(TAG, "removeEvent: fail", task.getException());
                 }
             });
     }
 
-    public CompletableFuture<List<Event>> getEventsForOrganizer(String organizerId) {
-        CompletableFuture<List<Event>> future = new CompletableFuture<>();
+    public LiveData<List<Event>> getEventsOfOrganizerLiveData(String organizerId) {
+        MutableLiveData<List<Event>> liveData = new MutableLiveData<>();
         Query query = eventCollection.whereEqualTo("organizerId", organizerId);
 
-        query.get()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    QuerySnapshot querySnapshot = task.getResult();
-                    List<Event> events = querySnapshot.toObjects(Event.class);
+        query.addSnapshotListener((querySnapshot, e) -> {
+            if (e != null) {
+                Log.e(TAG, "getEventsForOrganizer: listen failed", e);
+                liveData.setValue(new ArrayList<>());
+                return;
+            }
 
-                    for (int i = 0; i < events.size(); i++) {
-                        events.get(i).setDocumentId(querySnapshot.getDocuments().get(i).getId());
-                    }
-                    future.complete(events);
-                    Log.d(TAG, "getEventsForOrganizer: success");
-                } else {
-                    future.completeExceptionally(task.getException());
-                    Log.e(
-                            TAG,
-                            "getEventsForOrganizer: fail",
-                            task.getException()
-                    );
+            if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                List<Event> events = querySnapshot.toObjects(Event.class);
+
+                for (int i = 0; i < events.size(); i++) {
+                    events.get(i).setDocumentId(querySnapshot.getDocuments().get(i).getId());
                 }
-            });
-        return future;
+                liveData.setValue(events);
+                Log.d(TAG, "getEventsForOrganizer: success");
+            } else {
+                liveData.setValue(new ArrayList<>());
+                Log.d(TAG, "getEventsForOrganizer: no events found");
+            }
+        });
+        return liveData;
     }
 }
