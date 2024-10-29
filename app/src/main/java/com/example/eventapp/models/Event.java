@@ -16,7 +16,8 @@ public class Event {
     private long startDate;
     private long endDate;
     private long deadline;
-    private Bitmap qrCode;
+    private String qrCodeHash;
+
 
     public Event() {
         // default constructor for firebase
@@ -29,7 +30,7 @@ public class Event {
         this.maxEntrants = -1;
     }
 
-    public Event(String eventName, String eventDescription, boolean geolocationRequired, long startDate, long endDate, long deadline, Bitmap qrCode) {
+    public Event(String eventName, String eventDescription, boolean geolocationRequired, long startDate, long endDate, long deadline) {
         this.eventName = eventName;
         this.eventDescription = eventDescription;
         this.geolocationRequired = geolocationRequired;
@@ -37,10 +38,9 @@ public class Event {
         this.startDate = startDate;
         this.endDate = endDate;
         this.deadline = deadline;
-        this.qrCode = qrCode;
     }
 
-    public Event(String eventName, String eventDescription, boolean geolocationRequired, int maxEntrants, long startDate, long endDate, long deadline, Bitmap qrCode) {
+    public Event(String eventName, String eventDescription, boolean geolocationRequired, int maxEntrants, long startDate, long endDate, long deadline) {
         this.eventName = eventName;
         this.eventDescription = eventDescription;
         this.geolocationRequired = geolocationRequired;
@@ -48,7 +48,6 @@ public class Event {
         this.startDate = startDate;
         this.endDate = endDate;
         this.deadline = deadline;
-        this.qrCode = qrCode;
     }
 
     public String getDocumentId() {
@@ -123,11 +122,11 @@ public class Event {
         this.deadline = deadline;
     }
 
-    public Bitmap getQrCode() {
-        return qrCode;
+    public String getQrCodeHash() {
+        return qrCodeHash;
     }
 
-    public void setQrCode(Bitmap qrCode) {
-        this.qrCode = qrCode;
+    public void setQrCodeHash(String qrCodeHash) {
+        this.qrCodeHash = qrCodeHash;
     }
 }
