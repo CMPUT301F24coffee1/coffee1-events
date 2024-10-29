@@ -6,11 +6,14 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 
 import com.example.eventapp.models.Organizer;
 import com.example.eventapp.repositories.UserRepository;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.navigation.NavController;
@@ -26,6 +29,8 @@ import com.google.firebase.FirebaseApp;
 public class MainActivity extends AppCompatActivity {
 
     private final String TAG = "MainActivity";
+    NavController navController;
+    BottomNavigationView navView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,15 +49,23 @@ public class MainActivity extends AppCompatActivity {
         createUserIfNotExists(androidId);
         //
 
-        BottomNavigationView navView = findViewById(R.id.nav_view);
+        navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications)
                 .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+        navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            if (navView.getVisibility() == View.GONE) {
+                // Make the navView visible again when navigating back, since it is made
+                // invisible when opening the profile view
+                navView.setVisibility(View.VISIBLE);
+            }
+        });
 
     }
 
@@ -61,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
      * addition to the bottom menu. This menu will add buttons on the top,
      * in this case, the profile button
      * @param menu The menu itself that is being manipulated
-     * @return What the super function would have returned regardless (generally, true)
+     * @return The return is unchanged
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -70,6 +83,28 @@ public class MainActivity extends AppCompatActivity {
         inflater.inflate(R.menu.top_nav_menu, menu);
         return return_val;
     }
+
+    /**
+     * Overrides the onOptionsItemSelected, which only affects the top nav menu
+     * @param item The selected item in the top nav menu
+     * @return The return is unchanged
+     */
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        // Manual navigation is necessary because the top and bottom nav bars are only
+        // partially connected
+        if (item.getItemId() == R.id.navigation_profile) {
+            navController.navigate(R.id.navigation_profile);
+            navView.setVisibility(View.GONE);
+        } else {
+            // Back button
+            navController.popBackStack();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
 
     private void createUserIfNotExists(String userId) {
         UserRepository userRepository = new UserRepository();
