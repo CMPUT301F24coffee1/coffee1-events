@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 
 import com.example.eventapp.models.Organizer;
 import com.example.eventapp.repositories.UserRepository;
@@ -51,6 +53,22 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+
+    }
+
+    /**
+     * Overrides the onCreateOptionsMenu to allow for a second menu to exist in
+     * addition to the bottom menu. This menu will add buttons on the top,
+     * in this case, the profile button
+     * @param menu The menu itself that is being manipulated
+     * @return What the super function would have returned regardless (generally, true)
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        boolean return_val = super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.top_nav_menu, menu);
+        return return_val;
     }
 
     private void createUserIfNotExists(String userId) {
