@@ -55,6 +55,7 @@ public class Event {
         this.qrCode = qrCode;
     }
 
+    // Constructor with poster attribute
     public Event(String eventName, Uri posterUri, String eventDescription, boolean geolocationRequired, int maxEntrants, long startDate, long endDate, long deadline, Bitmap qrCode) {
         this.eventName = eventName;
         this.posterUri = posterUri;
