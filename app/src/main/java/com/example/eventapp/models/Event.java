@@ -6,6 +6,7 @@ public class Event {
     @Exclude
     private String documentId;
     private String organizerId;
+    private String facilityId;
 
     private String eventName;
     private String eventDescription;
@@ -61,6 +62,14 @@ public class Event {
 
     public void setOrganizerId(String organizerId) {
         this.organizerId = organizerId;
+    }
+
+    public String getFacilityId() {
+        return facilityId;
+    }
+
+    public void setFacilityId(String facilityId) {
+        this.facilityId = facilityId;
     }
 
     public String getEventName() {
