@@ -33,22 +33,11 @@ public class Event {
         this.maxEntrants = -1;
     }
 
-    public Event(String eventName, String eventDescription, boolean geolocationRequired, long startDate, long endDate, long deadline, Bitmap qrCode) {
+    public Event(String eventName, Uri posterUri, String eventDescription, boolean geolocationRequired, long startDate, long endDate, long deadline, Bitmap qrCode) {
         this.eventName = eventName;
         this.eventDescription = eventDescription;
         this.geolocationRequired = geolocationRequired;
         this.maxEntrants = -1;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.deadline = deadline;
-        this.qrCode = qrCode;
-    }
-
-    public Event(String eventName, String eventDescription, boolean geolocationRequired, int maxEntrants, long startDate, long endDate, long deadline, Bitmap qrCode) {
-        this.eventName = eventName;
-        this.eventDescription = eventDescription;
-        this.geolocationRequired = geolocationRequired;
-        this.maxEntrants = maxEntrants;
         this.startDate = startDate;
         this.endDate = endDate;
         this.deadline = deadline;
