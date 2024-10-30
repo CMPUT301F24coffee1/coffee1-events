@@ -4,6 +4,14 @@
     <string name="title_scanqr">Scan QR</string>
     <string name="title_profiles">Profiles</string>
     <string name="title_profile">Profile</string>
+    <string name="title_profile_edit">Edit Profile</string>
+    <string name="title_profile_confirm">Confirm Profile Changes</string>
+    <string name="title_profile_cancel">Cancel Profile Edit</string>
+    <string name="profile_image">Profile Image</string>
+    <string name="name">Name</string>
+    <string name="email_address">Email Address</string>
+    <string name="phone_number">Phone Number</string>
+
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus auctor velit diam, eu
         venenatis neque consequat at. Etiam laoreet convallis consectetur. Donec quis arcu magna.
@@ -11,4 +19,4 @@
         finibus. Donec odio est, porta nec hendrerit nec, efficitur et velit. Sed vehicula faucibus odio,
         ut porttitor leo aliquam mollis. Aliquam tristique mauris at commodo lacinia.
     </string>
-</resources>
+    </resources>

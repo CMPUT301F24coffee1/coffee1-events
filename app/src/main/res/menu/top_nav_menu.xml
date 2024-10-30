@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
         android:id="@+id/navigation_profile"
         android:icon="@drawable/ic_dashboard_profile_24dp"
         android:title="@string/title_profile"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/navigation_profile_edit"
+        android:icon="@drawable/ic_edit_pencil_24dp"
+        android:title="@string/title_profile_edit"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/navigation_profile_confirm"
+        android:icon="@drawable/ic_confirm_check_24dp"
+        android:title="@string/title_profile_confirm"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+
 </menu>

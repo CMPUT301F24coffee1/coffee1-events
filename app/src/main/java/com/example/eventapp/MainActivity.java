@@ -24,6 +24,10 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.eventapp.databinding.ActivityMainBinding;
 import com.google.firebase.FirebaseApp;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity {
 
     private final String TAG = "MainActivity";
@@ -58,22 +62,20 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
 
+        // List of destinations that shouldn't show the nav view
+        List<Integer> noNavView = Arrays.asList(R.id.navigation_profile, R.id.navigation_profile_edit);
+
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-            if (destination.getId() == R.id.navigation_profile) {
-                // When moving to the navigation profile, remove hide the nav view
-                // and remove the profile button
-                if (navMenu != null) {
-                    // The profile button should be invisible if you're already in the profile view
-                    navMenu.findItem(R.id.navigation_profile).setVisible(false);
-                }
+            if (destination.getId() == R.id.navigation_profile_edit) {
+                // Replace back button with cancel button
+                Objects.requireNonNull(getSupportActionBar()).setHomeAsUpIndicator(R.drawable.ic_cancel_cross_24dp);
+            }
+
+            if (noNavView.contains(destination.getId())) {
+                // If a profile view is visible, the nav view should not be
                 navView.setVisibility(View.GONE);
             } else {
-                // In all other contexts, nothing special with the nav menu is necessary
-                // and we can make the profile button visible again
-                if (navMenu != null) {
-                    // The profile button should be visible when using bottom nav buttons
-                    navMenu.findItem(R.id.navigation_profile).setVisible(true);
-                }
+                // If not, we should see the nav view
                 navView.setVisibility(View.VISIBLE);
             }
         });
@@ -106,7 +108,9 @@ public class MainActivity extends AppCompatActivity {
         // Manual navigation is necessary for the top nav bar
         if (item.getItemId() == R.id.navigation_profile) {
             navController.navigate(R.id.navigation_profile);
-        } else {
+        } else if (item.getItemId() == R.id.navigation_profile_edit) {
+            navController.navigate(R.id.navigation_profile_edit);
+        } else if (item.getItemId() != R.id.navigation_profile_confirm) {
             // Back button
             navController.popBackStack();
         }

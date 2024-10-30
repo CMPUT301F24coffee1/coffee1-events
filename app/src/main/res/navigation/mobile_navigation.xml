@@ -28,4 +28,10 @@
         android:name="com.example.eventapp.ui.profiles.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/navigation_profile_edit"
+        android:name="com.example.eventapp.ui.profiles.ProfileEditFragment"
+        android:label="@string/title_profile"
+        tools:layout="@layout/fragment_profile_edit" />
 </navigation>
