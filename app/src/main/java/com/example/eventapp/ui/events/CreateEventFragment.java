@@ -24,6 +24,7 @@ import java.util.ArrayList;
 public class CreateEventFragment extends BottomSheetDialogFragment implements DatePickerFragment.SetDateListener {
     private CreateEventListener createEventListener;
     private Uri posterUri;
+    private String posterUriString;
     private ImageView posterImageView;
     private ArrayList<Long> timestamps;
     private ActivityResultLauncher<Intent> photoPickerLauncher;
@@ -72,6 +73,7 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
             @Override
             public void onPhotoPicked(Uri photoUri) {
                 posterUri = photoUri;
+                posterUriString = posterUri.toString();
                 posterImageView.setImageURI(photoUri); // Display the selected image
             }
         });
@@ -110,18 +112,18 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
 
                 if(maxEntrants.equals("")){
                     // no max entrant count given
-                    createEventListener.createEvent(new Event(newEventName, posterUri, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                    createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                 }else{
                     try{
                         int max = Integer.parseInt(maxEntrants);
                         if(max>0){
-                            createEventListener.createEvent(new Event(newEventName, posterUri, newEventDescription,geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                            createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription,geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                         }else{
-                            createEventListener.createEvent(new Event(newEventName, posterUri, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                            createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                         }
                     }catch (Exception e){
                         // could not parse input
-                        createEventListener.createEvent(new Event(newEventName, posterUri, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                        createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                     }
                     }
                 }
