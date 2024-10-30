@@ -100,7 +100,7 @@ public class Event {
 
     public void setPosterUriString(String posterUriString) {this.posterUriString = posterUriString;}
 
-    //public Uri getPosterUri() { return posterUriString}
+    public Uri getPosterUri() { return Uri.parse(posterUriString);}
 
     public boolean isGeolocationRequired() {
         return geolocationRequired;

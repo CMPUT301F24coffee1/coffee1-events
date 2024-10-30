@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 
@@ -72,9 +73,25 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
         photoPickerLauncher = PhotoPickerUtils.getPhotoPickerLauncher(this, new PhotoPickerUtils.PhotoPickerCallback() {
             @Override
             public void onPhotoPicked(Uri photoUri) {
+                // Called when the user selects a photo
                 posterUri = photoUri;
                 posterUriString = posterUri.toString();
                 posterImageView.setImageURI(photoUri); // Display the selected image
+            }
+
+            @Override
+            public void onPhotoUploadComplete(String downloadUrl) {
+                // Called when the photo is successfully uploaded to Firebase
+                posterUriString = downloadUrl; // Store the Firebase download URL instead of the local URI
+                // You can now save posterUriString (the download URL) to your database
+                // Example:
+                // event.setEventPoster(posterUriString);
+            }
+
+            @Override
+            public void onPhotoUploadFailed(Exception e) {
+                // Called if there is an error during the upload
+                Toast.makeText(getContext(), "Failed to upload photo: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
