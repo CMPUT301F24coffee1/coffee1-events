@@ -1,7 +1,5 @@
 package com.example.eventapp.models;
 
-import android.graphics.Bitmap;
-
 import com.google.firebase.firestore.Exclude;
 
 public class Event {
@@ -17,7 +15,6 @@ public class Event {
     private long endDate;
     private long deadline;
     private String qrCodeHash;
-
 
     public Event() {
         // default constructor for firebase
