@@ -25,6 +25,15 @@ public class EventRepository {
     }
 
     public Task<DocumentReference> addEvent(Event event) {
+        String organizerId = event.getOrganizerId();
+        String facilityId = event.getFacilityId();
+        if (organizerId == null) {
+            throw new NullPointerException("organizerId cannot be null");
+        }
+        if (facilityId == null) {
+            Log.w(TAG, "addEvent: facilityId is null - event does not belong to any facility");
+        }
+
         return eventCollection.add(event)
             .addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
@@ -67,7 +76,7 @@ public class EventRepository {
 
         query.addSnapshotListener((querySnapshot, e) -> {
             if (e != null) {
-                Log.e(TAG, "getEventsForOrganizer: listen failed", e);
+                Log.e(TAG, "getEventsOfOrganizerLiveData: listen failed", e);
                 liveData.setValue(new ArrayList<>());
                 return;
             }
@@ -78,11 +87,11 @@ public class EventRepository {
                 for (int i = 0; i < events.size(); i++) {
                     events.get(i).setDocumentId(querySnapshot.getDocuments().get(i).getId());
                 }
+                Log.d(TAG, "getEventsOfOrganizerLiveData: success");
                 liveData.setValue(events);
-                Log.d(TAG, "getEventsForOrganizer: success");
             } else {
+                Log.d(TAG, "getEventsOfOrganizerLiveData: no events found");
                 liveData.setValue(new ArrayList<>());
-                Log.d(TAG, "getEventsForOrganizer: no events found");
             }
         });
         return liveData;
