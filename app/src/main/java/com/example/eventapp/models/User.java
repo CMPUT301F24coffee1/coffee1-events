@@ -2,30 +2,53 @@ package com.example.eventapp.models;
 
 import com.google.firebase.firestore.Exclude;
 
-public abstract class User {
+public class User {
     @Exclude
     private String userId;
     private String name;
-    private String userType;
+    private boolean isOrganizer;
+    private boolean isAdmin;
+
     private String email;
-    private String phone;
+    private String phoneNumber;
+    private boolean notificationOptOut = false;
 
     public User() {
         // default constructor for firebase
     }
 
-    public User(String userType) {
-        this.userType = userType;
-    }
-
-    public User(String userType, String name) {
-        this.userType = userType;
+    public User(String name) {
         this.name = name;
     }
 
-    public User(String userType, String name, String userId) {
-        this.userType = userType;
+    public User(String name, String email){
+        this.email = email;
+        this.phoneNumber = "";
+        this.notificationOptOut = false;
+    }
+
+    public User(String name, String email, String phoneNumber) {
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.notificationOptOut = false;
+    }
+
+    public User(String name, boolean isOrganizer) {
         this.name = name;
+        this.isOrganizer = isOrganizer;
+    }
+
+    public User(String name, boolean isOrganizer, boolean isAdmin) {
+        this.name = name;
+        this.isOrganizer = isOrganizer;
+        this.isAdmin = isAdmin;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
@@ -37,28 +60,20 @@ public abstract class User {
         this.name = name;
     }
 
-    public String getUserId() {
-        return userId;
+    public boolean isOrganizer() {
+        return isOrganizer;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setOrganizer(boolean organizer) {
+        isOrganizer = organizer;
     }
 
-    public String getUserType() {
-        return userType;
+    public boolean isAdmin() {
+        return isAdmin;
     }
 
-    public void setUserType(String userType) {
-        this.userType = userType;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
     }
 
     public String getEmail() {
@@ -67,5 +82,21 @@ public abstract class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public boolean isNotificationOptOut() {
+        return notificationOptOut;
+    }
+
+    public void setNotificationOptOut(boolean notificationOptOut) {
+        this.notificationOptOut = notificationOptOut;
     }
 }

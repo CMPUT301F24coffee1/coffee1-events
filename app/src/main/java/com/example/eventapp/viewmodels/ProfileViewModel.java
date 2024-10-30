@@ -37,7 +37,7 @@ public class ProfileViewModel extends ViewModel {
         if (user != null) {
             user.setName(name);
             user.setEmail(email);
-            user.setPhone(phone);
+            user.setPhoneNumber(phone);
             userRepository.saveUser(user);
         }
     }

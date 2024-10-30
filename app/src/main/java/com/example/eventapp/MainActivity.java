@@ -9,7 +9,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.example.eventapp.models.Organizer;
+import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.UserRepository;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
 
     private final String TAG = "MainActivity";
     NavController navController;
-    BottomNavigationView navView;
     Menu navMenu;
 
     @Override
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         createUserIfNotExists(androidId);
         //
 
-        navView = findViewById(R.id.nav_view);
+        BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
@@ -138,15 +137,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createDevOrganizer(UserRepository userRepository, String userId) {
-        Organizer org = new Organizer("DevOrganizer");
-        org.setUserId(userId);
+        User user = new User("DevOrganizer", true);
+        user.setUserId(userId);
 
-        userRepository.saveUser(org)
+        userRepository.saveUser(user)
             .addOnCompleteListener(saveUserTask -> {
                 if (saveUserTask.isSuccessful()) {
-                    Log.i(TAG, "Successfully created organizer with ID: " + org.getUserId());
+                    Log.i(TAG, "Successfully created organizer with ID: " + user.getUserId());
                 } else {
-                    Log.e(TAG, "Failed to create organizer with ID: " + org.getUserId());
+                    Log.e(TAG, "Failed to create organizer with ID: " + user.getUserId());
                 }
             });
     }

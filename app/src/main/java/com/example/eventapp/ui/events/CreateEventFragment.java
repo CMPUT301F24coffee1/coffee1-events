@@ -13,9 +13,6 @@ import android.widget.EditText;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
 import java.util.ArrayList;
 
 public class CreateEventFragment extends BottomSheetDialogFragment implements DatePickerFragment.SetDateListener {
@@ -86,31 +83,20 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
                 String maxEntrants = maxEventEntrants.getText().toString();
 
                 // referenced zxing-android-embedded's "Generate Barcode" example (https://github.com/journeyapps/zxing-android-embedded)
-                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                Bitmap qrCodeBitmap;
-                try {
-                    String qrCodeName = newEventName+Long.toString((System.currentTimeMillis()/1000));
-                    qrCodeBitmap = barcodeEncoder.encodeBitmap(qrCodeName, BarcodeFormat.QR_CODE, 500, 500);
-
-                    if(maxEntrants.equals("")){
-                        // no max entrant count given
-                        createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2), qrCodeBitmap));
-                    }else{
-                        try{
-                            int max = Integer.parseInt(maxEntrants);
-                            if(max>0){
-                                createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2), qrCodeBitmap));
-                            }else{
-                                createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2), qrCodeBitmap));
-                            }
-                        }catch (Exception e){
-                            // could not parse input
-                            createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2), qrCodeBitmap));
+                if(maxEntrants.equals("")){
+                    createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                }else{
+                    try{
+                        int max = Integer.parseInt(maxEntrants);
+                        if(max > 0){
+                            createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                        }else{
+                            createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                         }
+                    } catch (Exception e){
+                        createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                     }
-                } catch (WriterException e) {
-                    throw new RuntimeException(e);
-                };
+                }
             }
         });
         return view;

@@ -93,7 +93,7 @@ public class ProfileFragment extends Fragment {
 
         nameField.setText(user.getName());
         emailField.setText(user.getEmail());
-        phoneField.setText(user.getPhone());
+        phoneField.setText(user.getPhoneNumber());
     }
 
     /**
