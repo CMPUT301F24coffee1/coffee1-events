@@ -2,7 +2,6 @@ package com.example.eventapp.ui.events;
 import static java.util.Arrays.asList;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -111,18 +110,18 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
 
                 if(maxEntrants.equals("")){
                     // no max entrant count given
-                    createEventListener.createEvent(new Event(newEventName, posterUri, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2), qrCodeBitmap));
+                    createEventListener.createEvent(new Event(newEventName, posterUri, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                 }else{
                     try{
                         int max = Integer.parseInt(maxEntrants);
                         if(max>0){
-                            createEventListener.createEvent(new Event(newEventName, posterUri, newEventDescription,geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2), qrCodeBitmap));
+                            createEventListener.createEvent(new Event(newEventName, posterUri, newEventDescription,geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                         }else{
-                            createEventListener.createEvent(new Event(newEventName, posterUri, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2), qrCodeBitmap));
+                            createEventListener.createEvent(new Event(newEventName, posterUri, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                         }
                     }catch (Exception e){
                         // could not parse input
-                        createEventListener.createEvent(new Event(newEventName, posterUri, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2), qrCodeBitmap));
+                        createEventListener.createEvent(new Event(newEventName, posterUri, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                     }
                     }
                 }

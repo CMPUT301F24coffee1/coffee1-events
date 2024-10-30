@@ -35,6 +35,7 @@ public class Event {
 
     public Event(String eventName, Uri posterUri, String eventDescription, boolean geolocationRequired, long startDate, long endDate, long deadline) {
         this.eventName = eventName;
+        this.posterUri = posterUri;
         this.eventDescription = eventDescription;
         this.geolocationRequired = geolocationRequired;
         this.maxEntrants = -1;
