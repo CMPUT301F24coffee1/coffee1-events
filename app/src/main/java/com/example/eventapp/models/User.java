@@ -7,6 +7,8 @@ public abstract class User {
     private String userId;
     private String name;
     private String userType;
+    private String email;
+    private String phone;
 
     public User() {
         // default constructor for firebase
@@ -49,5 +51,21 @@ public abstract class User {
 
     public void setUserType(String userType) {
         this.userType = userType;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

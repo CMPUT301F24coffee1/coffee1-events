@@ -24,13 +24,12 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.eventapp.databinding.ActivityMainBinding;
 import com.google.firebase.FirebaseApp;
 
-
-
 public class MainActivity extends AppCompatActivity {
 
     private final String TAG = "MainActivity";
     NavController navController;
     BottomNavigationView navView;
+    Menu navMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,9 +59,21 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(binding.navView, navController);
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-            if (navView.getVisibility() == View.GONE) {
-                // Make the navView visible again when navigating back, since it is made
-                // invisible when opening the profile view
+            if (destination.getId() == R.id.navigation_profile) {
+                // When moving to the navigation profile, remove hide the nav view
+                // and remove the profile button
+                if (navMenu != null) {
+                    // The profile button should be invisible if you're already in the profile view
+                    navMenu.findItem(R.id.navigation_profile).setVisible(false);
+                }
+                navView.setVisibility(View.GONE);
+            } else {
+                // In all other contexts, nothing special with the nav menu is necessary
+                // and we can make the profile button visible again
+                if (navMenu != null) {
+                    // The profile button should be visible when using bottom nav buttons
+                    navMenu.findItem(R.id.navigation_profile).setVisible(true);
+                }
                 navView.setVisibility(View.VISIBLE);
             }
         });
@@ -81,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
         boolean return_val = super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.top_nav_menu, menu);
+        navMenu = menu;
         return return_val;
     }
 
@@ -91,11 +103,9 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        // Manual navigation is necessary because the top and bottom nav bars are only
-        // partially connected
+        // Manual navigation is necessary for the top nav bar
         if (item.getItemId() == R.id.navigation_profile) {
             navController.navigate(R.id.navigation_profile);
-            navView.setVisibility(View.GONE);
         } else {
             // Back button
             navController.popBackStack();
@@ -103,8 +113,6 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-
 
     private void createUserIfNotExists(String userId) {
         UserRepository userRepository = new UserRepository();
