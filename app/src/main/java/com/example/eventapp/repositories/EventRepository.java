@@ -25,6 +25,15 @@ public class EventRepository {
     }
 
     public Task<DocumentReference> addEvent(Event event) {
+        String organizerId = event.getOrganizerId();
+        String facilityId = event.getFacilityId();
+        if (organizerId == null) {
+            throw new NullPointerException("organizerId cannot be null");
+        }
+        if (facilityId == null) {
+            Log.w(TAG, "addEvent: facilityId is null - event does not belong to any facility");
+        }
+
         return eventCollection.add(event)
             .addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
@@ -38,10 +47,12 @@ public class EventRepository {
     }
 
     public Task<Void> updateEvent(Event event) {
-        return eventCollection.document(event.getDocumentId()).set(event)
+        String documentId = event.getDocumentId();
+        if (documentId == null) throw new NullPointerException("documentId is null - never set documentId");
+
+        return eventCollection.document(documentId).set(event)
             .addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    String documentId = event.getDocumentId();
                     Log.d(TAG, "updateEvent: success - ID: " + documentId);
                 } else {
                     Log.e(TAG, "updateEvent: fail", task.getException());
@@ -50,10 +61,12 @@ public class EventRepository {
     }
 
     public Task<Void> removeEvent(Event event) {
-        return eventCollection.document(event.getDocumentId()).delete()
+        String documentId = event.getDocumentId();
+        if (documentId == null) throw new NullPointerException("documentId is null - never set documentId");
+
+        return eventCollection.document(documentId).delete()
             .addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    String documentId = event.getDocumentId();
                     Log.d(TAG, "removeEvent: success - ID: " + documentId);
                 } else {
                     Log.e(TAG, "removeEvent: fail", task.getException());
@@ -62,12 +75,31 @@ public class EventRepository {
     }
 
     public LiveData<List<Event>> getEventsOfOrganizerLiveData(String organizerId) {
-        MutableLiveData<List<Event>> liveData = new MutableLiveData<>();
         Query query = eventCollection.whereEqualTo("organizerId", organizerId);
+
+        return runQueryLiveData("getEventsOfOrganizerLiveData", query);
+    }
+
+    public LiveData<List<Event>> getEventsOfOrganizerLiveData(String organizerId, String facilityId) {
+        Query query = eventCollection
+                .whereEqualTo("organizerId", organizerId)
+                .whereEqualTo("facilityId", facilityId);
+
+        return runQueryLiveData("getEventsOfOrganizerLiveData", query);
+    }
+
+    public LiveData<List<Event>> getEventsOfFacilityLiveData(String facilityId) {
+        Query query = eventCollection.whereEqualTo("facilityId", facilityId);
+
+        return runQueryLiveData("getEventsOfFacilityLiveData", query);
+    }
+
+    private LiveData<List<Event>> runQueryLiveData(String methodName, Query query) {
+        MutableLiveData<List<Event>> liveData = new MutableLiveData<>();
 
         query.addSnapshotListener((querySnapshot, e) -> {
             if (e != null) {
-                Log.e(TAG, "getEventsForOrganizer: listen failed", e);
+                Log.e(TAG, "runQueryLiveData: " + methodName + ": listen failed", e);
                 liveData.setValue(new ArrayList<>());
                 return;
             }
@@ -78,11 +110,11 @@ public class EventRepository {
                 for (int i = 0; i < events.size(); i++) {
                     events.get(i).setDocumentId(querySnapshot.getDocuments().get(i).getId());
                 }
+                Log.d(TAG, "runQueryLiveData: " + methodName + ": success");
                 liveData.setValue(events);
-                Log.d(TAG, "getEventsForOrganizer: success");
             } else {
+                Log.d(TAG, "runQueryLiveData: " + methodName + ": no documents found");
                 liveData.setValue(new ArrayList<>());
-                Log.d(TAG, "getEventsForOrganizer: no events found");
             }
         });
         return liveData;
