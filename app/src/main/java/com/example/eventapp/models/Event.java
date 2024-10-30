@@ -1,13 +1,12 @@
 package com.example.eventapp.models;
 
-import android.graphics.Bitmap;
-
 import com.google.firebase.firestore.Exclude;
 
 public class Event {
     @Exclude
     private String documentId;
     private String organizerId;
+    private String facilityId;
 
     private String eventName;
     private String eventDescription;
@@ -17,7 +16,6 @@ public class Event {
     private long endDate;
     private long deadline;
     private String qrCodeHash;
-
 
     public Event() {
         // default constructor for firebase
@@ -64,6 +62,14 @@ public class Event {
 
     public void setOrganizerId(String organizerId) {
         this.organizerId = organizerId;
+    }
+
+    public String getFacilityId() {
+        return facilityId;
+    }
+
+    public void setFacilityId(String facilityId) {
+        this.facilityId = facilityId;
     }
 
     public String getEventName() {

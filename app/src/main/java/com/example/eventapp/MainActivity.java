@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 
-import com.example.eventapp.models.Organizer;
+import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.UserRepository;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -18,7 +18,6 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.eventapp.databinding.ActivityMainBinding;
 import com.google.firebase.FirebaseApp;
-
 
 
 public class MainActivity extends AppCompatActivity {
@@ -73,15 +72,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createDevOrganizer(UserRepository userRepository, String userId) {
-        Organizer org = new Organizer("DevOrganizer");
-        org.setUserId(userId);
+        User user = new User("DevOrganizer", true);
+        user.setUserId(userId);
 
-        userRepository.saveUser(org)
+        userRepository.saveUser(user)
             .addOnCompleteListener(saveUserTask -> {
                 if (saveUserTask.isSuccessful()) {
-                    Log.i(TAG, "Successfully created organizer with ID: " + org.getUserId());
+                    Log.i(TAG, "Successfully created organizer with ID: " + user.getUserId());
                 } else {
-                    Log.e(TAG, "Failed to create organizer with ID: " + org.getUserId());
+                    Log.e(TAG, "Failed to create organizer with ID: " + user.getUserId());
                 }
             });
     }
