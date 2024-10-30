@@ -1,8 +1,11 @@
 package com.example.eventapp.models;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 
 import com.google.firebase.firestore.Exclude;
+
+import java.net.URI;
 
 public class Event {
     @Exclude
@@ -10,6 +13,7 @@ public class Event {
     private String organizerId;
 
     private String eventName;
+    private Uri posterUri;
     private String eventDescription;
     private boolean geolocationRequired;
     private int maxEntrants; //-1 for no max
@@ -51,6 +55,18 @@ public class Event {
         this.qrCode = qrCode;
     }
 
+    public Event(String eventName, Uri posterUri, String eventDescription, boolean geolocationRequired, int maxEntrants, long startDate, long endDate, long deadline, Bitmap qrCode) {
+        this.eventName = eventName;
+        this.posterUri = posterUri;
+        this.eventDescription = eventDescription;
+        this.geolocationRequired = geolocationRequired;
+        this.maxEntrants = maxEntrants;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.deadline = deadline;
+        this.qrCode = qrCode;
+    }
+
     public String getDocumentId() {
         return documentId;
     }
@@ -81,6 +97,14 @@ public class Event {
 
     public void setEventDescription(String eventDescription) {
         this.eventDescription = eventDescription;
+    }
+
+    public Uri getPosterUri() {
+        return posterUri;
+    }
+
+    public void setPosterUri(Uri posterUri) {
+        this.posterUri = posterUri;
     }
 
     public boolean isGeolocationRequired() {
