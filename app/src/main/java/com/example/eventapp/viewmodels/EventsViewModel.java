@@ -8,10 +8,11 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.eventapp.models.Event;
 import com.example.eventapp.repositories.EventRepository;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class EventsViewModel extends ViewModel {
 
@@ -43,8 +44,8 @@ public class EventsViewModel extends ViewModel {
 
     public void addEvent(Event event) {
         event.setOrganizerId(TEST_ID);
-
-        eventRepository.addEvent(event)
+        Task<DocumentReference> documentReference = eventRepository.addEvent(event);
+        documentReference
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Log.i(TAG, "Added event with name: " + event.getEventName());
@@ -52,6 +53,13 @@ public class EventsViewModel extends ViewModel {
                         Log.e(TAG, "Failed to add event", task.getException());
                     }
                 });
+        documentReference.addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                event.setQrCodeHash(documentReference.getId());
+                updateEvent(event);
+            }
+        });
     }
 
     public void removeEvent(Event event) {
