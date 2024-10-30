@@ -5,9 +5,6 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.eventapp.models.Admin;
-import com.example.eventapp.models.Entrant;
-import com.example.eventapp.models.Organizer;
 import com.example.eventapp.models.User;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
@@ -27,25 +24,9 @@ public class UserRepository {
         userCollection = FirebaseFirestore.getInstance().collection("users");
     }
 
-    public static Class<? extends User> getUserClass(String userType) throws
-            IllegalArgumentException {
-        switch(userType) {
-            case "Entrant":
-                return Entrant.class;
-            case "Organizer":
-                return Organizer.class;
-            case "Admin":
-                return Admin.class;
-            default:
-                throw new IllegalArgumentException("Unknown user type: " + userType);
-        }
-    }
-
     public Task<Void> saveUser(User user) {
         String userId = user.getUserId();
-        String userType = user.getUserType();
-        if (userId == null) throw new NullPointerException("userId cannot be null");
-        if (userType == null) throw new NullPointerException("userType cannot be null");
+        if (userId == null) throw new NullPointerException("userId cannot be null - set deviceId");
 
         return userCollection.document(userId).set(user)
             .addOnCompleteListener(task -> {
@@ -75,32 +56,22 @@ public class UserRepository {
             .addOnCompleteListener(task -> {
                 if (task.isSuccessful() && task.getResult().exists()) {
                     DocumentSnapshot documentSnapshot = task.getResult();
-                    String userType = documentSnapshot.getString("userType");
+                    User user = documentSnapshot.toObject(User.class);
 
-                    if (userType == null) {
-                        Exception e = new NullPointerException("userType is null in document with ID: " + documentSnapshot.getId());
-                        future.completeExceptionally(e);
-                        Log.e(TAG, "getUser: fail", e);
-                        return;
-                    }
-                    try {
-                        Class<? extends User> userClass = UserRepository.getUserClass(userType);
-                        User user = documentSnapshot.toObject(userClass);
-
-                        future.complete(user);
+                    if (user != null) {
                         Log.d(TAG, "getUser: success for user with ID: " + userId);
-                    } catch (IllegalArgumentException e) {
-                        future.completeExceptionally(e);
-                        Log.e(TAG, "getUser: fail", e);
+                    } else {
+                        Log.e(TAG, "getUser: user is null after deserialization");
                     }
+                    future.complete(user);
                 }
                 else if (task.isSuccessful() && !task.getResult().exists()) {
-                    future.complete(null);
                     Log.d(TAG, "getUser: user does not exist for ID: " + userId);
+                    future.complete(null);
                 }
                 else {
-                    future.completeExceptionally(task.getException());
                     Log.e(TAG, "getUser: fail", task.getException());
+                    future.completeExceptionally(task.getException());
                 }
             });
         return future;
@@ -121,24 +92,8 @@ public class UserRepository {
                 liveData.setValue(null);
                 return;
             }
-
             if (documentSnapshot != null && documentSnapshot.exists()) {
-                String userType = documentSnapshot.getString("userType");
-                if (userType == null) {
-                    Log.e(TAG, "getUserLiveData: userType is null for document ID: " + documentSnapshot.getId());
-                    liveData.setValue(null);
-                    return;
-                }
-
-                Class<? extends User> userClass;
-                try {
-                    userClass = UserRepository.getUserClass(userType);
-                } catch (IllegalArgumentException ex) {
-                    Log.e(TAG, "getUserLiveData: fail", ex);
-                    liveData.setValue(null);
-                    return;
-                }
-                User user = documentSnapshot.toObject(userClass);
+                User user = documentSnapshot.toObject(User.class);
 
                 if (user != null) {
                     Log.d(TAG, "getUserLiveData: success for user with ID: " + userId);
