@@ -44,7 +44,7 @@ public class FacilityRepository {
         String documentId = facility.getDocumentId();
         if (documentId == null) throw new NullPointerException("documentId is null - never set documentId");
 
-        return facilityCollection.document(facility.getDocumentId()).set(facility)
+        return facilityCollection.document(documentId).set(facility)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Log.d(TAG, "updateFacility: success - ID: " + documentId);
@@ -58,7 +58,7 @@ public class FacilityRepository {
         String documentId = facility.getDocumentId();
         if (documentId == null) throw new NullPointerException("documentId is null - never set documentId");
 
-        return facilityCollection.document(facility.getDocumentId()).delete()
+        return facilityCollection.document(documentId).delete()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Log.d(TAG, "removeEvent: success - ID: " + documentId);

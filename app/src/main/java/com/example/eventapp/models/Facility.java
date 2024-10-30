@@ -10,6 +10,19 @@ public class Facility {
     private String facilityName;
     private String facilityDescription;
 
+    public Facility() {
+       // empty constructor for firebase
+    }
+
+    public Facility(String facilityName) {
+        this.facilityName = facilityName;
+    }
+
+    public Facility(String facilityName, String facilityDescription) {
+        this.facilityName = facilityName;
+        this.facilityDescription = facilityDescription;
+    }
+
     public String getDocumentId() {
         return documentId;
     }

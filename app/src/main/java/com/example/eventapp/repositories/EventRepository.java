@@ -50,7 +50,7 @@ public class EventRepository {
         String documentId = event.getDocumentId();
         if (documentId == null) throw new NullPointerException("documentId is null - never set documentId");
 
-        return eventCollection.document(event.getDocumentId()).set(event)
+        return eventCollection.document(documentId).set(event)
             .addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     Log.d(TAG, "updateEvent: success - ID: " + documentId);
@@ -64,7 +64,7 @@ public class EventRepository {
         String documentId = event.getDocumentId();
         if (documentId == null) throw new NullPointerException("documentId is null - never set documentId");
 
-        return eventCollection.document(event.getDocumentId()).delete()
+        return eventCollection.document(documentId).delete()
             .addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     Log.d(TAG, "removeEvent: success - ID: " + documentId);
