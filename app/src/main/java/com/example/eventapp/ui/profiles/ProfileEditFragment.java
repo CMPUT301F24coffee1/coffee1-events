@@ -68,8 +68,7 @@ public class ProfileEditFragment extends Fragment {
             public boolean onMenuItemSelected(@NonNull MenuItem item) {
                 if (item.getItemId() == R.id.navigation_profile_confirm) {
                     // Here because we only want this behaviour to happen when hitting confirm,
-                    // not the b
-                    // ack button
+                    // not the back button
                     isConfirmed = true;
                     String confirmable = confirmable();
                     if (confirmable.equals("confirmed")) {

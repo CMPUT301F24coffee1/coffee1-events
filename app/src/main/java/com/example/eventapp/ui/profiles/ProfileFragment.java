@@ -3,6 +3,7 @@ package com.example.eventapp.ui.profiles;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.telephony.PhoneNumberUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +22,8 @@ import com.example.eventapp.R;
 import com.example.eventapp.databinding.FragmentProfileBinding;
 import com.example.eventapp.models.User;
 import com.example.eventapp.viewmodels.ProfileViewModel;
+
+import java.util.Locale;
 
 public class ProfileFragment extends Fragment {
 
@@ -93,7 +96,8 @@ public class ProfileFragment extends Fragment {
 
         nameField.setText(user.getName());
         emailField.setText(user.getEmail());
-        phoneField.setText(user.getPhoneNumber());
+        // Below only parses correct phone numbers
+        phoneField.setText(PhoneNumberUtils.formatNumber(user.getPhoneNumber(), Locale.getDefault().getCountry()));
     }
 
     /**
