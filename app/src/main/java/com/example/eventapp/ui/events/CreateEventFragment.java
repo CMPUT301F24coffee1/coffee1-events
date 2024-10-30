@@ -1,7 +1,9 @@
 package com.example.eventapp.ui.events;
 import static java.util.Arrays.asList;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,8 +12,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
+
+import androidx.activity.result.ActivityResultLauncher;
+
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
+import com.example.eventapp.photos.PhotoPickerUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -20,7 +27,10 @@ import java.util.ArrayList;
 
 public class CreateEventFragment extends BottomSheetDialogFragment implements DatePickerFragment.SetDateListener {
     private CreateEventListener createEventListener;
+    private Uri posterUri;
+    private ImageView posterImageView;
     private ArrayList<Long> timestamps;
+    private ActivityResultLauncher<Intent> photoPickerLauncher;
 
     interface CreateEventListener{
         void createEvent(Event event);
@@ -58,6 +68,21 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
         EditText maxEventEntrants = view.findViewById(R.id.popup_create_event_max_entrants);
         Button eventDurationButton = view.findViewById(R.id.popup_create_event_duration_button);
         Button eventRegistrationDeadlineButton = view.findViewById(R.id.popup_create_event_registration_deadline_button);
+        Button selectPosterButton = view.findViewById(R.id.popup_create_event_add_poster);
+        posterImageView = view.findViewById(R.id.popup_create_event_image);
+
+        // Initialize photo picker launcher
+        photoPickerLauncher = PhotoPickerUtils.getPhotoPickerLauncher(this, new PhotoPickerUtils.PhotoPickerCallback() {
+            @Override
+            public void onPhotoPicked(Uri photoUri) {
+                posterUri = photoUri;
+                posterImageView.setImageURI(photoUri); // Display the selected image
+            }
+        });
+
+        // Set listeners
+        selectPosterButton.setOnClickListener(v -> PhotoPickerUtils.openPhotoPicker(photoPickerLauncher));
+
         eventDurationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -94,18 +119,18 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
 
                     if(maxEntrants.equals("")){
                         // no max entrant count given
-                        createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2), qrCodeBitmap));
+                        createEventListener.createEvent(new Event(newEventName, posterUri, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2), qrCodeBitmap));
                     }else{
                         try{
                             int max = Integer.parseInt(maxEntrants);
                             if(max>0){
-                                createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2), qrCodeBitmap));
+                                createEventListener.createEvent(new Event(newEventName, posterUri, newEventDescription,geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2), qrCodeBitmap));
                             }else{
-                                createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2), qrCodeBitmap));
+                                createEventListener.createEvent(new Event(newEventName, posterUri, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2), qrCodeBitmap));
                             }
                         }catch (Exception e){
                             // could not parse input
-                            createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2), qrCodeBitmap));
+                            createEventListener.createEvent(new Event(newEventName, posterUri, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2), qrCodeBitmap));
                         }
                     }
                 } catch (WriterException e) {

@@ -144,5 +144,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/popup_create_event_geolocation_checkbox_layout" />
 
+        <Button
+            android:id="@+id/popup_create_event_add_poster"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Poster"
+            app:layout_constraintBottom_toTopOf="@+id/popup_create_event_image"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/popup_create_event_name"
+            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_button" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
