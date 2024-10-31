@@ -47,12 +47,12 @@ public class MainActivity extends AppCompatActivity {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         DocumentReference docRef = firestore.collection("settings").document("defaultPoster");
 
-        // Upload default poster to db (MUST DELETE AFTER RUNNING FOR FIRST TIME)
-        docRef.get().addOnCompleteListener(task -> {
-            DefaultImageUploader uploadHelper = new DefaultImageUploader();
-            uploadHelper.uploadImageAndSaveUri();
-
-        });
+        // Upload default poster to db (MUST COMMENT OUT AFTER RUNNING FOR FIRST TIME)
+//        docRef.get().addOnCompleteListener(task -> {
+//            DefaultImageUploader uploadHelper = new DefaultImageUploader();
+//            uploadHelper.uploadImageAndSaveUri();
+//
+//        });
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
