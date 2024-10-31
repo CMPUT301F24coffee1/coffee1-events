@@ -151,33 +151,4 @@ public class UserRepository {
             }
         });
     }
-
-//    public LiveData<User> getUserLiveData(String userId) {
-//        MutableLiveData<User> liveData = new MutableLiveData<>();
-//        DocumentReference userDocRef = userCollection.document(userId);
-//
-//        userDocRef.addSnapshotListener((documentSnapshot, e) -> {
-//            if (e != null) {
-//                Log.e(TAG, "getUserLiveData: Listen failed.", e);
-//                liveData.setValue(null);
-//                return;
-//            }
-//            if (documentSnapshot != null && !documentSnapshot.exists()) {
-//                Log.e(TAG, "getUserLiveData: document does not exist for ID: " + userId);
-//                liveData.setValue(null);
-//                return;
-//            }
-//            if (documentSnapshot != null && documentSnapshot.exists()) {
-//                User user = documentSnapshot.toObject(User.class);
-//
-//                if (user != null) {
-//                    Log.d(TAG, "getUserLiveData: success for user with ID: " + userId);
-//                } else {
-//                    Log.e(TAG, "getUserLiveData: user is null after deserialization");
-//                }
-//                liveData.setValue(user);
-//            }
-//        });
-//        return liveData;
-//    }
 }
