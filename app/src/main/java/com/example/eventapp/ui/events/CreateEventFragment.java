@@ -1,7 +1,8 @@
 package com.example.eventapp.ui.events;
 import static java.util.Arrays.asList;
 
-import android.graphics.Bitmap;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,14 +11,32 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+
+import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
+import com.example.eventapp.photos.DefaultImageUploader;
+import com.example.eventapp.photos.PhotoPickerUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.core.EventManager;
+
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class CreateEventFragment extends BottomSheetDialogFragment implements DatePickerFragment.SetDateListener {
     private CreateEventListener createEventListener;
+    private String posterUriString;
+    private ImageView posterImageView;
     private ArrayList<Long> timestamps;
+    private ActivityResultLauncher<Intent> photoPickerLauncher;
 
     interface CreateEventListener{
         void createEvent(Event event);
@@ -55,6 +74,39 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
         EditText maxEventEntrants = view.findViewById(R.id.popup_create_event_max_entrants);
         Button eventDurationButton = view.findViewById(R.id.popup_create_event_duration_button);
         Button eventRegistrationDeadlineButton = view.findViewById(R.id.popup_create_event_registration_deadline_button);
+        Button selectPosterButton = view.findViewById(R.id.popup_create_event_add_poster);
+        posterImageView = view.findViewById(R.id.popup_create_event_image);
+
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        DocumentReference docRef = firestore.collection("settings").document("defaultPoster");
+
+        // Get default Uri
+        docRef.get().addOnCompleteListener(task -> {
+            posterUriString = task.getResult().getString("uri");
+        });
+
+        // Initialize photo picker launcher
+        photoPickerLauncher = PhotoPickerUtils.getPhotoPickerLauncher(this, new PhotoPickerUtils.PhotoPickerCallback() {
+
+            @Override
+            public void onPhotoUploadComplete(String downloadUrl) {
+                // Called when the photo is successfully uploaded to Firebase
+                posterUriString = downloadUrl;
+                Glide.with(requireView())
+                        .load(Uri.parse(posterUriString))
+                        .into(posterImageView);
+            }
+
+            @Override
+            public void onPhotoUploadFailed(Exception e) {
+                // Called if there is an error during the upload
+                Toast.makeText(getContext(), "Failed to upload photo: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Set listeners
+        selectPosterButton.setOnClickListener(v -> PhotoPickerUtils.openPhotoPicker(photoPickerLauncher));
+
         eventDurationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -83,21 +135,26 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
                 String maxEntrants = maxEventEntrants.getText().toString();
 
                 // referenced zxing-android-embedded's "Generate Barcode" example (https://github.com/journeyapps/zxing-android-embedded)
+
                 if(maxEntrants.equals("")){
-                    createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                    // no max entrant count given
+                    createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                 }else{
                     try{
                         int max = Integer.parseInt(maxEntrants);
-                        if(max > 0){
-                            createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                        if(max>0){
+                            createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription,geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                         }else{
-                            createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                            createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                         }
-                    } catch (Exception e){
-                        createEventListener.createEvent(new Event(newEventName, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                    }catch (Exception e){
+                        // could not parse input
+                        createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                    }
                     }
                 }
-            }
+
+
         });
         return view;
     }
