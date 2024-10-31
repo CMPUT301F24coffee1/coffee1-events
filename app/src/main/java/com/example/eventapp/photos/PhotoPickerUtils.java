@@ -21,7 +21,6 @@ public class PhotoPickerUtils {
 
     // Interface for callback to handle the selected photo URI and download URL
     public interface PhotoPickerCallback {
-        void onPhotoPicked(Uri photoUri);         // Called when photo is picked
         void onPhotoUploadComplete(String downloadUrl); // Called when photo is uploaded to Firebase
         void onPhotoUploadFailed(Exception e);    // Called if upload fails
     }
@@ -38,7 +37,6 @@ public class PhotoPickerUtils {
                             && result.getData() != null) {
                         Uri photoUri = result.getData().getData();
                         if (photoUri != null) {
-                            callback.onPhotoPicked(photoUri); // Pass the photoUri to callback
                             uploadPhotoToFirebase(photoUri, callback); // Upload photo to Firebase
                         }
                     }

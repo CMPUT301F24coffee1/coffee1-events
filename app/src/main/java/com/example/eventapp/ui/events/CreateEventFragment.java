@@ -16,15 +16,23 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 
+import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
+import com.example.eventapp.photos.DefaultImageUploader;
 import com.example.eventapp.photos.PhotoPickerUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.core.EventManager;
+
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class CreateEventFragment extends BottomSheetDialogFragment implements DatePickerFragment.SetDateListener {
     private CreateEventListener createEventListener;
-    private Uri posterUri;
     private String posterUriString;
     private ImageView posterImageView;
     private ArrayList<Long> timestamps;
@@ -69,23 +77,24 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
         Button selectPosterButton = view.findViewById(R.id.popup_create_event_add_poster);
         posterImageView = view.findViewById(R.id.popup_create_event_image);
 
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        DocumentReference docRef = firestore.collection("settings").document("defaultPoster");
+
+        // Get default Uri
+        docRef.get().addOnCompleteListener(task -> {
+            posterUriString = task.getResult().getString("uri");
+        });
+
         // Initialize photo picker launcher
         photoPickerLauncher = PhotoPickerUtils.getPhotoPickerLauncher(this, new PhotoPickerUtils.PhotoPickerCallback() {
-            @Override
-            public void onPhotoPicked(Uri photoUri) {
-                // Called when the user selects a photo
-                posterUri = photoUri;
-                posterUriString = posterUri.toString();
-                posterImageView.setImageURI(photoUri); // Display the selected image
-            }
 
             @Override
             public void onPhotoUploadComplete(String downloadUrl) {
                 // Called when the photo is successfully uploaded to Firebase
-                posterUriString = downloadUrl; // Store the Firebase download URL instead of the local URI
-                // You can now save posterUriString (the download URL) to your database
-                // Example:
-                // event.setEventPoster(posterUriString);
+                posterUriString = downloadUrl;
+                Glide.with(requireView())
+                        .load(Uri.parse(posterUriString))
+                        .into(posterImageView);
             }
 
             @Override
