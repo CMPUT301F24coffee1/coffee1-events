@@ -102,6 +102,8 @@ public class Event {
 
     public Uri getPosterUri() { return Uri.parse(posterUriString);}
 
+    public Boolean hasPoster() { return !(posterUriString.isEmpty());}
+
     public boolean isGeolocationRequired() {
         return geolocationRequired;
     }
