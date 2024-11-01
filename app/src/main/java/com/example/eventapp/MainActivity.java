@@ -6,7 +6,6 @@ import android.provider.Settings;
 import android.util.Log;
 
 import com.example.eventapp.models.User;
-import com.example.eventapp.photos.DefaultImageUploader;
 import com.example.eventapp.repositories.UserRepository;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -19,8 +18,6 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.eventapp.databinding.ActivityMainBinding;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -42,17 +39,6 @@ public class MainActivity extends AppCompatActivity {
                 Settings.Secure.ANDROID_ID
         );
         createOrLoadCurrentUser(androidId);
-        //
-
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        DocumentReference docRef = firestore.collection("settings").document("defaultPoster");
-
-        // Upload default poster to db (MUST COMMENT OUT AFTER RUNNING FOR FIRST TIME)
-//        docRef.get().addOnCompleteListener(task -> {
-//            DefaultImageUploader uploadHelper = new DefaultImageUploader();
-//            uploadHelper.uploadImageAndSaveUri();
-//
-//        });
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
