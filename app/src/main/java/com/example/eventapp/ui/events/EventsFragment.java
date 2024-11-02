@@ -23,76 +23,84 @@ import java.util.List;
 
 public class EventsFragment extends Fragment implements
         EventAdapter.OnEventClickListener, EventInfoFragment.EditEventInfoListener, CreateEventFragment.CreateEventListener {
+
     private EventsViewModel eventsViewModel;
-    private ArrayList<Event> events;
-    private EventAdapter eventAdapter;
+    private ArrayList<Event> organizedEvents;
+    private ArrayList<Event> signedUpEvents;
+    private EventAdapter organizedEventsAdapter;
+    private EventAdapter signedUpEventsAdapter;
     private CreateEventFragment currentCreateEventFragment;
 
     private FragmentEventsBinding binding;
 
     @Override
-    public void createEvent(Event event){
+    public void createEvent(Event event) {
         eventsViewModel.addEvent(event);
         currentCreateEventFragment.dismiss();
     }
+
     @Override
-    public void editEventInfo(Event event){
+    public void editEventInfo(Event event) {
         Log.d("EventsFragment", "Editing event " + event.getEventName());
     }
 
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
         eventsViewModel = new ViewModelProvider(this).get(EventsViewModel.class);
         binding = FragmentEventsBinding.inflate(inflater, container, false);
-
-        // final TextView textView = binding.textEvents;
-        // eventsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return binding.getRoot();
     }
 
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState){
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        RecyclerView eventsGrid = view.findViewById(R.id.events_grid);
 
-        // referenced https://stackoverflow.com/a/40587169 by Suragch, on October 23, 2024
-        eventsGrid.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        // set up RecyclerView for organized events
+        RecyclerView organizedEventsGrid = view.findViewById(R.id.organized_events_grid);
+        organizedEventsGrid.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        organizedEvents = new ArrayList<>();
+        organizedEventsAdapter = new EventAdapter(organizedEvents, this);
+        organizedEventsGrid.setAdapter(organizedEventsAdapter);
 
-        events = new ArrayList<>();
-        eventAdapter = new EventAdapter(events, this);
-        eventsGrid.setAdapter(eventAdapter);
+        // set up RecyclerView for signed-up events
+        RecyclerView signedUpEventsGrid = view.findViewById(R.id.signed_up_events_grid);
+        signedUpEventsGrid.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        signedUpEvents = new ArrayList<>();
+        signedUpEventsAdapter = new EventAdapter(signedUpEvents, this);
+        signedUpEventsGrid.setAdapter(signedUpEventsAdapter);
 
-        // observe events from ViewModel and update the adapter when data changes
-        eventsViewModel.getEvents().observe(getViewLifecycleOwner(), this::updateEventList);
+        eventsViewModel.getOrganizedEvents().observe(getViewLifecycleOwner(), this::updateOrganizedEventsList);
+        eventsViewModel.getSignedUpEvents().observe(getViewLifecycleOwner(), this::updateSignedUpEventsList);
 
         FloatingActionButton createEventButton = view.findViewById(R.id.create_event_button);
-
-        createEventButton.setOnClickListener((v) -> {
-            // this is where you eventsViewModel.addEvent(newEvent);
-            // or move this to a separate function
-            // no need to notify the adapter of anything - updateEventList handles it
+        createEventButton.setOnClickListener(v -> {
             Log.d("EventsFragment", "Create event button clicked");
             showCreateEventPopup();
         });
 
-        // testing
-        boolean isOrganizer = true; // adjust later
-        if(!isOrganizer){
+        boolean isOrganizer = true;
+        if (!isOrganizer) {
             createEventButton.setVisibility(View.GONE);
         }
     }
 
-    private void updateEventList(List<Event> newEvents) {
-        events.clear();
-        events.addAll(newEvents);
-        // should change later, we should look into DiffUtil to not call raw notifyDataSetChanged
-        // we could also create a .setEvents method in the adapter
-        // to encapsulate all the logic there
-        // eventAdapter.setEvents(newEvents);
-        eventAdapter.notifyDataSetChanged();
+    private void updateOrganizedEventsList(List<Event> newOrganizedEvents) {
+        organizedEvents.clear();
+        organizedEvents.addAll(newOrganizedEvents);
+        // TODO: calculating diff with DiffUtil
+        organizedEventsAdapter.notifyDataSetChanged();
     }
 
-    private void showCreateEventPopup(){
+    private void updateSignedUpEventsList(List<Event> newSignedUpEvents) {
+        signedUpEvents.clear();
+        signedUpEvents.addAll(newSignedUpEvents);
+        // TODO: calculating diff with DiffUtil
+        signedUpEventsAdapter.notifyDataSetChanged();
+    }
+
+    private void showCreateEventPopup() {
         CreateEventFragment createEventFragment = new CreateEventFragment(this);
         currentCreateEventFragment = createEventFragment;
         createEventFragment.show(getActivity().getSupportFragmentManager(), "create_event");
@@ -101,19 +109,17 @@ public class EventsFragment extends Fragment implements
     @Override
     public void onEventClick(Event event) {
         Log.d("EventsFragment", "Event with name " + event.getEventName() + " clicked");
-        // eventsViewModel.updateEvent(event);
         showEventInfoPopup();
+    }
+
+    private void showEventInfoPopup() {
+        EventInfoFragment eventInfoFragment = new EventInfoFragment();
+        eventInfoFragment.show(getActivity().getSupportFragmentManager(), "event_info");
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
-    }
-
-    private void showEventInfoPopup(){
-        EventInfoFragment eventInfoFragment = new EventInfoFragment();
-        eventInfoFragment.show(getActivity().getSupportFragmentManager(), "event_info");
-
     }
 }
