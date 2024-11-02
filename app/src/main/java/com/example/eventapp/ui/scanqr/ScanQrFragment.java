@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.eventapp.databinding.FragmentScanQrBinding;
+import com.example.eventapp.viewmodels.EventsViewModel;
 import com.example.eventapp.viewmodels.ScanQrViewModel;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
@@ -20,11 +21,15 @@ import com.journeyapps.barcodescanner.ScanOptions;
 public class ScanQrFragment extends Fragment {
 
     private FragmentScanQrBinding binding;
+    private ScanQrViewModel scanQrViewModel;
+    private EventsViewModel eventsViewModel;
 
     // Define the launcher for scanning
     private final ActivityResultLauncher<ScanOptions> scanLauncher =
             registerForActivityResult(new ScanContract(), result -> {
                 if (result.getContents() != null) {
+                    String scannedData = result.getContents();
+                    scanQrViewModel.setText(scannedData); // Update ViewModel with scanned data
                     // Display the scanned result in the TextView
                     binding.textScanQr.setText("Scanned: " + result.getContents());
                 } else { // Else toast "Scan cancelled"
@@ -34,7 +39,7 @@ public class ScanQrFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        ScanQrViewModel scanQrViewModel =
+        scanQrViewModel =
                 new ViewModelProvider(this).get(ScanQrViewModel.class);
 
         binding = FragmentScanQrBinding.inflate(inflater, container, false);
@@ -44,6 +49,8 @@ public class ScanQrFragment extends Fragment {
 
         return root;
     }
+
+
 
     private void initiateQrScan() {
         ScanOptions options = new ScanOptions();
