@@ -28,8 +28,9 @@ public class EventsViewModel extends ViewModel {
         mText = new MutableLiveData<>();
         mText.setValue("Events");
 
-        eventRepository = new EventRepository();
+        eventRepository = EventRepository.getInstance();
         UserRepository userRepository = UserRepository.getInstance();
+
         currentUserLiveData = userRepository.getCurrentUserLiveData();
 
         // wait until currentUserLiveData emits a non-null value before loading events

@@ -18,10 +18,18 @@ import java.util.List;
 public class EventRepository {
 
     private static final String TAG = "EventRepository";
+    private static EventRepository instance; // Singleton instance
     private final CollectionReference eventCollection;
 
-    public EventRepository() {
+    private EventRepository() {
         eventCollection = FirebaseFirestore.getInstance().collection("events");
+    }
+
+    public static synchronized EventRepository getInstance() {
+        if (instance == null) {
+            instance = new EventRepository();
+        }
+        return instance;
     }
 
     public Task<DocumentReference> addEvent(Event event) {
