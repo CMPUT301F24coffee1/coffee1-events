@@ -59,10 +59,14 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     public void onBindViewHolder(ViewHolder viewHolder, final int position){
         Event event = eventList.get(position);
         viewHolder.getTextView().setText(event.getEventName());
-        Glide.with(viewHolder.itemView.getContext())
-                .load(event.getPosterUri())
-                .into(viewHolder.getPosterView());
-        viewHolder.itemView.setOnClickListener(v -> onEventClickListener.onEventClick(event));
+        if (event.hasPoster()) {
+            Glide.with(viewHolder.itemView.getContext())
+                    .load(event.getPosterUri())
+                    .into(viewHolder.getPosterView());
+            viewHolder.itemView.setOnClickListener(v -> onEventClickListener.onEventClick(event));
+        } else {
+            viewHolder.getPosterView().setImageResource(R.drawable.default_event_poster);
+        }
     }
 
     @Override

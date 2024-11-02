@@ -19,21 +19,14 @@ import androidx.activity.result.ActivityResultLauncher;
 import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
-import com.example.eventapp.photos.DefaultImageUploader;
 import com.example.eventapp.photos.PhotoPickerUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.core.EventManager;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class CreateEventFragment extends BottomSheetDialogFragment implements DatePickerFragment.SetDateListener {
     private CreateEventListener createEventListener;
-    private String posterUriString;
+    private String posterUriString = "";
     private ImageView posterImageView;
     private ArrayList<Long> timestamps;
     private ActivityResultLauncher<Intent> photoPickerLauncher;
@@ -75,16 +68,9 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
         Button eventDurationButton = view.findViewById(R.id.popup_create_event_duration_button);
         Button eventRegistrationDeadlineButton = view.findViewById(R.id.popup_create_event_registration_deadline_button);
         Button selectPosterButton = view.findViewById(R.id.popup_create_event_add_poster);
-        posterImageView = view.findViewById(R.id.popup_create_event_image);
+        ImageView posterImageView = view.findViewById(R.id.popup_create_event_image);
 
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        DocumentReference docRef = firestore.collection("settings").document("defaultPoster");
-
-        // Get default Uri
-        docRef.get().addOnCompleteListener(task -> {
-            posterUriString = task.getResult().getString("uri");
-        });
-
+        posterImageView.setImageResource(R.drawable.default_event_poster);
         // Initialize photo picker launcher
         photoPickerLauncher = PhotoPickerUtils.getPhotoPickerLauncher(this, new PhotoPickerUtils.PhotoPickerCallback() {
 
