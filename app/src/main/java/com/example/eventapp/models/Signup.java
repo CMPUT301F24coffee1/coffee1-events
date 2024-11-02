@@ -14,10 +14,9 @@ public class Signup {
         // default constructor for firebase
     }
 
-    public Signup(String userId, String eventId, long signupTimestamp) {
+    public Signup(String userId, String eventId) {
         this.userId = userId;
         this.eventId = eventId;
-        this.signupTimestamp = signupTimestamp;
     }
 
     public String getDocumentId() {

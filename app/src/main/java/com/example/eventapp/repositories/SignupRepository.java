@@ -34,6 +34,8 @@ public class SignupRepository {
         if (userId == null) throw new NullPointerException("userId cannot be null");
         if (eventId == null) throw new NullPointerException("eventId cannot be null");
 
+        signup.setSignupTimestamp(System.currentTimeMillis());
+
         return signupCollection.add(signup)
             .addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
@@ -112,6 +114,7 @@ public class SignupRepository {
 
                     if (signup != null) {
                         Log.d(TAG, "getSignup: success for userId: " + userId + " eventId: " + eventId);
+                        signup.setDocumentId(querySnapshot.getDocuments().get(0).getId());
                     } else {
                         Log.e(TAG, "getSignup: signup is null after deserialization");
                     }
