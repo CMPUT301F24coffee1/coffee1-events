@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel;
 import com.example.eventapp.models.Event;
 import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.EventRepository;
+import com.example.eventapp.repositories.SignupRepository;
 import com.example.eventapp.repositories.UserRepository;
 
 import java.util.List;
@@ -19,34 +20,49 @@ public class EventsViewModel extends ViewModel {
 
     private final String TAG = "EventsViewModel";
     private final MutableLiveData<String> mText;
-    private final LiveData<User> currentUserLiveData;
-    private final EventRepository eventRepository;
 
-    private final MediatorLiveData<List<Event>> eventsLiveData = new MediatorLiveData<>();
+    private final EventRepository eventRepository;
+    private final SignupRepository signupRepository;
+    private final LiveData<User> currentUserLiveData;
+
+    private final MediatorLiveData<List<Event>> organizedEventsLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<List<Event>> signedUpEventsLiveData = new MediatorLiveData<>();
 
     public EventsViewModel() {
         mText = new MutableLiveData<>();
         mText.setValue("Events");
 
-        eventRepository = new EventRepository();
+        eventRepository = EventRepository.getInstance();
+        signupRepository = SignupRepository.getInstance();
+
         UserRepository userRepository = UserRepository.getInstance();
         currentUserLiveData = userRepository.getCurrentUserLiveData();
 
-        // wait until currentUserLiveData emits a non-null value before loading events
-        eventsLiveData.addSource(currentUserLiveData, user -> {
+        // load organized and signed-up events when current user data is available
+        currentUserLiveData.observeForever(user -> {
             if (user != null) {
-                loadEventsForUser(user.getUserId());
+                loadOrganizedEvents(user.getUserId());
+                loadSignedUpEvents(user.getUserId());
             }
         });
     }
 
-    public LiveData<List<Event>> getEvents() {
-        return eventsLiveData;
+    public LiveData<List<Event>> getOrganizedEvents() {
+        return organizedEventsLiveData;
     }
 
-    private void loadEventsForUser(String userId) {
-        LiveData<List<Event>> userEvents = eventRepository.getEventsOfOrganizerLiveData(userId);
-        eventsLiveData.addSource(userEvents, eventsLiveData::setValue);
+    public LiveData<List<Event>> getSignedUpEvents() {
+        return signedUpEventsLiveData;
+    }
+
+    private void loadOrganizedEvents(String userId) {
+        LiveData<List<Event>> organizedEvents = eventRepository.getEventsOfOrganizerLiveData(userId);
+        organizedEventsLiveData.addSource(organizedEvents, organizedEventsLiveData::setValue);
+    }
+
+    private void loadSignedUpEvents(String userId) {
+        LiveData<List<Event>> signedUpEvents = eventRepository.getSignedUpEventsOfUserLiveData(userId);
+        signedUpEventsLiveData.addSource(signedUpEvents, signedUpEventsLiveData::setValue);
     }
 
     public void addEvent(Event event) {
@@ -57,8 +73,6 @@ public class EventsViewModel extends ViewModel {
             eventRepository.addEvent(event).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     Log.i(TAG, "Added event with name: " + event.getEventName());
-                    event.setQrCodeHash(task.getResult().getId());
-                    updateEvent(event);
                 } else {
                     Log.e(TAG, "Failed to add event", task.getException());
                 }
@@ -84,6 +98,13 @@ public class EventsViewModel extends ViewModel {
                 Log.e(TAG, "Failed to update event", task.getException());
             }
         });
+    }
+
+    public void unregisterFromEvent(Event event) {
+        User currentUser = currentUserLiveData.getValue();
+        if (currentUser != null) {
+            signupRepository.removeSignup(currentUser.getUserId(), event.getDocumentId());
+        }
     }
 
     public LiveData<String> getText() {

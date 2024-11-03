@@ -18,10 +18,18 @@ import java.util.List;
 public class FacilityRepository {
 
     private static final String TAG = "FacilityRepository";
+    private static FacilityRepository instance;
     private final CollectionReference facilityCollection;
 
-    public FacilityRepository() {
+    private FacilityRepository() {
         facilityCollection = FirebaseFirestore.getInstance().collection("facilities");
+    }
+
+    public static synchronized FacilityRepository getInstance() {
+        if (instance == null) {
+            instance = new FacilityRepository();
+        }
+        return instance;
     }
 
     public Task<DocumentReference> addFacility(Facility facility) {
@@ -61,9 +69,9 @@ public class FacilityRepository {
         return facilityCollection.document(documentId).delete()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        Log.d(TAG, "removeEvent: success - ID: " + documentId);
+                        Log.d(TAG, "removeFacility: success - ID: " + documentId);
                     } else {
-                        Log.e(TAG, "removeEvent: fail", task.getException());
+                        Log.e(TAG, "removeFacility: fail", task.getException());
                     }
                 });
     }
@@ -88,7 +96,7 @@ public class FacilityRepository {
                 Log.d(TAG, "getFacilitiesOfOrganizerLiveData: success");
                 liveData.setValue(facilities);
             } else {
-                Log.d(TAG, "getFacilitiesOfOrganizerLiveData: no events found");
+                Log.d(TAG, "getFacilitiesOfOrganizerLiveData: no facilities found");
                 liveData.setValue(new ArrayList<>());
             }
         });
