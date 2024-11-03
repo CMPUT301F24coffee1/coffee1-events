@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -78,11 +79,13 @@ public class ProfileFragment extends Fragment {
         final TextView nameField = binding.profileName;
         final TextView emailField = binding.profileEmail;
         final TextView phoneField = binding.profilePhone;
+        final ConstraintLayout manageFacilitiesContainer = binding.profileManageFacilitiesContainer;
 
         nameField.setText(user.getName());
         emailField.setText(user.getEmail());
         // Below only parses correct phone numbers
         phoneField.setText(PhoneNumberUtils.formatNumber(user.getPhoneNumber(), Locale.getDefault().getCountry()));
+        manageFacilitiesContainer.setVisibility(user.isOrganizer() ? View.VISIBLE : View.GONE);
     }
 
     /**
