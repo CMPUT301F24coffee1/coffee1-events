@@ -18,7 +18,6 @@ public class Event {
     private long startDate;
     private long endDate;
     private long deadline;
-    private String qrCodeHash;
 
     public Event() {
         // default constructor for firebase
@@ -142,13 +141,5 @@ public class Event {
 
     public void setDeadline(long deadline) {
         this.deadline = deadline;
-    }
-
-    public String getQrCodeHash() {
-        return qrCodeHash;
-    }
-
-    public void setQrCodeHash(String qrCodeHash) {
-        this.qrCodeHash = qrCodeHash;
     }
 }
