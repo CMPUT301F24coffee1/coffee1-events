@@ -1,8 +1,6 @@
 package com.example.eventapp.ui.profiles;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.telephony.PhoneNumberUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,7 +13,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.eventapp.R;
@@ -66,20 +63,8 @@ public class ProfileFragment extends Fragment {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        @SuppressLint("HardwareIds") String androidId = Settings.Secure.getString(
-                root.getContext().getContentResolver(),
-                Settings.Secure.ANDROID_ID);
-
         ProfileViewModel profileViewModel =
-                new ViewModelProvider(this, new ViewModelProvider.Factory() {
-                    // Custom user factory to allow androidId to be passed to the ViewModel
-                    @NonNull
-                    @Override
-                    public <T extends ViewModel> T create (@NonNull Class<T> modelClass) {
-                        //noinspection unchecked
-                        return (T) new ProfileViewModel(androidId);
-                    }
-                }).get(ProfileViewModel.class);
+                new ViewModelProvider(this).get(ProfileViewModel.class);
 
         profileViewModel.getUser().observe(getViewLifecycleOwner(), this::updateUserInfo);
         return root;
