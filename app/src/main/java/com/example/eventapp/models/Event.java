@@ -1,5 +1,7 @@
 package com.example.eventapp.models;
 
+import android.net.Uri;
+
 import com.google.firebase.firestore.Exclude;
 
 public class Event {
@@ -9,6 +11,7 @@ public class Event {
     private String facilityId;
 
     private String eventName;
+    private String posterUriString;
     private String eventDescription;
     private boolean geolocationRequired;
     private int maxEntrants; //-1 for no max
@@ -28,8 +31,9 @@ public class Event {
         this.maxEntrants = -1;
     }
 
-    public Event(String eventName, String eventDescription, boolean geolocationRequired, long startDate, long endDate, long deadline) {
+    public Event(String eventName, String posterUriString, String eventDescription, boolean geolocationRequired, long startDate, long endDate, long deadline) {
         this.eventName = eventName;
+        this.posterUriString = posterUriString;
         this.eventDescription = eventDescription;
         this.geolocationRequired = geolocationRequired;
         this.maxEntrants = -1;
@@ -38,8 +42,10 @@ public class Event {
         this.deadline = deadline;
     }
 
-    public Event(String eventName, String eventDescription, boolean geolocationRequired, int maxEntrants, long startDate, long endDate, long deadline) {
+    // Constructor with poster attribute
+    public Event(String eventName, String posterUriString, String eventDescription, boolean geolocationRequired, int maxEntrants, long startDate, long endDate, long deadline) {
         this.eventName = eventName;
+        this.posterUriString = posterUriString;
         this.eventDescription = eventDescription;
         this.geolocationRequired = geolocationRequired;
         this.maxEntrants = maxEntrants;
@@ -87,6 +93,16 @@ public class Event {
     public void setEventDescription(String eventDescription) {
         this.eventDescription = eventDescription;
     }
+
+    public String getPosterUriString() {
+        return posterUriString;
+    }
+
+    public void setPosterUriString(String posterUriString) {this.posterUriString = posterUriString;}
+
+    public Uri getPosterUri() { return Uri.parse(posterUriString);}
+
+    public Boolean hasPoster() { return !(posterUriString.isEmpty());}
 
     public boolean isGeolocationRequired() {
         return geolocationRequired;

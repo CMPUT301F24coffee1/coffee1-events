@@ -48,8 +48,7 @@ public class MainActivity extends AppCompatActivity {
                 root.getContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID
         );
-        createUserIfNotExists(androidId);
-        //
+        createOrLoadCurrentUser(androidId);
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -117,26 +116,27 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void createUserIfNotExists(String userId) {
-        UserRepository userRepository = new UserRepository();
+    private void createOrLoadCurrentUser(String userId) {
+        UserRepository userRepository = UserRepository.getInstance();
 
         userRepository.getUser(userId)
             .thenAccept(user -> {
                 if (user == null) {
-                    createDevOrganizer(userRepository, userId);
+                    createAndLoadDevOrganizer(userRepository, userId);
                 } else {
                     Log.d(TAG, "User already exists with ID: " + userId);
+                    userRepository.setCurrentUser(user);
                 }
             })
             .exceptionally(throwable -> {
                 Log.e(TAG, "Failed to retrieve user", throwable);
                 Log.d(TAG, "Creating user after failing to retrieve from db");
-                createDevOrganizer(userRepository, userId);
+                createAndLoadDevOrganizer(userRepository, userId);
                 return null;
             });
     }
 
-    private void createDevOrganizer(UserRepository userRepository, String userId) {
+    private void createAndLoadDevOrganizer(UserRepository userRepository, String userId) {
         User user = new User("DevOrganizer", true);
         user.setUserId(userId);
 
@@ -144,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
             .addOnCompleteListener(saveUserTask -> {
                 if (saveUserTask.isSuccessful()) {
                     Log.i(TAG, "Successfully created organizer with ID: " + user.getUserId());
+                    userRepository.setCurrentUser(user);
                 } else {
                     Log.e(TAG, "Failed to create organizer with ID: " + user.getUserId());
                 }
