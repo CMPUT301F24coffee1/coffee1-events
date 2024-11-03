@@ -1,5 +1,7 @@
 package com.example.eventapp.ui.profiles;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -8,29 +10,37 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.eventapp.R;
 import com.example.eventapp.databinding.FragmentProfileEditBinding;
+import com.example.eventapp.models.Facility;
 import com.example.eventapp.models.User;
 import com.example.eventapp.viewmodels.ProfileViewModel;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class ProfileEditFragment extends Fragment {
 
     private ProfileViewModel profileViewModel;
     private FragmentProfileEditBinding binding;
+    private List<Facility> facilities;
     private boolean isConfirmed = false;
+
+    private enum Confirmed { YES, NAME, EMAIL, PHONE, ORGANIZER };
 
     /**
      * Behaviour to run when the View is created, in this case,
@@ -51,6 +61,8 @@ public class ProfileEditFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
+        facilities = new ArrayList<Facility>();
+
         // Inflate the menu with the profile edit button set
         NavController navController = NavHostFragment.findNavController(this);
 
@@ -66,12 +78,37 @@ public class ProfileEditFragment extends Fragment {
                 if (item.getItemId() == R.id.navigation_profile_confirm) {
                     // Here because we only want this behaviour to happen when hitting confirm,
                     // not the back button
-                    isConfirmed = true;
-                    String confirmable = confirmable();
-                    if (confirmable.equals("confirmed")) {
+                    isConfirmed = false;
+                    Confirmed confirmable = confirmable();
+                    final String[] error = new String[1]; // Array for finality in lambda statement
+                    switch (confirmable) {
+                        case NAME:
+                            error[0] = getString(R.string.name_cannot_be_empty);
+                            break;
+                        case EMAIL:
+                            error[0] = getString(R.string.email_format_incorrect);
+                            break;
+                        case PHONE:
+                            error[0] = getString(R.string.phone_format_incorrect);
+                            break;
+                        case ORGANIZER:
+                            // Possible delete all facilities functionality for later
+//                            new AlertDialog.Builder(getActivity()).setMessage(R.string.confirm_delete_facilities)
+//                            .setPositiveButton(R.string.confirm, (dialog, id) -> {
+//                                isConfirmed = true;
+//                            }).setNegativeButton(R.string.cancel, (dialog, id) -> {
+//                                error[0] = getString(R.string.profile_update_cancelled);
+//                            }).create();
+                            error[0] = getString(R.string.has_facilities);
+                            break;
+                        default:
+                            isConfirmed = true;
+                            break;
+                    }
+                    if (isConfirmed) {
                         navController.popBackStack();
                     } else {
-                        Toast.makeText(getContext(), confirmable, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), error[0], Toast.LENGTH_SHORT).show();
                     }
                     return true;
                 }
@@ -86,6 +123,8 @@ public class ProfileEditFragment extends Fragment {
                 new ViewModelProvider(this).get(ProfileViewModel.class);
 
         profileViewModel.getUser().observe(getViewLifecycleOwner(), this::updateUserInfo);
+        profileViewModel.getFacilities().observe(getViewLifecycleOwner(), this::updateFacilities);
+
         return root;
     }
 
@@ -97,16 +136,38 @@ public class ProfileEditFragment extends Fragment {
         final TextInputEditText nameField = binding.profileEditNameInput;
         final EditText emailField = binding.profileEditEmailInput;
         final EditText phoneField = binding.profileEditPhoneInput;
+        final CheckBox optNotifs = binding.profileEditNotifications;
+        final CheckBox isOrganizer = binding.profileEditIsOrganizer;
 
         nameField.setText(user.getName());
         emailField.setText(user.getEmail());
         phoneField.setText(user.getPhoneNumber());
+        optNotifs.setChecked(user.isNotificationOptOut());
+        isOrganizer.setChecked(user.isOrganizer());
+    }
+
+    /**
+     * Updates the list of facilities to match the facilities owned by the user
+     * @param facilities The list of facilities returned by the View Model
+     */
+    private void updateFacilities(List<Facility> facilities) {
+        this.facilities.clear();
+        this.facilities.addAll(facilities);
+        // TODO: calculating diff with DiffUtil
+    }
+
+    /**
+     * Gets whether or not the current user has any facilities they manage
+     * @return Whether or not the current user has any facilities they manage
+     */
+    private boolean hasFacilities() {
+        return !facilities.isEmpty();
     }
 
     /**
      * Checks if the edit form is valid to be possible to confirm
      */
-    private String confirmable() {
+    private Confirmed confirmable() {
         final TextInputEditText nameField = binding.profileEditNameInput;
         final String name = Objects.requireNonNull(nameField.getText()).toString();
         final EditText emailField = binding.profileEditEmailInput;
@@ -115,13 +176,15 @@ public class ProfileEditFragment extends Fragment {
         final String phone = Objects.requireNonNull(phoneField.getText()).toString();
 
         if (name.isEmpty())
-            return "Name cannot be empty";
+            return Confirmed.NAME;
         if (!email.isEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches())
-            return "Email format incorrect";
+            return Confirmed.EMAIL;
         if (!phone.isEmpty() && !Patterns.PHONE.matcher(phone).matches())
-            return "Phone Number format incorrect";
+            return Confirmed.PHONE;
+        if (hasFacilities())
+            return Confirmed.ORGANIZER;
 
-        return "confirmed";
+        return Confirmed.YES;
     }
 
     /**
@@ -136,10 +199,14 @@ public class ProfileEditFragment extends Fragment {
             final TextInputEditText nameField = binding.profileEditNameInput;
             final EditText emailField = binding.profileEditEmailInput;
             final EditText phoneField = binding.profileEditPhoneInput;
+            final CheckBox optNotifs = binding.profileEditNotifications;
+            final CheckBox isOrganizer = binding.profileEditIsOrganizer;
 
             profileViewModel.updateUser(Objects.requireNonNull(nameField.getText()).toString(),
                     Objects.requireNonNull(emailField.getText()).toString(),
-                    Objects.requireNonNull(phoneField.getText()).toString());
+                    Objects.requireNonNull(phoneField.getText()).toString(),
+                    optNotifs.isChecked(),
+                    isOrganizer.isChecked());
         }
         binding = null;
     }

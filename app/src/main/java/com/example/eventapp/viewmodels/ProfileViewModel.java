@@ -1,36 +1,92 @@
 package com.example.eventapp.viewmodels;
 
+import static android.content.ContentValues.TAG;
+
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.eventapp.models.Facility;
 import com.example.eventapp.models.User;
+import com.example.eventapp.repositories.FacilityRepository;
 import com.example.eventapp.repositories.UserRepository;
+
+import java.util.List;
 
 public class ProfileViewModel extends ViewModel {
 
     private final LiveData<User> currentUserLiveData;
     private final UserRepository userRepository;
+    private final FacilityRepository facilityRepository;
+    private final MediatorLiveData<List<Facility>> facilitiesLiveData = new MediatorLiveData<>();
 
     /**
      * Initialized the View Model, creating a new UserRepository
      */
     public ProfileViewModel() {
         userRepository = UserRepository.getInstance();
+        facilityRepository = FacilityRepository.getInstance();
         currentUserLiveData = userRepository.getCurrentUserLiveData();
+
+        // load organized and signed-up events when current user data is available
+        currentUserLiveData.observeForever(user -> {
+            if (user != null) {
+                 loadFacilities(user.getUserId());
+            }
+        });
     }
 
+    /**
+     * Gets the live data from the user
+     * @return Live data from the user
+     */
     public LiveData<User> getUser() {
         return currentUserLiveData;
     }
 
-    public void updateUser(String name, String email, String phone) {
+    /**
+     * Gets the live data of the list of facilities a user manages
+     * @return Live data of hte list of facilities a user manages
+     */
+    public LiveData<List<Facility>> getFacilities() {
+        return facilitiesLiveData;
+    }
+
+    /**
+     * Updates a user in the user repository with new information
+     * @param name The new name of the user
+     * @param email The new email of the user
+     * @param phone The new phone number of the user
+     * @param optNotifs Whether or not the user opts out of notifications
+     * @param isOrganizer Whether or not the user is an organizer
+     */
+    public void updateUser(String name, String email, String phone, boolean optNotifs, boolean isOrganizer) {
         User user = currentUserLiveData.getValue();
         if (user != null) {
             user.setName(name);
             user.setEmail(email);
             user.setPhoneNumber(phone);
-            userRepository.saveUser(user);
+            user.setNotificationOptOut(optNotifs);
+            user.setOrganizer(isOrganizer);
+            userRepository.saveUser(user).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Log.i(TAG, "Updated user with name: " + user.getName());
+                } else {
+                    Log.e(TAG, "Failed to update user", task.getException());
+                }
+            });;
         }
+    }
+
+    /**
+     * Makes sure the list of facilities the user owns is actually loaded
+     * @param userId The userId of the user being modified in the profile
+     */
+    public void loadFacilities(String userId) {
+        LiveData<List<Facility>> facilities = facilityRepository.getFacilitiesOfOrganizerLiveData(userId);
+        facilitiesLiveData.addSource(facilities, facilitiesLiveData::setValue);
     }
 
 }

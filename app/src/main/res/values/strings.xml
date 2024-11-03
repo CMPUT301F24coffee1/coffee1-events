@@ -11,7 +11,19 @@
     <string name="name">Name</string>
     <string name="email_address">Email Address</string>
     <string name="phone_number">Phone Number</string>
-
+    <string name="no_email">No Email</string>
+    <string name="no_phone_number">No Phone Number</string>
+    <string name="organizer_account">Organizer Account</string>
+    <string name="opt_out_of_notifications">Opt out of Notifications</string>
+    <string name="name_cannot_be_empty">Name cannot be empty</string>
+    <string name="email_format_incorrect">Email format incorrect</string>
+    <string name="phone_format_incorrect">Phone Number format incorrect</string>
+    <string name="error_verifying_profile">Error verifying profile</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm_delete_facilities">Warning: you have multiple facilities attached to this profile. If you confirm, all facilities and events attached to them will be deleted.</string>
+    <string name="profile_update_cancelled">Profile update cancelled</string>
+    <string name="has_facilities">You cannot remove your organizer status while you still have facilities</string>
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus auctor velit diam, eu
         venenatis neque consequat at. Etiam laoreet convallis consectetur. Donec quis arcu magna.
@@ -19,6 +31,4 @@
         finibus. Donec odio est, porta nec hendrerit nec, efficitur et velit. Sed vehicula faucibus odio,
         ut porttitor leo aliquam mollis. Aliquam tristique mauris at commodo lacinia.
     </string>
-    <string name="no_email">No Email</string>
-    <string name="no_phone_number">No Phone Number</string>
 </resources>
