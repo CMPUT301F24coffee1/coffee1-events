@@ -2,7 +2,13 @@ package com.example.eventapp.photos;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -37,7 +43,7 @@ public class PhotoPickerUtils {
                             && result.getData() != null) {
                         Uri photoUri = result.getData().getData();
                         if (photoUri != null) {
-                            uploadPhotoToFirebase(photoUri, callback); // Upload photo to Firebase
+                            uploadPhotoToFirebase(fragment.getContext(), photoUri, 75, callback); // Upload photo to Firebase
                         }
                     }
                 });
@@ -50,28 +56,42 @@ public class PhotoPickerUtils {
         launcher.launch(intent);
     }
 
-    // Method to upload photo to Firebase Storage and save download URL to Firestore
-    private static void uploadPhotoToFirebase(Uri photoUri, PhotoPickerCallback callback) {
-        // Generate a unique filename for the image
+    // Compress the image from Uri
+    private static byte[] compressImage(Context context, Uri imageUri, int quality) {
+        try {
+            InputStream inputStream = context.getContentResolver().openInputStream(imageUri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+            return outputStream.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // Upload compressed photo to Firebase Storage
+    private static void uploadPhotoToFirebase(Context context, Uri photoUri, int quality, PhotoPickerCallback callback) {
         String uniqueImageId = UUID.randomUUID().toString();
         String imagePath = "events/" + uniqueImageId + "/poster.jpg";
-
-        // Reference to Firebase Storage
         StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(imagePath);
 
-        // Upload file to Firebase Storage
-        storageRef.putFile(photoUri)
-                .addOnSuccessListener(taskSnapshot -> {
-                    // Get the download URL once upload completes
-                    storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                        String downloadUrl = uri.toString();
+        // Compress the image
+        byte[] compressedImageData = compressImage(context, photoUri, quality);
 
-                        // Save download URL to Firestore
-                        saveDownloadUrlToFirestore(uniqueImageId, downloadUrl, callback);
-
-                    }).addOnFailureListener(callback::onPhotoUploadFailed); // Handle error in callback
-                })
-                .addOnFailureListener(callback::onPhotoUploadFailed); // Handle upload failure
+        if (compressedImageData != null) {
+            // Upload the compressed image data to Firebase Storage
+            storageRef.putBytes(compressedImageData)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                            saveDownloadUrlToFirestore(uniqueImageId, uri.toString(), callback);
+                        }).addOnFailureListener(callback::onPhotoUploadFailed);
+                    })
+                    .addOnFailureListener(callback::onPhotoUploadFailed);
+        } else {
+            callback.onPhotoUploadFailed(new Exception("Image compression failed"));
+        }
     }
 
     // Method to save download URL to Firestore
