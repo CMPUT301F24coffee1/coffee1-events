@@ -21,6 +21,7 @@ public class ProfileViewModel extends ViewModel {
     private final UserRepository userRepository;
     private final FacilityRepository facilityRepository;
     private final MediatorLiveData<List<Facility>> facilitiesLiveData = new MediatorLiveData<>();
+    private Facility selectedFacility;
 
     /**
      * Initialized the View Model, creating a new UserRepository
@@ -76,7 +77,7 @@ public class ProfileViewModel extends ViewModel {
                 } else {
                     Log.e(TAG, "Failed to update user", task.getException());
                 }
-            });;
+            });
         }
     }
 
@@ -87,6 +88,41 @@ public class ProfileViewModel extends ViewModel {
     public void loadFacilities(String userId) {
         LiveData<List<Facility>> facilities = facilityRepository.getFacilitiesOfOrganizerLiveData(userId);
         facilitiesLiveData.addSource(facilities, facilitiesLiveData::setValue);
+    }
+
+    /**
+     * Adds a facility to the repository, which then updates the database
+     * @param facility The facility to add to the repository
+     */
+    public void addFacility(Facility facility) {
+        User currentUser = currentUserLiveData.getValue();
+        if (currentUser != null) {
+            facility.setOrganizerId(currentUser.getUserId());
+
+            facilityRepository.addFacility(facility).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Log.i(TAG, "Added facility with name: " + facility.getFacilityName());
+                } else {
+                    Log.e(TAG, "Failed to add facility", task.getException());
+                }
+            });
+        }
+    }
+
+    /**
+     * Sets the currently selected Facility, for use in communication between fragments
+     * @param facility The Facility to select
+     */
+    public void setSelectedFacility(Facility facility) {
+        this.selectedFacility = facility;
+    }
+
+    /**
+     * Gets the currently selected Facility, for use in communication between fragments
+     * @return The currently selected Facility
+     */
+    public Facility getSelectedFacility() {
+        return this.selectedFacility;
     }
 
 }

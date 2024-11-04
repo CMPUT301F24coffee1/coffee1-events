@@ -8,13 +8,17 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.eventapp.R;
 import com.example.eventapp.databinding.FragmentProfileBinding;
@@ -65,10 +69,18 @@ public class ProfileFragment extends Fragment {
         View root = binding.getRoot();
 
         ProfileViewModel profileViewModel =
-                new ViewModelProvider(this).get(ProfileViewModel.class);
+                new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
         profileViewModel.getUser().observe(getViewLifecycleOwner(), this::updateUserInfo);
         return root;
+    }
+
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        NavController navController = NavHostFragment.findNavController(this);
+
+        Button fragmentButton = view.findViewById(R.id.profile_manage_facilities);
+
+        fragmentButton.setOnClickListener((v) -> navController.navigate(R.id.navigation_facilities));
     }
 
     /**

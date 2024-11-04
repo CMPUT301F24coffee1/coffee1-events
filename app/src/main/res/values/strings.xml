@@ -32,4 +32,9 @@
         ut porttitor leo aliquam mollis. Aliquam tristique mauris at commodo lacinia.
     </string>
     <string name="manage_facilities">Manage Facilities</string>
+    <string name="title_facilities">Facilities</string>
+    <string name="title_facility_add">Add Facility</string>
+    <string name="facility_profile_picture">Facility Profile Picture</string>
+    <string name="facility">Facility</string>
+    <string name="description">Description</string>
 </resources>

@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(binding.navView, navController);
 
         // List of destinations that shouldn't show the nav view
-        List<Integer> noNavView = Arrays.asList(R.id.navigation_profile, R.id.navigation_profile_edit);
+        List<Integer> noNavView = Arrays.asList(R.id.navigation_profile, R.id.navigation_profile_edit, R.id.navigation_facilities);
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             if (destination.getId() == R.id.navigation_profile_edit) {
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
             navController.navigate(R.id.navigation_profile);
         } else if (item.getItemId() == R.id.navigation_profile_edit) {
             navController.navigate(R.id.navigation_profile_edit);
-        } else if (item.getItemId() != R.id.navigation_profile_confirm) {
+        } else if (item.getItemId() == android.R.id.home) {
             // Back button
             navController.popBackStack();
         }

@@ -1,7 +1,5 @@
 package com.example.eventapp.ui.profiles;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -17,7 +15,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -40,7 +37,7 @@ public class ProfileEditFragment extends Fragment {
     private List<Facility> facilities;
     private boolean isConfirmed = false;
 
-    private enum Confirmed { YES, NAME, EMAIL, PHONE, ORGANIZER };
+    private enum Confirmed { YES, NAME, EMAIL, PHONE, ORGANIZER }
 
     /**
      * Behaviour to run when the View is created, in this case,
@@ -61,7 +58,7 @@ public class ProfileEditFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        facilities = new ArrayList<Facility>();
+        facilities = new ArrayList<>();
 
         // Inflate the menu with the profile edit button set
         NavController navController = NavHostFragment.findNavController(this);
@@ -120,7 +117,7 @@ public class ProfileEditFragment extends Fragment {
         View root = binding.getRoot();
 
         profileViewModel =
-                new ViewModelProvider(this).get(ProfileViewModel.class);
+                new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
         profileViewModel.getUser().observe(getViewLifecycleOwner(), this::updateUserInfo);
         profileViewModel.getFacilities().observe(getViewLifecycleOwner(), this::updateFacilities);
