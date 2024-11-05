@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -44,6 +45,8 @@ public class PhotoPickerUtils {
                         Uri photoUri = result.getData().getData();
                         if (photoUri != null) {
                             uploadPhotoToFirebase(fragment.getContext(), photoUri, 75, callback); // Upload photo to Firebase
+                        } else {
+                            Log.e("PhotoPicker", "getPhotoPickerLauncher: Photo URI is null");
                         }
                     }
                 });
