@@ -61,7 +61,11 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(binding.navView, navController);
 
         // List of destinations that shouldn't show the nav view
-        List<Integer> noNavView = Arrays.asList(R.id.navigation_profile, R.id.navigation_profile_edit, R.id.navigation_facilities);
+        List<Integer> noNavView = Arrays.asList(R.id.navigation_profile,
+                R.id.navigation_profile_edit,
+                R.id.navigation_facilities,
+                R.id.navigation_facility_edit,
+                R.id.navigation_facility_add);
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             if (destination.getId() == R.id.navigation_profile_edit) {

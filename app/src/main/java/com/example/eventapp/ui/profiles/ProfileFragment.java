@@ -75,6 +75,12 @@ public class ProfileFragment extends Fragment {
         return root;
     }
 
+    /**
+     * Sets the listener for the button to manage fragments
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         NavController navController = NavHostFragment.findNavController(this);
 

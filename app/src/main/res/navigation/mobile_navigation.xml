@@ -40,4 +40,16 @@
         android:name="com.example.eventapp.ui.profiles.FacilitiesFragment"
         android:label="@string/title_facilities"
         tools:layout="@layout/fragment_facilities" />
+
+    <fragment
+        android:id="@+id/navigation_facility_edit"
+        android:name="com.example.eventapp.ui.profiles.FacilityEditFragment"
+        android:label="@string/title_facility_edit"
+        tools:layout="@layout/fragment_facility_edit" />
+
+    <fragment
+        android:id="@+id/navigation_facility_add"
+        android:name="com.example.eventapp.ui.profiles.FacilityAddFragment"
+        android:label="@string/title_facility_add"
+        tools:layout="@layout/fragment_facility_add" />
 </navigation>

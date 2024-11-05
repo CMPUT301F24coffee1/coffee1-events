@@ -8,12 +8,16 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.eventapp.R;
 import com.example.eventapp.models.Facility;
 import com.example.eventapp.viewmodels.ProfileViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class FacilityInfoFragment extends BottomSheetDialogFragment {
 
@@ -33,6 +37,23 @@ public class FacilityInfoFragment extends BottomSheetDialogFragment {
         facilityDesc.setText(facility.getFacilityDescription());
 
         return view;
+    }
+
+    /**
+     * Sets the listener for the button to edit fragment
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        NavController navController = NavHostFragment.findNavController(this);
+
+        FloatingActionButton editButton = view.findViewById(R.id.facility_edit_button);
+
+        editButton.setOnClickListener((v) -> {
+            requireActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+            navController.navigate(R.id.navigation_facility_edit);
+        });
     }
 
 }

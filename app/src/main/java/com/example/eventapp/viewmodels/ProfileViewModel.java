@@ -119,10 +119,31 @@ public class ProfileViewModel extends ViewModel {
 
     /**
      * Gets the currently selected Facility, for use in communication between fragments
+     * If no facility is selected, it will make an empty facility and select and return that instead
      * @return The currently selected Facility
      */
     public Facility getSelectedFacility() {
-        return this.selectedFacility;
+        if (this.selectedFacility != null) {
+            return this.selectedFacility;
+        }
+        Facility facility = new Facility("");
+        setSelectedFacility(facility);
+        return facility;
+    }
+
+    /**
+     * Updates the currently selected Facility to the repository (from getSelectedFacility())
+     */
+    public void updateSelectedFacility(Facility facility) {
+        facilityRepository.updateFacility(facility);
+    }
+
+    /**
+     * Removes the currently selected Facility from the repository (from getSelectedFacility())
+     */
+    public void removeSelectedFacility() {
+        Facility facility = getSelectedFacility();
+        facilityRepository.removeFacility(facility);
     }
 
 }

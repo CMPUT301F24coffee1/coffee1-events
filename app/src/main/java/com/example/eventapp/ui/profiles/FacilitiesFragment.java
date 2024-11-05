@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -37,6 +39,9 @@ public class FacilitiesFragment extends Fragment implements
         profileViewModel =
                 new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
+        // Inflate the menu with the profile edit button set
+        NavController navController = NavHostFragment.findNavController(this);
+
         // Inflate the menu with the profile button set (in this case, the edit button)
         requireActivity().addMenuProvider(new MenuProvider() {
             @Override
@@ -48,7 +53,7 @@ public class FacilitiesFragment extends Fragment implements
             @Override
             public boolean onMenuItemSelected(@NonNull MenuItem item) {
                 if (item.getItemId() == R.id.navigation_facilities_add) {
-                    profileViewModel.addFacility(new Facility(getString(R.string.facility)));
+                    navController.navigate(R.id.navigation_facility_add);
                     return true;
                 }
                 return false;

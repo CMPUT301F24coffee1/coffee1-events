@@ -24,7 +24,6 @@ import com.example.eventapp.databinding.FragmentProfileEditBinding;
 import com.example.eventapp.models.Facility;
 import com.example.eventapp.models.User;
 import com.example.eventapp.viewmodels.ProfileViewModel;
-import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -130,7 +129,7 @@ public class ProfileEditFragment extends Fragment {
      * @param user The user pulled from the View Model
      */
     private void updateUserInfo(User user) {
-        final TextInputEditText nameField = binding.profileEditNameInput;
+        final EditText nameField = binding.profileEditNameInput;
         final EditText emailField = binding.profileEditEmailInput;
         final EditText phoneField = binding.profileEditPhoneInput;
         final CheckBox optNotifs = binding.profileEditNotifications;
@@ -165,12 +164,14 @@ public class ProfileEditFragment extends Fragment {
      * Checks if the edit form is valid to be possible to confirm
      */
     private Confirmed confirmable() {
-        final TextInputEditText nameField = binding.profileEditNameInput;
+        final EditText nameField = binding.profileEditNameInput;
         final String name = Objects.requireNonNull(nameField.getText()).toString();
         final EditText emailField = binding.profileEditEmailInput;
         final String email = Objects.requireNonNull(emailField.getText()).toString();
         final EditText phoneField = binding.profileEditPhoneInput;
         final String phone = Objects.requireNonNull(phoneField.getText()).toString();
+        final CheckBox isOrganizerCheck = binding.profileEditIsOrganizer;
+        final boolean isOrganizer = isOrganizerCheck.isChecked();
 
         if (name.isEmpty())
             return Confirmed.NAME;
@@ -178,7 +179,7 @@ public class ProfileEditFragment extends Fragment {
             return Confirmed.EMAIL;
         if (!phone.isEmpty() && !Patterns.PHONE.matcher(phone).matches())
             return Confirmed.PHONE;
-        if (hasFacilities())
+        if (!isOrganizer && hasFacilities())
             return Confirmed.ORGANIZER;
 
         return Confirmed.YES;
@@ -193,7 +194,7 @@ public class ProfileEditFragment extends Fragment {
         super.onDestroyView();
         if (isConfirmed) {
             // do confirm routine
-            final TextInputEditText nameField = binding.profileEditNameInput;
+            final EditText nameField = binding.profileEditNameInput;
             final EditText emailField = binding.profileEditEmailInput;
             final EditText phoneField = binding.profileEditPhoneInput;
             final CheckBox optNotifs = binding.profileEditNotifications;
