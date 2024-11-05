@@ -9,6 +9,7 @@ import android.widget.Toast;
 import android.Manifest;
 
 import com.example.eventapp.models.User;
+import com.example.eventapp.photos.FirebaseStorageTest;
 import com.example.eventapp.repositories.UserRepository;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -53,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Permission denied to access photos", Toast.LENGTH_SHORT).show();
             }
         });
+
+        // Call the test upload function
+        FirebaseStorageTest.uploadTestFile(this);
 
         // No SignupFragment yet
         @SuppressLint("HardwareIds") String androidId = Settings.Secure.getString(

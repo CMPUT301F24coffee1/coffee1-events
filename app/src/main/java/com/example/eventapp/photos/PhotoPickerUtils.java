@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
@@ -46,16 +47,17 @@ public class PhotoPickerUtils {
                         if (photoUri != null) {
                             uploadPhotoToFirebase(fragment.getContext(), photoUri, 75, callback); // Upload photo to Firebase
                         } else {
-                            Log.e("PhotoPicker", "getPhotoPickerLauncher: Photo URI is null");
+                            Log.d("PhotoPicker", "getPhotoPickerLauncher: Photo URI is null");
                         }
+                    } else {
+                        Log.d("PhotoPicker", "getPhotoPickerLauncher: result failed");
                     }
                 });
     }
 
     // Method to open the photo picker
     public static void openPhotoPicker(ActivityResultLauncher<Intent> launcher) {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         launcher.launch(intent);
     }
 
@@ -78,6 +80,7 @@ public class PhotoPickerUtils {
     private static void uploadPhotoToFirebase(Context context, Uri photoUri, int quality, PhotoPickerCallback callback) {
         String uniqueImageId = UUID.randomUUID().toString();
         String imagePath = "events/" + uniqueImageId + "/poster.jpg";
+        Log.d("PhotoPickerUtils", "Image Path to upload: " + imagePath);
         StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(imagePath);
 
         // Compress the image
