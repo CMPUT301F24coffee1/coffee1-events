@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Call the test upload function
-        FirebaseStorageTest.uploadTestFile(this);
+        //FirebaseStorageTest.uploadTestFile(this);
 
         // No SignupFragment yet
         @SuppressLint("HardwareIds") String androidId = Settings.Secure.getString(
