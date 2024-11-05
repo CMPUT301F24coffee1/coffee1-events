@@ -6,9 +6,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.eventapp.models.Event;
+import com.example.eventapp.models.Signup;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -18,10 +20,20 @@ import java.util.List;
 public class EventRepository {
 
     private static final String TAG = "EventRepository";
+    private static EventRepository instance;
     private final CollectionReference eventCollection;
+    private final SignupRepository signupRepository;
 
-    public EventRepository() {
+    private EventRepository() {
         eventCollection = FirebaseFirestore.getInstance().collection("events");
+        signupRepository = SignupRepository.getInstance();
+    }
+
+    public static synchronized EventRepository getInstance() {
+        if (instance == null) {
+            instance = new EventRepository();
+        }
+        return instance;
     }
 
     public Task<DocumentReference> addEvent(Event event) {
@@ -72,6 +84,39 @@ public class EventRepository {
                     Log.e(TAG, "removeEvent: fail", task.getException());
                 }
             });
+    }
+
+    public LiveData<List<Event>> getSignedUpEventsOfUserLiveData(String userId) {
+        MutableLiveData<List<Event>> signedUpEventsLiveData = new MutableLiveData<>();
+
+        signupRepository.getSignupsOfUserLiveData(userId).observeForever(signups -> {
+            if (signups == null || signups.isEmpty()) {
+                signedUpEventsLiveData.setValue(new ArrayList<>());
+                return;
+            }
+
+            List<String> eventIds = new ArrayList<>();
+            for (Signup signup : signups) {
+                eventIds.add(signup.getEventId());
+            }
+
+            eventCollection.whereIn(FieldPath.documentId(), eventIds).get()
+                .addOnCompleteListener(eventTask -> {
+                    if (eventTask.isSuccessful() && eventTask.getResult() != null) {
+                        List<Event> events = eventTask.getResult().toObjects(Event.class);
+
+                        for (int i = 0; i < events.size(); i++) {
+                            events.get(i).setDocumentId(eventTask.getResult().getDocuments().get(i).getId());
+                        }
+                        signedUpEventsLiveData.setValue(events);
+                        Log.d(TAG, "getSignedUpEventsOfUserLiveData: retrieved " + events.size() + " events for user ID: " + userId);
+                    } else {
+                        Log.e(TAG, "getSignedUpEventsOfUserLiveData: failed to retrieve events", eventTask.getException());
+                        signedUpEventsLiveData.setValue(new ArrayList<>());
+                    }
+                });
+        });
+        return signedUpEventsLiveData;
     }
 
     public LiveData<List<Event>> getEventsOfOrganizerLiveData(String organizerId) {
