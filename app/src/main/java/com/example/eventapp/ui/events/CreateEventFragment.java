@@ -19,7 +19,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
-import com.example.eventapp.photos.PhotoPickerUtils;
+import com.example.eventapp.photos.PhotoPicker;
+import com.example.eventapp.photos.PhotoUploader;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 public class CreateEventFragment extends BottomSheetDialogFragment implements DatePickerFragment.SetDateListener {
     private CreateEventListener createEventListener;
     private String posterUriString = "";
+    private Uri selectedPhotoUri;
     private ImageView posterImageView;
     private ArrayList<Long> timestamps;
     private ActivityResultLauncher<Intent> photoPickerLauncher;
@@ -71,27 +73,19 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
         ImageView posterImageView = view.findViewById(R.id.popup_create_event_image);
 
         posterImageView.setImageResource(R.drawable.default_event_poster);
-        // Initialize photo picker launcher
-        photoPickerLauncher = PhotoPickerUtils.getPhotoPickerLauncher(this, new PhotoPickerUtils.PhotoPickerCallback() {
-
+        PhotoPicker.PhotoPickerCallback pickerCallback = new PhotoPicker.PhotoPickerCallback() {
             @Override
-            public void onPhotoUploadComplete(String downloadUrl) {
-                // Called when the photo is successfully uploaded to Firebase
-                posterUriString = downloadUrl;
-                Glide.with(requireView())
-                        .load(Uri.parse(posterUriString))
-                        .into(posterImageView);
+            public void onPhotoPicked(Uri photoUri) {
+                // Save the URI for later use after validation
+                selectedPhotoUri = photoUri;
+                Glide.with(requireView()).load(selectedPhotoUri).into(posterImageView);
             }
+        };
 
-            @Override
-            public void onPhotoUploadFailed(Exception e) {
-                // Called if there is an error during the upload
-                Toast.makeText(getContext(), "Failed to upload photo: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+        ActivityResultLauncher<Intent> photoPickerLauncher = PhotoPicker.getPhotoPickerLauncher(this, pickerCallback);
 
         // Set listeners
-        selectPosterButton.setOnClickListener(v -> PhotoPickerUtils.openPhotoPicker(photoPickerLauncher));
+        selectPosterButton.setOnClickListener(v -> PhotoPicker.openPhotoPicker(photoPickerLauncher));
 
         eventDurationButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,25 +114,51 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
                 String newEventDescription = eventDescription.getText().toString();
                 String maxEntrants = maxEventEntrants.getText().toString();
 
-                // referenced zxing-android-embedded's "Generate Barcode" example (https://github.com/journeyapps/zxing-android-embedded)
-
-                if(maxEntrants.equals("")){
-                    // no max entrant count given
-                    createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
-                }else{
-                    try{
-                        int max = Integer.parseInt(maxEntrants);
-                        if(max>0){
-                            createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription,geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2)));
-                        }else{
-                            createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
-                        }
-                    }catch (Exception e){
-                        // could not parse input
-                        createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription,geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
-                    }
-                    }
+                // Check if there is an event name
+                if(newEventName.isEmpty()){
+                    Toast.makeText(getContext(), "Must have event name", Toast.LENGTH_SHORT).show();
+                    return;
                 }
+
+                // Check if any timestamps are zero
+                if (timestamps.get(0) == 0 || timestamps.get(1) == 0 || timestamps.get(2) == 0) {
+                    Toast.makeText(getContext(), "All event dates must be set", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Upload photo to Firebase storage and only create the event after a successful upload
+                PhotoUploader.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, new PhotoUploader.UploadCallback() {
+                    @Override
+                    public void onUploadSuccess(String downloadUrl) {
+                        posterUriString = downloadUrl;
+                        Log.d("PhotoUploader", "Photo uploaded successfully: " + posterUriString);
+
+                        // After the photo is uploaded successfully, create the event
+                        if (maxEntrants.isEmpty()) {
+                            // No max entrant count given
+                            createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                        } else {
+                            try {
+                                int max = Integer.parseInt(maxEntrants);
+                                if (max > 0) {
+                                    createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                                } else {
+                                    createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                                }
+                            } catch (Exception e) {
+                                // Could not parse input, create event without max entrants
+                                createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onUploadFailure(Exception e) {
+                        Log.e("PhotoUploader", "Upload failed", e);
+                        Toast.makeText(getContext(), "Photo upload failed. Please try again.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
 
 
         });
