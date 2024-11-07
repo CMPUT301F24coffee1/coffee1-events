@@ -1,7 +1,10 @@
 package com.example.eventapp.ui.profiles;
 
 import android.app.AlertDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -9,19 +12,25 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.databinding.FragmentFacilityEditBinding;
 import com.example.eventapp.models.Facility;
+import com.example.eventapp.photos.PhotoPicker;
+import com.example.eventapp.photos.PhotoUploader;
 import com.example.eventapp.viewmodels.ProfileViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -32,7 +41,9 @@ public class FacilityEditFragment extends Fragment {
     private ProfileViewModel profileViewModel;
     private FragmentFacilityEditBinding binding;
     private Facility facility;
-    private boolean isConfirmed = false;
+    private Uri selectedPhotoUri;
+    private Uri oldPhotoUri;
+    private String photoUriString = "";
 
     private enum Confirmed { YES, NAME }
 
@@ -70,7 +81,7 @@ public class FacilityEditFragment extends Fragment {
                 if (item.getItemId() == R.id.navigation_facility_confirm) {
                     // Here because we only want this behaviour to happen when hitting confirm,
                     // not the back button
-                    isConfirmed = false;
+                    boolean isConfirmed = false;
                     FacilityEditFragment.Confirmed confirmable = confirmable();
                     final String error; // Array for finality in lambda statement
                     if (Objects.requireNonNull(confirmable) == Confirmed.NAME) {
@@ -80,7 +91,37 @@ public class FacilityEditFragment extends Fragment {
                         isConfirmed = true;
                     }
                     if (isConfirmed) {
-                        navController.popBackStack();
+                        if (selectedPhotoUri != null) {
+                            // Upload photo to Firebase storage and only confirm if the upload is successful
+                            PhotoUploader.UploadCallback uploadCallback = new PhotoUploader.UploadCallback() {
+                                @Override
+                                public void onUploadSuccess(String downloadUrl) {
+                                    photoUriString = downloadUrl;
+                                    Log.d("PhotoUploader", "Photo uploaded successfully: " + photoUriString);
+                                    updateFacility();
+                                    navController.popBackStack();
+                                }
+
+                                @Override
+                                public void onUploadFailure(Exception e) {
+                                    Log.e("PhotoUploader", "Upload failed", e);
+                                    Toast.makeText(getContext(), getString(R.string.photo_upload_failed), Toast.LENGTH_SHORT).show();
+                                }
+                            };
+                            if (oldPhotoUri == null) {
+                                PhotoUploader.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "facilities","photo", uploadCallback);
+                            } else {
+                                // Overwrite old photo
+                                final String id = Objects.requireNonNull(oldPhotoUri.getLastPathSegment()).split("/")[1];
+                                PhotoUploader.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "facilities","photo", id, uploadCallback);
+                            }
+
+                        } else {
+                            // If photo wasn't changed, nothing needs to be uploaded,
+                            // so we can just add the facility as is
+                            updateFacility();
+                            navController.popBackStack();
+                        }
                     } else {
                         Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
                     }
@@ -100,20 +141,43 @@ public class FacilityEditFragment extends Fragment {
 
         final EditText nameField = binding.facilityEditNameInput;
         final EditText descField = binding.facilityEditDescInput;
+        final ImageView photo = binding.facilityEditPhoto;
 
         nameField.setText(facility.getFacilityName());
         descField.setText(facility.getFacilityDescription());
+
+        if (facility.hasPhoto()) {
+            oldPhotoUri = facility.getPhotoUri();
+            Glide.with(requireContext())
+                    .load(facility.getPhotoUri())
+                    .into(photo);
+        } else {
+            photo.setImageResource(R.drawable.ic_facility_24dp);
+        }
 
         return root;
     }
 
     /**
-     * Sets the listener for the button to delete fragment
+     * Sets the listener for the button to delete fragment, and button to add/edit photo
      * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
      * @param savedInstanceState If non-null, this fragment is being re-constructed
      * from a previous saved state as given here.
      */
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        final ImageView photo = binding.facilityEditPhoto;
+        final CardView photoCard = binding.facilityEditPhotoCard;
+
+        PhotoPicker.PhotoPickerCallback pickerCallback = photoUri -> {
+            // Save the URI for later use after validation
+            selectedPhotoUri = photoUri;
+            Glide.with(requireView()).load(selectedPhotoUri).into(photo);
+        };
+
+        ActivityResultLauncher<Intent> photoPickerLauncher = PhotoPicker.getPhotoPickerLauncher(this, pickerCallback);
+
+        photoCard.setOnClickListener(v -> PhotoPicker.openPhotoPicker(photoPickerLauncher));
+
         NavController navController = NavHostFragment.findNavController(this);
 
         FloatingActionButton deleteButton = view.findViewById(R.id.facility_edit_delete);
@@ -142,22 +206,27 @@ public class FacilityEditFragment extends Fragment {
     }
 
     /**
+     * Updates the facility and sends it to the ViewModel
+     */
+    private void updateFacility() {
+        // do confirm routine
+        final EditText nameField = binding.facilityEditNameInput;
+        final EditText descField = binding.facilityEditDescInput;
+
+        facility.setFacilityName(nameField.getText().toString());
+        facility.setFacilityDescription(descField.getText().toString());
+        facility.setPhotoUriString(photoUriString);
+
+        profileViewModel.updateSelectedFacility(facility);
+    }
+
+    /**
      * Makes sure to clear the binding, and, if confirm button was pressed,
      * update the User in the View Model with the new information
      */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (isConfirmed) {
-            // do confirm routine
-            final EditText nameField = binding.facilityEditNameInput;
-            final EditText descField = binding.facilityEditDescInput;
-
-            facility.setFacilityName(nameField.getText().toString());
-            facility.setFacilityName(descField.getText().toString());
-
-            profileViewModel.updateSelectedFacility(facility);
-        }
         binding = null;
     }
 }

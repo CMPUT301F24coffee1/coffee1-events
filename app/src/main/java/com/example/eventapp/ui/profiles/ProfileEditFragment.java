@@ -19,6 +19,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -115,13 +116,7 @@ public class ProfileEditFragment extends Fragment {
                     if (isConfirmed) {
                         if (selectedPhotoUri != null) {
                             // Upload photo to Firebase storage and only confirm if the upload is successful
-                            final String id;
-                            if (oldPhotoUri == null) {
-                                id = "";
-                            } else {
-                                id = Objects.requireNonNull(oldPhotoUri.getLastPathSegment()).split("/")[1];
-                            }
-                            PhotoUploader.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "profile", id, "photo", new PhotoUploader.UploadCallback() {
+                            PhotoUploader.UploadCallback uploadCallback = new PhotoUploader.UploadCallback() {
                                 @Override
                                 public void onUploadSuccess(String downloadUrl) {
                                     photoUriString = downloadUrl;
@@ -135,14 +130,21 @@ public class ProfileEditFragment extends Fragment {
                                     Log.e("PhotoUploader", "Upload failed", e);
                                     Toast.makeText(getContext(), getString(R.string.photo_upload_failed), Toast.LENGTH_SHORT).show();
                                 }
-                            });
+                            };
+
+                            if (oldPhotoUri == null) {
+                                PhotoUploader.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "profiles","photo", uploadCallback);
+                            } else {
+                                // Overwrite old photo
+                                final String id = Objects.requireNonNull(oldPhotoUri.getLastPathSegment()).split("/")[1];
+                                PhotoUploader.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "profiles","photo", id, uploadCallback);
+                            }
                         } else {
                             // If photo wasn't changed, nothing needs to be uploaded,
                             // so we can just update the user as is
                             updateUser();
                             navController.popBackStack();
                         }
-
                     } else {
                         Toast.makeText(getContext(), error[0], Toast.LENGTH_SHORT).show();
                     }
@@ -172,6 +174,7 @@ public class ProfileEditFragment extends Fragment {
      */
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         final ImageView photo = binding.profileEditPhoto;
+        final CardView photoCard = binding.profileEditPhotoCard;
 
         PhotoPicker.PhotoPickerCallback pickerCallback = photoUri -> {
             // Save the URI for later use after validation
@@ -181,7 +184,7 @@ public class ProfileEditFragment extends Fragment {
 
         ActivityResultLauncher<Intent> photoPickerLauncher = PhotoPicker.getPhotoPickerLauncher(this, pickerCallback);
 
-        photo.setOnClickListener(v -> PhotoPicker.openPhotoPicker(photoPickerLauncher));
+        photoCard.setOnClickListener(v -> PhotoPicker.openPhotoPicker(photoPickerLauncher));
     }
 
     /**

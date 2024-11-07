@@ -24,8 +24,12 @@
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/facility_add_photo_card"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="178dp"
+                android:layout_height="178dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:foreground="?android:attr/selectableItemBackground"
                 app:cardBackgroundColor="#00FFFFFF"
                 app:cardCornerRadius="100dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -34,11 +38,27 @@
 
                 <ImageView
                     android:id="@+id/facility_add_photo"
-                    android:layout_width="178dp"
-                    android:layout_height="178dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:contentDescription="@string/facility_image"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_facility_24dp" />
+
+                <View
+                    android:id="@+id/facility_add_photo_darken"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:alpha="0.5"
+                    android:background="@color/material_dynamic_neutral0" />
+
+                <ImageView
+                    android:id="@+id/facility_add_photo_modify"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/modify_profile_photo"
+                    android:padding="30dp"
+                    app:srcCompat="@drawable/ic_add_photo_alternate_24" />
+
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView

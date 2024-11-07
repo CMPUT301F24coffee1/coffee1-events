@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Facility;
 import com.example.eventapp.viewmodels.ProfileViewModel;
@@ -32,9 +34,18 @@ public class FacilityInfoFragment extends BottomSheetDialogFragment {
 
         TextView facilityName = view.findViewById(R.id.facility_name);
         TextView facilityDesc = view.findViewById(R.id.facility_desc);
+        ImageView facilityPhoto = view.findViewById(R.id.facility_photo);
 
         facilityName.setText(facility.getFacilityName());
         facilityDesc.setText(facility.getFacilityDescription());
+
+        if (facility.hasPhoto()) {
+            Glide.with(requireContext())
+                    .load(facility.getPhotoUri())
+                    .into(facilityPhoto);
+        } else {
+            facilityPhoto.setImageResource(R.drawable.ic_facility_24dp);
+        }
 
         return view;
     }

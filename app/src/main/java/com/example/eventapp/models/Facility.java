@@ -1,5 +1,7 @@
 package com.example.eventapp.models;
 
+import android.net.Uri;
+
 import com.google.firebase.firestore.Exclude;
 
 public class Facility {
@@ -7,6 +9,7 @@ public class Facility {
     private String documentId;
     private String organizerId;
 
+    private String photoUriString = "";
     private String facilityName;
     private String facilityDescription;
 
@@ -54,4 +57,15 @@ public class Facility {
     public void setFacilityDescription(String facilityDescription) {
         this.facilityDescription = facilityDescription;
     }
+
+    public String getPhotoUriString() {
+        return photoUriString;
+    }
+
+    public void setPhotoUriString(String photoUriString) {this.photoUriString = photoUriString;}
+
+    public Uri getPhotoUri() { return Uri.parse(photoUriString);}
+
+    public Boolean hasPhoto() { return !photoUriString.isEmpty(); }
+
 }
