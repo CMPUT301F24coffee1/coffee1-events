@@ -8,11 +8,21 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import java.util.Date;
 
 public class EventInfoFragment extends BottomSheetDialogFragment {
+
+    private Event event;
+
+    public EventInfoFragment (Event event) {
+        this.event = event;
+    }
+
     interface EditEventInfoListener{
         void editEventInfo(Event event);
     }
@@ -28,12 +38,22 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         TextView eventDescription = view.findViewById(R.id.popup_event_description_text);
         TextView eventEntrantsCount = view.findViewById(R.id.popup_create_event_max_entrants);
 
-        // placeholders
-        eventName.setText("PLACEHOLDER NAME");
-        eventDuration.setText("January 1st - December 1st");
-        eventRegistrationDeadline.setText("Registration Deadline: January 1st");
-        eventEntrantsCount.setText("Entrants: 80/90");
-
+        // Set views
+        eventName.setText(event.getEventName());
+        eventDuration.setText("From: " + FormatDate.format(event.getStartDate()) + " To: " + FormatDate.format(event.getEndDate()));
+        if (event.hasPoster()) {
+            Glide.with(this)
+                    .load(event.getPosterUri())
+                    .into(eventImage);
+        } else {
+            eventImage.setImageResource(R.drawable.default_event_poster);
+        }
+        eventRegistrationDeadline.setText(FormatDate.format(event.getDeadline()));
+        if (event.getMaxEntrants() != -1) {
+            eventEntrantsCount.setText("Entrants: 0/" + event.getMaxEntrants());
+        } else {
+            eventEntrantsCount.setText("No Entrant Limit");
+        }
         editEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
