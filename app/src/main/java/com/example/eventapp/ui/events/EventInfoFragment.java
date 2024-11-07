@@ -22,15 +22,37 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
     private final Event event;
     private final EventsFragment eventsFragment;
 
+    /**
+     * This is the constructor for the Event Info Fragment.
+     * It is used to get the necessary data to show event info and edit the event
+     * @param event Event that is clicked and needs to display info for
+     * @param eventsFragment The main events fragment instance which can be used to
+     *                       call the show function for the edit event
+     */
     public EventInfoFragment (Event event, EventsFragment eventsFragment) {
         this.event = event;
         this.eventsFragment = eventsFragment;
     }
 
+    /**
+     * Interface for main event fragment to implement in order to edit event
+     */
     interface EditEventInfoListener{
         void editEventInfo(Event event);
     }
 
+    /**
+     * Initialize and run the event info fragment with the current event's info.
+     * Includes the edit event button which initializes the edit event fragment
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     */
     @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
@@ -61,6 +83,7 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
             eventEntrantsCount.setText("No Entrant Limit");
         }
 
+        // Initializes the edit event fragment with the given event
         editEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

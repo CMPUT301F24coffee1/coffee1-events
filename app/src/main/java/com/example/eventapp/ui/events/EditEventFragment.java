@@ -37,16 +37,29 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
     private ArrayList<Long> timestamps;
     private EditEventListener editEventListener;
 
+    /**
+     * Interface for main event fragment to implement in order to save edited event
+     */
     interface EditEventListener {
         void saveEditedEvent(Event event);
     }
 
+    /**
+     * Constructor for the edit event fragment
+     * @param event The event that is going to be edited
+     * @param listener A listener to transfer the data to the parent fragment
+     */
     public EditEventFragment(Event event, EditEventListener listener) {
         this.event = event;
         this.editEventListener = listener;
         this.oldPosterUriString = event.getPosterUriString();
     }
 
+    /**
+     *
+     * @param timestamp A l
+     * @param type
+     */
     @Override
     public void setDate(long timestamp, int type) {
         switch(type) {
@@ -56,6 +69,18 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
         }
     }
 
+    /**
+     * Initialize and run the edit fragment with current event info
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return listener with new event
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         timestamps = new ArrayList<>(Arrays.asList(event.getStartDate(), event.getEndDate(), event.getDeadline()));
@@ -84,8 +109,8 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
 
         // Implement event duration and registration deadline buttons
         eventDurationButton.setOnClickListener(v -> {
-            showDatePickerFragment(0);
             showDatePickerFragment(1);
+            showDatePickerFragment(0);
         });
         eventRegistrationDeadlineButton.setOnClickListener(v -> showDatePickerFragment(2));
 
@@ -164,6 +189,10 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
         return view;
     }
 
+    /**
+     * Open the date picker fragments
+     * @param type Defines the type of date (0: start, 1: end, 2: deadline)
+     */
     private void showDatePickerFragment(int type) {
         DatePickerFragment datePickerFragment = new DatePickerFragment(this, type);
         datePickerFragment.show(getActivity().getSupportFragmentManager(), null);
