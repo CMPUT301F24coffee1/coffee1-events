@@ -1,3 +1,4 @@
+.firebaserc
 google-services.json
 *.iml
 .gradle
