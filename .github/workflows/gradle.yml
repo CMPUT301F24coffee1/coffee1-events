@@ -37,3 +37,11 @@ jobs:
 
     - name: Build with Gradle Wrapper
       run: ./gradlew assembleDebug
+
+    - name: Start Emulator
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 34
+        script: ./gradlew connectedAndroidTest
+        profile: nexus6
+        emulator-options: '-no-snapshot-load -noaudio -no-boot-anim -no-window'
