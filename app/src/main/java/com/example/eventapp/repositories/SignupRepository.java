@@ -21,9 +21,20 @@ public class SignupRepository {
         signupCollection = FirebaseFirestore.getInstance().collection("signups");
     }
 
+    private SignupRepository(FirebaseFirestore testInstance) {
+        signupCollection = testInstance.collection("signups");
+    }
+
     public static synchronized SignupRepository getInstance() {
         if (instance == null) {
             instance = new SignupRepository();
+        }
+        return instance;
+    }
+
+    public static synchronized SignupRepository getTestInstance(FirebaseFirestore testInstance) {
+        if (instance == null) {
+            instance = new SignupRepository(testInstance);
         }
         return instance;
     }

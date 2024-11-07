@@ -31,9 +31,20 @@ public class UserRepository {
         userCollection = FirebaseFirestore.getInstance().collection("users");
     }
 
+    private UserRepository(FirebaseFirestore testInstance) {
+        userCollection = testInstance.collection("users");
+    }
+
     public static synchronized UserRepository getInstance() {
         if (instance == null) {
             instance = new UserRepository();
+        }
+        return instance;
+    }
+
+    public static synchronized UserRepository getTestInstance(FirebaseFirestore testInstance) {
+        if (instance == null) {
+            instance = new UserRepository(testInstance);
         }
         return instance;
     }
