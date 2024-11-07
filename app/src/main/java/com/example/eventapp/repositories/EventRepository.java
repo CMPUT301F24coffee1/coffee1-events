@@ -29,9 +29,21 @@ public class EventRepository {
         signupRepository = SignupRepository.getInstance();
     }
 
+    private EventRepository(FirebaseFirestore testInstance) {
+        eventCollection = testInstance.collection("events");
+        signupRepository = SignupRepository.getTestInstance(testInstance);
+    }
+
     public static synchronized EventRepository getInstance() {
         if (instance == null) {
             instance = new EventRepository();
+        }
+        return instance;
+    }
+
+    public static synchronized EventRepository getTestInstance(FirebaseFirestore testInstance) {
+        if (instance == null) {
+            instance = new EventRepository(testInstance);
         }
         return instance;
     }

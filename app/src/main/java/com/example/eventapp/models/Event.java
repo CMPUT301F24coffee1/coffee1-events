@@ -99,7 +99,13 @@ public class Event {
 
     public void setPosterUriString(String posterUriString) {this.posterUriString = posterUriString;}
 
-    public Uri getPosterUri() { return Uri.parse(posterUriString);}
+    public Uri getPosterUri() {
+        if (posterUriString != null && !posterUriString.isEmpty()) {
+            return Uri.parse(posterUriString);
+        } else {
+            return null;
+        }
+    }
 
     public Boolean hasPoster() { return !(posterUriString.isEmpty());}
 
