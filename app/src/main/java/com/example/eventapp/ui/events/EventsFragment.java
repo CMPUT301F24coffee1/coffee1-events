@@ -109,11 +109,11 @@ public class EventsFragment extends Fragment implements
     @Override
     public void onEventClick(Event event) {
         Log.d("EventsFragment", "Event with name " + event.getEventName() + " clicked");
-        showEventInfoPopup();
+        showEventInfoPopup(event);
     }
 
-    private void showEventInfoPopup() {
-        EventInfoFragment eventInfoFragment = new EventInfoFragment();
+    private void showEventInfoPopup(Event event) {
+        EventInfoFragment eventInfoFragment = new EventInfoFragment(event);
         eventInfoFragment.show(getActivity().getSupportFragmentManager(), "event_info");
     }
 
