@@ -13,15 +13,18 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
+import com.example.eventapp.ui.events.EventsFragment;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import java.util.Date;
 
 public class EventInfoFragment extends BottomSheetDialogFragment {
 
     private final Event event;
+    private final EventsFragment eventsFragment;
 
-    public EventInfoFragment (Event event) {
+    public EventInfoFragment (Event event, EventsFragment eventsFragment) {
         this.event = event;
+        this.eventsFragment = eventsFragment;
     }
 
     interface EditEventInfoListener{
@@ -61,7 +64,7 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         editEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("EventInfoFragment", "Edit Button Clicked");
+                eventsFragment.showEditEventPopup(event);
             }
         });
         return view;

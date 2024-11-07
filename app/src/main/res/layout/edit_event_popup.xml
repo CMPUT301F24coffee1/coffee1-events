@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Event Name EditText -->
+        <EditText
+            android:id="@+id/popup_edit_event_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="32dp"
+            android:hint="Event Name"
+            android:textSize="40sp"
+            app:layout_constraintEnd_toStartOf="@+id/popup_save_event_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Save Button -->
+        <Button
+            android:id="@+id/popup_save_event_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:text="Save Changes"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/popup_edit_event_name"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Event Poster Image -->
+        <ImageView
+            android:id="@+id/popup_edit_event_image"
+            android:layout_width="0dp"
+            android:layout_height="200sp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_edit_event_name"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <!-- Event Duration and Geolocation Settings -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/popup_edit_event_geolocation_checkbox_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_edit_event_image">
+
+            <Button
+                android:id="@+id/popup_edit_event_duration_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Edit Event Duration"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <CheckBox
+                android:id="@+id/popup_edit_event_geolocation_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layoutDirection="rtl"
+                android:paddingEnd="8dp"
+                android:text="Require Geolocation"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Event Registration Deadline Button -->
+        <Button
+            android:id="@+id/popup_edit_event_registration_deadline_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="Edit Registration Deadline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_edit_event_geolocation_checkbox_layout" />
+
+        <!-- Event Description -->
+        <EditText
+            android:id="@+id/popup_edit_event_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:hint="Event Description"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_edit_event_registration_deadline_button" />
+
+        <!-- Maximum Entrants -->
+        <EditText
+            android:id="@+id/popup_edit_event_max_entrants"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="10dp"
+            android:hint="Max Number of Entrants (Optional)"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:inputType="phone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_edit_event_description"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <!-- Edit Poster Button -->
+        <Button
+            android:id="@+id/popup_edit_event_add_poster"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Edit Poster"
+            app:layout_constraintBottom_toTopOf="@+id/popup_edit_event_image"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/popup_edit_event_name"
+            app:layout_constraintTop_toBottomOf="@+id/popup_save_event_button" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
