@@ -49,4 +49,8 @@
     <string name="title_facility_confirm_add">Add Facility</string>
     <string name="modify_profile_photo">Modify profile photo</string>
     <string name="photo_upload_failed">Photo upload failed. Please try again.</string>
+    <string name="remove_photo">Remove photo</string>
+    <string name="facility_creation_failed">Facility creation failed, please try again</string>
+    <string name="facility_update_failed">Failed to update facility, please try again</string>
+    <string name="user_update_failed">Failed to update profile, please try again</string>
 </resources>

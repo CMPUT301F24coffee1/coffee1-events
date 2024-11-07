@@ -1,5 +1,7 @@
 package com.example.eventapp.photos;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,9 +13,10 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.UUID;
 
-public class PhotoUploader {
+public class PhotoManager {
 
     // Interface for callback to handle upload success and failure
     public interface UploadCallback {
@@ -47,7 +50,7 @@ public class PhotoUploader {
     // Version that doesn't specify id, so generates one
     public static void uploadPhotoToFirebase(Context context, Uri photoUri, int quality, String path, String title, UploadCallback callback) {
         String uniqueImageId = UUID.randomUUID().toString();
-        uploadPhotoToFirebase(context, photoUri, quality, path,title, uniqueImageId, callback);
+        uploadPhotoToFirebase(context, photoUri, quality, path, uniqueImageId, title, callback);
     }
 
     // Compress the image from Uri
@@ -63,5 +66,26 @@ public class PhotoUploader {
             e.printStackTrace();
             return null;
         }
+    }
+
+    /**
+     * Deletes a photo from the firebase storage
+     * @param photoUri The URI of the photo to be deleted
+     */
+    public static void deletePhotoFromFirebase(Uri photoUri) {
+        if (photoUri != null) {
+            StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(Objects.requireNonNull(photoUri.getLastPathSegment()));
+            storageRef.delete()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "deletePhotoFromFirebase: success - URI: " + photoUri);
+                        } else {
+                            Log.e(TAG, "deletePhotoFromFirebase: fail", task.getException());
+                        }
+                    });
+        } else {
+            Log.w(TAG, "photoUri is null, cannot delete photo from firebase");
+        }
+
     }
 }

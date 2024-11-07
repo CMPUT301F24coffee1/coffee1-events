@@ -23,13 +23,31 @@
             android:layout_width="250dp"
             android:layout_height="wrap_content">
 
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/profile_edit_remove_photo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="2dp"
+                android:clickable="true"
+                android:contentDescription="@string/remove_photo"
+                android:focusable="true"
+                android:visibility="gone"
+                app:backgroundTint="@color/design_default_color_error"
+                app:fabSize="mini"
+                app:layout_constraintEnd_toEndOf="@+id/profile_edit_photo_card"
+                app:layout_constraintTop_toTopOf="@+id/profile_edit_photo_card"
+                app:maxImageSize="24dp"
+                app:srcCompat="@drawable/ic_subtract_minus_24dp"
+                app:tint="@color/white" />
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/profile_edit_photo_card"
                 android:layout_width="178dp"
                 android:layout_height="178dp"
+                android:background="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
-                android:background="?android:attr/selectableItemBackground"
                 android:foreground="?android:attr/selectableItemBackground"
                 app:cardBackgroundColor="#00FFFFFF"
                 app:cardCornerRadius="100dp"

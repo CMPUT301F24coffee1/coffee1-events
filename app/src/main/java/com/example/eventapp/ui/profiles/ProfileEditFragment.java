@@ -1,5 +1,7 @@
 package com.example.eventapp.ui.profiles;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -32,8 +34,9 @@ import com.example.eventapp.databinding.FragmentProfileEditBinding;
 import com.example.eventapp.models.Facility;
 import com.example.eventapp.models.User;
 import com.example.eventapp.photos.PhotoPicker;
-import com.example.eventapp.photos.PhotoUploader;
+import com.example.eventapp.photos.PhotoManager;
 import com.example.eventapp.viewmodels.ProfileViewModel;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +50,7 @@ public class ProfileEditFragment extends Fragment {
     private Uri selectedPhotoUri;
     private Uri oldPhotoUri;
     private String photoUriString = "";
+    private boolean removingPhoto = false;
 
     private enum Confirmed { YES, NAME, EMAIL, PHONE, ORGANIZER }
 
@@ -116,7 +120,7 @@ public class ProfileEditFragment extends Fragment {
                     if (isConfirmed) {
                         if (selectedPhotoUri != null) {
                             // Upload photo to Firebase storage and only confirm if the upload is successful
-                            PhotoUploader.UploadCallback uploadCallback = new PhotoUploader.UploadCallback() {
+                            PhotoManager.UploadCallback uploadCallback = new PhotoManager.UploadCallback() {
                                 @Override
                                 public void onUploadSuccess(String downloadUrl) {
                                     photoUriString = downloadUrl;
@@ -133,15 +137,22 @@ public class ProfileEditFragment extends Fragment {
                             };
 
                             if (oldPhotoUri == null) {
-                                PhotoUploader.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "profiles","photo", uploadCallback);
+                                PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "profiles","photo", uploadCallback);
                             } else {
                                 // Overwrite old photo
                                 final String id = Objects.requireNonNull(oldPhotoUri.getLastPathSegment()).split("/")[1];
-                                PhotoUploader.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "profiles","photo", id, uploadCallback);
+                                PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "profiles", id, "photo", uploadCallback);
                             }
                         } else {
                             // If photo wasn't changed, nothing needs to be uploaded,
                             // so we can just update the user as is
+                            if (oldPhotoUri != null) {
+                                if (removingPhoto) {
+                                    profileViewModel.removeUserPhoto();
+                                } else {
+                                    photoUriString = oldPhotoUri.toString();
+                                }
+                            }
                             updateUser();
                             navController.popBackStack();
                         }
@@ -175,16 +186,26 @@ public class ProfileEditFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         final ImageView photo = binding.profileEditPhoto;
         final CardView photoCard = binding.profileEditPhotoCard;
+        final FloatingActionButton removePhoto = binding.profileEditRemovePhoto;
 
         PhotoPicker.PhotoPickerCallback pickerCallback = photoUri -> {
             // Save the URI for later use after validation
             selectedPhotoUri = photoUri;
             Glide.with(requireView()).load(selectedPhotoUri).into(photo);
+            removingPhoto = false;
+            removePhoto.setVisibility(View.VISIBLE);
         };
 
         ActivityResultLauncher<Intent> photoPickerLauncher = PhotoPicker.getPhotoPickerLauncher(this, pickerCallback);
 
         photoCard.setOnClickListener(v -> PhotoPicker.openPhotoPicker(photoPickerLauncher));
+
+        removePhoto.setOnClickListener(v -> {
+            removingPhoto = true;
+            removePhoto.setVisibility(View.GONE);
+            photo.setImageResource(R.drawable.ic_dashboard_profile_24dp);
+            selectedPhotoUri = null;
+        });
     }
 
     /**
@@ -198,6 +219,7 @@ public class ProfileEditFragment extends Fragment {
         final CheckBox optNotifs = binding.profileEditNotifications;
         final CheckBox isOrganizer = binding.profileEditIsOrganizer;
         final ImageView photo = binding.profileEditPhoto;
+        final FloatingActionButton removePhoto = binding.profileEditRemovePhoto;
 
         nameField.setText(user.getName());
         emailField.setText(user.getEmail());
@@ -205,11 +227,13 @@ public class ProfileEditFragment extends Fragment {
         optNotifs.setChecked(user.isNotificationOptOut());
         isOrganizer.setChecked(user.isOrganizer());
         if (user.hasPhoto()) {
+            removePhoto.setVisibility(View.VISIBLE);
             oldPhotoUri = user.getPhotoUri();
             Glide.with(requireContext())
                     .load(user.getPhotoUri())
                     .into(photo);
         } else {
+            removePhoto.setVisibility(View.GONE);
             photo.setImageResource(R.drawable.ic_dashboard_profile_24dp);
         }
     }
@@ -262,18 +286,23 @@ public class ProfileEditFragment extends Fragment {
      */
     private void updateUser() {
         // do confirm routine
-        final EditText nameField = binding.profileEditNameInput;
-        final EditText emailField = binding.profileEditEmailInput;
-        final EditText phoneField = binding.profileEditPhoneInput;
-        final CheckBox optNotifs = binding.profileEditNotifications;
-        final CheckBox isOrganizer = binding.profileEditIsOrganizer;
+        try {
+            final EditText nameField = binding.profileEditNameInput;
+            final EditText emailField = binding.profileEditEmailInput;
+            final EditText phoneField = binding.profileEditPhoneInput;
+            final CheckBox optNotifs = binding.profileEditNotifications;
+            final CheckBox isOrganizer = binding.profileEditIsOrganizer;
 
-        profileViewModel.updateUser(Objects.requireNonNull(nameField.getText()).toString(),
-                Objects.requireNonNull(emailField.getText()).toString(),
-                Objects.requireNonNull(phoneField.getText()).toString(),
-                optNotifs.isChecked(),
-                isOrganizer.isChecked(),
-                photoUriString);
+            profileViewModel.updateUser(Objects.requireNonNull(nameField.getText()).toString(),
+                    Objects.requireNonNull(emailField.getText()).toString(),
+                    Objects.requireNonNull(phoneField.getText()).toString(),
+                    optNotifs.isChecked(),
+                    isOrganizer.isChecked(),
+                    photoUriString);
+        }  catch (Exception e) {
+            Log.e(TAG, "Failure to update user: ", e);
+            Toast.makeText(getContext(), R.string.user_update_failed, Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**

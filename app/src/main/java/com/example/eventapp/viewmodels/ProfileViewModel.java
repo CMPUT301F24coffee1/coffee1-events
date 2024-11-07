@@ -2,6 +2,7 @@ package com.example.eventapp.viewmodels;
 
 import static android.content.ContentValues.TAG;
 
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -10,6 +11,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.eventapp.models.Facility;
 import com.example.eventapp.models.User;
+import com.example.eventapp.photos.PhotoManager;
 import com.example.eventapp.repositories.FacilityRepository;
 import com.example.eventapp.repositories.UserRepository;
 
@@ -77,7 +79,7 @@ public class ProfileViewModel extends ViewModel {
                 if (task.isSuccessful()) {
                     Log.i(TAG, "Updated user with name: " + user.getName());
                 } else {
-                    Log.e(TAG, "Failed to update user", task.getException());
+                    Log.e(TAG, "Failed to update user: " + user.getName(), task.getException());
                 }
             });
         }
@@ -97,9 +99,9 @@ public class ProfileViewModel extends ViewModel {
      * @param facility The facility to add to the repository
      */
     public void addFacility(Facility facility) {
-        User currentUser = currentUserLiveData.getValue();
-        if (currentUser != null) {
-            facility.setOrganizerId(currentUser.getUserId());
+        User user = currentUserLiveData.getValue();
+        if (user != null) {
+            facility.setOrganizerId(user.getUserId());
 
             facilityRepository.addFacility(facility).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
@@ -121,13 +123,21 @@ public class ProfileViewModel extends ViewModel {
 
     /**
      * Gets the currently selected Facility, for use in communication between fragments
-     * If no facility is selected, it will make an empty facility and select and return that instead
+     * If no facility is selected, it will run newSelectedFacility() instead
      * @return The currently selected Facility
      */
     public Facility getSelectedFacility() {
         if (this.selectedFacility != null) {
             return this.selectedFacility;
         }
+        return newSelectedFacility();
+    }
+
+    /**
+     * Creates a new facility, and then selects it for use in communication between fragments
+     * @return The newly created facility
+     */
+    public Facility newSelectedFacility() {
         Facility facility = new Facility("");
         setSelectedFacility(facility);
         return facility;
@@ -146,6 +156,35 @@ public class ProfileViewModel extends ViewModel {
     public void removeSelectedFacility() {
         Facility facility = getSelectedFacility();
         facilityRepository.removeFacility(facility);
+    }
+
+    /**
+     * Removes the profile photo of the user from firebase and from the user's data
+     */
+    public void removeUserPhoto() {
+        User user = currentUserLiveData.getValue();
+        if (user != null) {
+            Uri photoUri = user.getPhotoUri();
+            PhotoManager.deletePhotoFromFirebase(photoUri);
+            user.setPhotoUriString("");
+            userRepository.saveUser(user).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Log.i(TAG, "Successfully removed photo from user: " + user.getName());
+                } else {
+                    Log.e(TAG, "Failed to remove photo from user: " + user.getName(), task.getException());
+                }
+            });
+        }
+    }
+
+    /**
+     * Removes the photo of the selected facility
+     */
+    public void removePhotoOfSelectedFacility() {
+        Uri photoUri = selectedFacility.getPhotoUri();
+        PhotoManager.deletePhotoFromFirebase(photoUri);
+        selectedFacility.setPhotoUriString("");
+        facilityRepository.updateFacility(selectedFacility);
     }
 
 }

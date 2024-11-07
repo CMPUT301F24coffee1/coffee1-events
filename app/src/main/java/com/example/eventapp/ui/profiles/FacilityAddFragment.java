@@ -1,5 +1,7 @@
 package com.example.eventapp.ui.profiles;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,8 +31,9 @@ import com.example.eventapp.R;
 import com.example.eventapp.databinding.FragmentFacilityAddBinding;
 import com.example.eventapp.models.Facility;
 import com.example.eventapp.photos.PhotoPicker;
-import com.example.eventapp.photos.PhotoUploader;
+import com.example.eventapp.photos.PhotoManager;
 import com.example.eventapp.viewmodels.ProfileViewModel;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Objects;
 
@@ -90,7 +93,7 @@ public class FacilityAddFragment extends Fragment {
                     if (isConfirmed) {
                         if (selectedPhotoUri != null) {
                             // Upload photo to Firebase storage and only confirm if the upload is successful
-                            PhotoUploader.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "facilities", "photo", new PhotoUploader.UploadCallback() {
+                            PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "facilities", "photo", new PhotoManager.UploadCallback() {
                                 @Override
                                 public void onUploadSuccess(String downloadUrl) {
                                     photoUriString = downloadUrl;
@@ -127,22 +130,31 @@ public class FacilityAddFragment extends Fragment {
                 new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
         // Since there is no facility, it will make a blank one
-        facility = profileViewModel.getSelectedFacility();
+        facility = profileViewModel.newSelectedFacility();
 
         final EditText nameField = binding.facilityAddNameInput;
         final EditText descField = binding.facilityAddDescInput;
         final ImageView photo = binding.facilityAddPhoto;
+        final FloatingActionButton removePhoto = binding.facilityAddRemovePhoto;
 
         nameField.setText(facility.getFacilityName());
         descField.setText(facility.getFacilityDescription());
 
         if (facility.hasPhoto()) {
+            removePhoto.setVisibility(View.VISIBLE);
             Glide.with(requireContext())
                     .load(facility.getPhotoUri())
                     .into(photo);
         } else {
+            removePhoto.setVisibility(View.GONE);
             photo.setImageResource(R.drawable.ic_facility_24dp);
         }
+
+        removePhoto.setOnClickListener(v -> {
+            removePhoto.setVisibility(View.GONE);
+            photo.setImageResource(R.drawable.ic_facility_24dp);
+            selectedPhotoUri = null;
+        });
 
         return root;
     }
@@ -156,11 +168,13 @@ public class FacilityAddFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         final ImageView photo = binding.facilityAddPhoto;
         final CardView photoCard = binding.facilityAddPhotoCard;
+        final FloatingActionButton removePhoto = binding.facilityAddRemovePhoto;
 
         PhotoPicker.PhotoPickerCallback pickerCallback = photoUri -> {
             // Save the URI for later use after validation
             selectedPhotoUri = photoUri;
             Glide.with(requireView()).load(selectedPhotoUri).into(photo);
+            removePhoto.setVisibility(View.VISIBLE);
         };
 
         ActivityResultLauncher<Intent> photoPickerLauncher = PhotoPicker.getPhotoPickerLauncher(this, pickerCallback);
@@ -186,14 +200,20 @@ public class FacilityAddFragment extends Fragment {
      */
     private void addFacility() {
         // do confirm routine
-        final EditText nameField = binding.facilityAddNameInput;
-        final EditText descField = binding.facilityAddDescInput;
+        try {
+            final EditText nameField = binding.facilityAddNameInput;
+            final EditText descField = binding.facilityAddDescInput;
 
-        facility.setFacilityName(nameField.getText().toString());
-        facility.setFacilityDescription(descField.getText().toString());
-        facility.setPhotoUriString(photoUriString);
+            facility.setFacilityName(nameField.getText().toString());
+            facility.setFacilityDescription(descField.getText().toString());
+            facility.setPhotoUriString(photoUriString);
 
-        profileViewModel.addFacility(facility);
+            profileViewModel.addFacility(facility);
+        } catch (Exception e) {
+            Log.e(TAG, "Failure to add facility: ", e);
+            Toast.makeText(getContext(), R.string.facility_creation_failed, Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     /**
