@@ -126,38 +126,58 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
                     return;
                 }
 
-                // Upload photo to Firebase storage and only create the event after a successful upload
-                PhotoUploader.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, new PhotoUploader.UploadCallback() {
-                    @Override
-                    public void onUploadSuccess(String downloadUrl) {
-                        posterUriString = downloadUrl;
-                        Log.d("PhotoUploader", "Photo uploaded successfully: " + posterUriString);
-
-                        // After the photo is uploaded successfully, create the event
-                        if (maxEntrants.isEmpty()) {
-                            // No max entrant count given
-                            createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
-                        } else {
-                            try {
-                                int max = Integer.parseInt(maxEntrants);
-                                if (max > 0) {
-                                    createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2)));
-                                } else {
-                                    createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
-                                }
-                            } catch (Exception e) {
-                                // Could not parse input, create event without max entrants
-                                createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                if (selectedPhotoUri == null) {
+                    // No photo selected, create the event directly
+                    if (maxEntrants.isEmpty()) {
+                        // No max entrant count given
+                        createEventListener.createEvent(new Event(newEventName, "", newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                    } else {
+                        try {
+                            int max = Integer.parseInt(maxEntrants);
+                            if (max > 0) {
+                                createEventListener.createEvent(new Event(newEventName, "", newEventDescription, geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                            } else {
+                                createEventListener.createEvent(new Event(newEventName, "", newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                             }
+                        } catch (Exception e) {
+                            // Could not parse input, create event without max entrants
+                            createEventListener.createEvent(new Event(newEventName, "", newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                         }
                     }
+                } else {
+                    // Upload photo to Firebase storage and only create the event after a successful upload
+                    PhotoUploader.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, new PhotoUploader.UploadCallback() {
+                        @Override
+                        public void onUploadSuccess(String downloadUrl) {
+                            posterUriString = downloadUrl;
+                            Log.d("PhotoUploader", "Photo uploaded successfully: " + posterUriString);
 
-                    @Override
-                    public void onUploadFailure(Exception e) {
-                        Log.e("PhotoUploader", "Upload failed", e);
-                        Toast.makeText(getContext(), "Photo upload failed. Please try again.", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                            // After the photo is uploaded successfully, create the event
+                            if (maxEntrants.isEmpty()) {
+                                // No max entrant count given
+                                createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                            } else {
+                                try {
+                                    int max = Integer.parseInt(maxEntrants);
+                                    if (max > 0) {
+                                        createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                                    } else {
+                                        createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                                    }
+                                } catch (Exception e) {
+                                    // Could not parse input, create event without max entrants
+                                    createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onUploadFailure(Exception e) {
+                            Log.e("PhotoUploader", "Upload failed", e);
+                            Toast.makeText(getContext(), "Photo upload failed. Please try again.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
 
 

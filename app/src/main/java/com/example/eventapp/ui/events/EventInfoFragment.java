@@ -1,5 +1,6 @@
 package com.example.eventapp.ui.events;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,7 +18,7 @@ import java.util.Date;
 
 public class EventInfoFragment extends BottomSheetDialogFragment {
 
-    private Event event;
+    private final Event event;
 
     public EventInfoFragment (Event event) {
         this.event = event;
@@ -27,6 +28,7 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         void editEventInfo(Event event);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.event_info_popup, null);
@@ -41,6 +43,8 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         // Set views
         eventName.setText(event.getEventName());
         eventDuration.setText("From: " + FormatDate.format(event.getStartDate()) + " To: " + FormatDate.format(event.getEndDate()));
+        eventRegistrationDeadline.setText("Registration Deadline: " + FormatDate.format(event.getDeadline()));
+        eventDescription.setText(event.getEventDescription());
         if (event.hasPoster()) {
             Glide.with(this)
                     .load(event.getPosterUri())
@@ -48,12 +52,12 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         } else {
             eventImage.setImageResource(R.drawable.default_event_poster);
         }
-        eventRegistrationDeadline.setText(FormatDate.format(event.getDeadline()));
         if (event.getMaxEntrants() != -1) {
             eventEntrantsCount.setText("Entrants: 0/" + event.getMaxEntrants());
         } else {
             eventEntrantsCount.setText("No Entrant Limit");
         }
+
         editEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
