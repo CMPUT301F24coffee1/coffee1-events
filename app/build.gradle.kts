@@ -40,8 +40,7 @@ android {
 dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
-    implementation(libs.firebase.auth)
-    implementation (libs.play.services.auth)
+    implementation(libs.mockito.core)
 
     implementation(libs.appcompat)
     implementation(libs.material)

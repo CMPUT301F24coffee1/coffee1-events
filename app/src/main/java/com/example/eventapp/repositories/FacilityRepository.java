@@ -26,9 +26,20 @@ public class FacilityRepository {
         facilityCollection = FirebaseFirestore.getInstance().collection("facilities");
     }
 
+    private FacilityRepository(FirebaseFirestore testInstance) {
+        facilityCollection = testInstance.collection("facilities");
+    }
+
     public static synchronized FacilityRepository getInstance() {
         if (instance == null) {
             instance = new FacilityRepository();
+        }
+        return instance;
+    }
+
+    public static synchronized FacilityRepository getTestInstance(FirebaseFirestore testInstance) {
+        if (instance == null) {
+            instance = new FacilityRepository(testInstance);
         }
         return instance;
     }
