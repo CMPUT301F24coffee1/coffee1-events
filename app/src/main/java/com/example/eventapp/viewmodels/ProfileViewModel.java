@@ -24,9 +24,12 @@ public class ProfileViewModel extends ViewModel {
     private final FacilityRepository facilityRepository;
     private final MediatorLiveData<List<Facility>> facilitiesLiveData = new MediatorLiveData<>();
     private Facility selectedFacility;
+    private LiveData<List<Facility>> currentFacilitiesSource;
 
     /**
-     * Initialized the View Model, creating a new UserRepository
+     * Initialization of the ViewModel, getting both userRepository and facilityRepository for later use
+     * Then, it takes the current User's live data from the userRepository, which is what the ViewModel
+     * primarily operates with, and sets a forever observer on it
      */
     public ProfileViewModel() {
         userRepository = UserRepository.getInstance();
@@ -37,6 +40,22 @@ public class ProfileViewModel extends ViewModel {
         currentUserLiveData.observeForever(user -> {
             if (user != null) {
                  loadFacilities(user.getUserId());
+            }
+        });
+    }
+
+    /**
+     * Initializes ProfileViewModel, but allows you to pre-specify the repositories for testing purposes
+     */
+    public ProfileViewModel(UserRepository userRepository, FacilityRepository facilityRepository) {
+        this.userRepository = userRepository;
+        this.facilityRepository = facilityRepository;
+        currentUserLiveData = userRepository.getCurrentUserLiveData();
+
+        // load organized and signed-up events when current user data is available
+        currentUserLiveData.observeForever(user -> {
+            if (user != null) {
+                loadFacilities(user.getUserId());
             }
         });
     }
@@ -86,12 +105,15 @@ public class ProfileViewModel extends ViewModel {
     }
 
     /**
-     * Makes sure the list of facilities the user owns is actually loaded
+     * Loads the list of facilities into facilitiesLiveData to be used elsewhere in the ViewModel
      * @param userId The userId of the user being modified in the profile
      */
-    public void loadFacilities(String userId) {
-        LiveData<List<Facility>> facilities = facilityRepository.getFacilitiesOfOrganizerLiveData(userId);
-        facilitiesLiveData.addSource(facilities, facilitiesLiveData::setValue);
+    private void loadFacilities(String userId) {
+        if (currentFacilitiesSource != null) {
+            facilitiesLiveData.removeSource(currentFacilitiesSource);
+        }
+        currentFacilitiesSource = facilityRepository.getFacilitiesOfOrganizerLiveData(userId);
+        facilitiesLiveData.addSource(currentFacilitiesSource, facilitiesLiveData::setValue);
     }
 
     /**
