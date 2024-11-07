@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/facility_card"
     android:layout_width="match_parent"
     android:layout_height="80dp"
@@ -13,7 +14,8 @@
     app:contentPadding="10dp"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent">
+    app:layout_constraintTop_toTopOf="parent"
+    tools:ignore="TextSizeCheck">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/facility_image_constraint"
@@ -21,30 +23,21 @@
         android:layout_height="match_parent">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/facility_image_card"
-            android:layout_width="wrap_content"
+            android:id="@+id/facility_card_photo_card"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             app:cardBackgroundColor="#00FFFFFF"
             app:cardCornerRadius="100dp"
-            app:cardElevation="0dp"
+            app:layout_constraintDimensionRatio="h,1:1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/facility_image_scale_constraint"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent">
-
-                <ImageView
-                    android:id="@+id/facility_card_image"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/facility_profile_picture"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/default_event_poster" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageView
+                android:id="@+id/facility_card_photo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/facility_profile_picture"
+                app:srcCompat="@drawable/ic_facility_24dp" />
 
         </androidx.cardview.widget.CardView>
 
@@ -56,12 +49,14 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:text="@string/lorem_ipsum"
-            android:textColor="@color/material_dynamic_neutral80"
+            android:textColor="@color/material_dynamic_secondary90"
+            android:textStyle="italic"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/facility_name_card"
-            app:layout_constraintTop_toBottomOf="@+id/facility_name_card" />
+            app:layout_constraintTop_toBottomOf="@+id/facility_name_card"
+            tools:ignore="VisualLintLongText" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/facility_name_card"
@@ -76,7 +71,7 @@
             app:contentPaddingTop="2dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/facility_image_card"
+            app:layout_constraintStart_toEndOf="@+id/facility_card_photo_card"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView

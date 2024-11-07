@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.databinding.FragmentProfileBinding;
 import com.example.eventapp.models.User;
@@ -98,12 +100,20 @@ public class ProfileFragment extends Fragment {
         final TextView emailField = binding.profileEmail;
         final TextView phoneField = binding.profilePhone;
         final ConstraintLayout manageFacilitiesContainer = binding.profileManageFacilitiesContainer;
+        final ImageView photo = binding.profilePhoto;
 
         nameField.setText(user.getName());
         emailField.setText(user.getEmail());
         // Below only parses correct phone numbers
         phoneField.setText(PhoneNumberUtils.formatNumber(user.getPhoneNumber(), Locale.getDefault().getCountry()));
         manageFacilitiesContainer.setVisibility(user.isOrganizer() ? View.VISIBLE : View.GONE);
+        if (user.hasPhoto()) {
+            Glide.with(requireContext())
+                    .load(user.getPhotoUri())
+                    .into(photo);
+        } else {
+            photo.setImageResource(R.drawable.ic_dashboard_profile_24dp);
+        }
     }
 
     /**

@@ -39,7 +39,7 @@
     <string name="description">Description</string>
     <string name="facility_image">Facility Image</string>
     <string name="title_facility_edit">Edit Facility</string>
-    <string name="edit_facility_desc">Edits the currently selected Facility</string>
+    <string name="edit_facility_desc">Edits the current Facility</string>
     <string name="title_facility_confirm">Confirm Facility Changes</string>
     <string name="facility_name">Facility Name</string>
     <string name="facility_name_cannot_be_empty">Facility Name cannot be empty</string>
@@ -47,4 +47,6 @@
     <string name="confirm_delete_facility">Deleting this facility will delete all events that belong to this facility.\n\nAre you sure you want to delete this facility?</string>
     <string name="warning">WARNING</string>
     <string name="title_facility_confirm_add">Add Facility</string>
+    <string name="modify_profile_photo">Modify profile photo</string>
+    <string name="photo_upload_failed">Photo upload failed. Please try again.</string>
 </resources>

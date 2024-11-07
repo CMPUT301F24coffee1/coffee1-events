@@ -1,24 +1,16 @@
 package com.example.eventapp.photos;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Log;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.fragment.app.Fragment;
-
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class PhotoUploader {
@@ -30,9 +22,8 @@ public class PhotoUploader {
     }
 
     // Method to compress and upload the image
-    public static void uploadPhotoToFirebase(Context context, Uri photoUri, int quality, UploadCallback callback) {
-        String uniqueImageId = UUID.randomUUID().toString();
-        String imagePath = "events/" + uniqueImageId + "/poster.jpg";
+    public static void uploadPhotoToFirebase(Context context, Uri photoUri, int quality, String pathPrefix, String id, String title, UploadCallback callback) {
+        String imagePath = pathPrefix + "/" + id + "/" + title + ".jpg";
         Log.d("PhotoUploader", "Image Path to upload: " + imagePath);
         StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(imagePath);
 
@@ -51,6 +42,12 @@ public class PhotoUploader {
         } else {
             callback.onUploadFailure(new Exception("Image compression failed"));
         }
+    }
+
+    // Version that doesn't specify id, so generates one
+    public static void uploadPhotoToFirebase(Context context, Uri photoUri, int quality, String path, String title, UploadCallback callback) {
+        String uniqueImageId = UUID.randomUUID().toString();
+        uploadPhotoToFirebase(context, photoUri, quality, path,title, uniqueImageId, callback);
     }
 
     // Compress the image from Uri

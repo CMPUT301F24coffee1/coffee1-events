@@ -146,7 +146,7 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
                     }
                 } else {
                     // Upload photo to Firebase storage and only create the event after a successful upload
-                    PhotoUploader.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, new PhotoUploader.UploadCallback() {
+                    PhotoUploader.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "events", "poster", new PhotoUploader.UploadCallback() {
                         @Override
                         public void onUploadSuccess(String downloadUrl) {
                             posterUriString = downloadUrl;

@@ -1,6 +1,9 @@
 package com.example.eventapp.ui.profiles;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -10,19 +13,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.databinding.FragmentProfileEditBinding;
 import com.example.eventapp.models.Facility;
 import com.example.eventapp.models.User;
+import com.example.eventapp.photos.PhotoPicker;
+import com.example.eventapp.photos.PhotoUploader;
 import com.example.eventapp.viewmodels.ProfileViewModel;
 
 import java.util.ArrayList;
@@ -34,7 +43,9 @@ public class ProfileEditFragment extends Fragment {
     private ProfileViewModel profileViewModel;
     private FragmentProfileEditBinding binding;
     private List<Facility> facilities;
-    private boolean isConfirmed = false;
+    private Uri selectedPhotoUri;
+    private Uri oldPhotoUri;
+    private String photoUriString = "";
 
     private enum Confirmed { YES, NAME, EMAIL, PHONE, ORGANIZER }
 
@@ -74,7 +85,7 @@ public class ProfileEditFragment extends Fragment {
                 if (item.getItemId() == R.id.navigation_profile_confirm) {
                     // Here because we only want this behaviour to happen when hitting confirm,
                     // not the back button
-                    isConfirmed = false;
+                    boolean isConfirmed = false;
                     Confirmed confirmable = confirmable();
                     final String[] error = new String[1]; // Array for finality in lambda statement
                     switch (confirmable) {
@@ -102,7 +113,36 @@ public class ProfileEditFragment extends Fragment {
                             break;
                     }
                     if (isConfirmed) {
-                        navController.popBackStack();
+                        if (selectedPhotoUri != null) {
+                            // Upload photo to Firebase storage and only confirm if the upload is successful
+                            final String id;
+                            if (oldPhotoUri == null) {
+                                id = "";
+                            } else {
+                                id = Objects.requireNonNull(oldPhotoUri.getLastPathSegment()).split("/")[1];
+                            }
+                            PhotoUploader.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "profile", id, "photo", new PhotoUploader.UploadCallback() {
+                                @Override
+                                public void onUploadSuccess(String downloadUrl) {
+                                    photoUriString = downloadUrl;
+                                    Log.d("PhotoUploader", "Photo uploaded successfully: " + photoUriString);
+                                    updateUser();
+                                    navController.popBackStack();
+                                }
+
+                                @Override
+                                public void onUploadFailure(Exception e) {
+                                    Log.e("PhotoUploader", "Upload failed", e);
+                                    Toast.makeText(getContext(), getString(R.string.photo_upload_failed), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        } else {
+                            // If photo wasn't changed, nothing needs to be uploaded,
+                            // so we can just update the user as is
+                            updateUser();
+                            navController.popBackStack();
+                        }
+
                     } else {
                         Toast.makeText(getContext(), error[0], Toast.LENGTH_SHORT).show();
                     }
@@ -125,6 +165,26 @@ public class ProfileEditFragment extends Fragment {
     }
 
     /**
+     * Sets the listener for the button to edit photo
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        final ImageView photo = binding.profileEditPhoto;
+
+        PhotoPicker.PhotoPickerCallback pickerCallback = photoUri -> {
+            // Save the URI for later use after validation
+            selectedPhotoUri = photoUri;
+            Glide.with(requireView()).load(selectedPhotoUri).into(photo);
+        };
+
+        ActivityResultLauncher<Intent> photoPickerLauncher = PhotoPicker.getPhotoPickerLauncher(this, pickerCallback);
+
+        photo.setOnClickListener(v -> PhotoPicker.openPhotoPicker(photoPickerLauncher));
+    }
+
+    /**
      * Updates the user information in the fragment's View
      * @param user The user pulled from the View Model
      */
@@ -134,12 +194,21 @@ public class ProfileEditFragment extends Fragment {
         final EditText phoneField = binding.profileEditPhoneInput;
         final CheckBox optNotifs = binding.profileEditNotifications;
         final CheckBox isOrganizer = binding.profileEditIsOrganizer;
+        final ImageView photo = binding.profileEditPhoto;
 
         nameField.setText(user.getName());
         emailField.setText(user.getEmail());
         phoneField.setText(user.getPhoneNumber());
         optNotifs.setChecked(user.isNotificationOptOut());
         isOrganizer.setChecked(user.isOrganizer());
+        if (user.hasPhoto()) {
+            oldPhotoUri = user.getPhotoUri();
+            Glide.with(requireContext())
+                    .load(user.getPhotoUri())
+                    .into(photo);
+        } else {
+            photo.setImageResource(R.drawable.ic_dashboard_profile_24dp);
+        }
     }
 
     /**
@@ -186,26 +255,30 @@ public class ProfileEditFragment extends Fragment {
     }
 
     /**
-     * Makes sure to clear the binding, and, if confirm button was pressed,
-     * update the User in the View Model with the new information
+     * Updates the user in the view model, feeding in all changed values in the view
+     */
+    private void updateUser() {
+        // do confirm routine
+        final EditText nameField = binding.profileEditNameInput;
+        final EditText emailField = binding.profileEditEmailInput;
+        final EditText phoneField = binding.profileEditPhoneInput;
+        final CheckBox optNotifs = binding.profileEditNotifications;
+        final CheckBox isOrganizer = binding.profileEditIsOrganizer;
+
+        profileViewModel.updateUser(Objects.requireNonNull(nameField.getText()).toString(),
+                Objects.requireNonNull(emailField.getText()).toString(),
+                Objects.requireNonNull(phoneField.getText()).toString(),
+                optNotifs.isChecked(),
+                isOrganizer.isChecked(),
+                photoUriString);
+    }
+
+    /**
+     * Makes sure to clear the binding
      */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (isConfirmed) {
-            // do confirm routine
-            final EditText nameField = binding.profileEditNameInput;
-            final EditText emailField = binding.profileEditEmailInput;
-            final EditText phoneField = binding.profileEditPhoneInput;
-            final CheckBox optNotifs = binding.profileEditNotifications;
-            final CheckBox isOrganizer = binding.profileEditIsOrganizer;
-
-            profileViewModel.updateUser(Objects.requireNonNull(nameField.getText()).toString(),
-                    Objects.requireNonNull(emailField.getText()).toString(),
-                    Objects.requireNonNull(phoneField.getText()).toString(),
-                    optNotifs.isChecked(),
-                    isOrganizer.isChecked());
-        }
         binding = null;
     }
 }

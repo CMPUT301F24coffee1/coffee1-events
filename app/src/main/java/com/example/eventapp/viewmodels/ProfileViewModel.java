@@ -62,8 +62,9 @@ public class ProfileViewModel extends ViewModel {
      * @param phone The new phone number of the user
      * @param optNotifs Whether or not the user opts out of notifications
      * @param isOrganizer Whether or not the user is an organizer
+     * @param photoUriString The Uri string of the newly updated photo
      */
-    public void updateUser(String name, String email, String phone, boolean optNotifs, boolean isOrganizer) {
+    public void updateUser(String name, String email, String phone, boolean optNotifs, boolean isOrganizer, String photoUriString) {
         User user = currentUserLiveData.getValue();
         if (user != null) {
             user.setName(name);
@@ -71,6 +72,7 @@ public class ProfileViewModel extends ViewModel {
             user.setPhoneNumber(phone);
             user.setNotificationOptOut(optNotifs);
             user.setOrganizer(isOrganizer);
+            user.setPhotoUriString(photoUriString);
             userRepository.saveUser(user).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     Log.i(TAG, "Updated user with name: " + user.getName());

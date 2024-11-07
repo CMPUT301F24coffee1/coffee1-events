@@ -37,15 +37,24 @@
             android:layout_width="250dp"
             android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/facility_edit_image"
-                android:layout_width="178dp"
-                android:layout_height="178dp"
-                android:contentDescription="@string/facility_image"
-                android:src="@drawable/ic_dashboard_profile_24dp"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/facility_edit_photo_card"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="#00FFFFFF"
+                app:cardCornerRadius="100dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/facility_edit_photo"
+                    android:layout_width="178dp"
+                    android:layout_height="178dp"
+                    android:contentDescription="@string/facility_image"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_facility_24dp" />
+            </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/facility_edit_bottom_card"
@@ -61,7 +70,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/facility_edit_image">
+                app:layout_constraintTop_toBottomOf="@+id/facility_edit_photo_card">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/facility_edit_bottom_container"
