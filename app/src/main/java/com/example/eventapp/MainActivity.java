@@ -1,6 +1,7 @@
 package com.example.eventapp;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -8,12 +9,17 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
+import android.Manifest;
 
 import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.UserRepository;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.navigation.NavController;
@@ -34,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     NavController navController;
     Menu navMenu;
 
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +49,20 @@ public class MainActivity extends AppCompatActivity {
         com.example.eventapp.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         ConstraintLayout root = binding.getRoot();
         setContentView(root);
+
+        // Initialize the permission launcher to handle permission results
+        // Continue with photo access or loading
+        ActivityResultLauncher<String[]> requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+            Boolean readMediaGranted = result.getOrDefault(Manifest.permission.READ_MEDIA_IMAGES, false);
+            Boolean readStorageGranted = result.getOrDefault(Manifest.permission.READ_EXTERNAL_STORAGE, false);
+
+            if (readMediaGranted != null && readMediaGranted || readStorageGranted != null && readStorageGranted) {
+                Toast.makeText(this, "Permission granted to access photos", Toast.LENGTH_SHORT).show();
+                // Continue with photo access or loading
+            } else {
+                Toast.makeText(this, "Permission denied to access photos", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // No SignupFragment yet
         @SuppressLint("HardwareIds") String androidId = Settings.Secure.getString(
