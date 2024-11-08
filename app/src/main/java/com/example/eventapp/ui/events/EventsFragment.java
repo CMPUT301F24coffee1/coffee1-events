@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EventsFragment extends Fragment implements
-        EventAdapter.OnEventClickListener, EventInfoFragment.EditEventInfoListener, CreateEventFragment.CreateEventListener, EditEventFragment.EditEventListener {
+        EventAdapter.OnEventClickListener, EventInfoFragment.EditEventInfoListener, CreateEventFragment.CreateEventListener, EditEventFragment.EditEventListener,
+EventInfoFragment.joinEventWaitlistListener {
 
     private EventsViewModel eventsViewModel;
     private ArrayList<Event> organizedEvents;
@@ -39,6 +40,12 @@ public class EventsFragment extends Fragment implements
     public void createEvent(Event event) {
         eventsViewModel.addEvent(event);
         currentCreateEventFragment.dismiss();
+    }
+
+    @Override
+    public void joinEventWaitlist(Event event){
+        Log.d("EventsFragment", event.getDocumentId());
+        eventsViewModel.registerToEvent(event);
     }
 
     @Override

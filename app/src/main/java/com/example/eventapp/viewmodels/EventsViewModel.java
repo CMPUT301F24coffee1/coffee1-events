@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.eventapp.models.Event;
+import com.example.eventapp.models.Signup;
 import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.EventRepository;
 import com.example.eventapp.repositories.SignupRepository;
@@ -107,6 +108,12 @@ public class EventsViewModel extends ViewModel {
         }
     }
 
+    public void registerToEvent(Event event) {
+        User currentUser = currentUserLiveData.getValue();
+        if (currentUser != null) {
+            signupRepository.addSignup(new Signup(currentUser.getUserId(), event.getDocumentId()));
+        }
+    }
     public LiveData<String> getText() {
         return mText;
     }

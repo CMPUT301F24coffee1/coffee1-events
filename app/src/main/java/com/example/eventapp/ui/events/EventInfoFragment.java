@@ -2,7 +2,6 @@ package com.example.eventapp.ui.events;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +12,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
-import com.example.eventapp.ui.events.EventsFragment;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import java.util.Date;
 
 public class EventInfoFragment extends BottomSheetDialogFragment {
 
@@ -41,6 +38,10 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         void editEventInfo(Event event);
     }
 
+    interface joinEventWaitlistListener{
+        void joinEventWaitlist(Event event);
+    }
+
     /**
      * Initialize and run the event info fragment with the current event's info.
      * Includes the edit event button which initializes the edit event fragment
@@ -59,6 +60,7 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         View view = inflater.inflate(R.layout.event_info_popup, null);
         TextView eventName = view.findViewById(R.id.popup_event_name_text);
         Button editEventButton = view.findViewById(R.id.popup_edit_event_info_button);
+        Button waitlistButton = view.findViewById(R.id.popup_event_waitlist_button);
         ImageView eventImage = view.findViewById(R.id.popup_event_poster_image);
         TextView eventDuration = view.findViewById(R.id.popup_event_duration_text);
         TextView eventRegistrationDeadline = view.findViewById(R.id.popup_event_registration_deadline_text);
@@ -82,6 +84,13 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         } else {
             eventEntrantsCount.setText("No Entrant Limit");
         }
+
+        waitlistButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                eventsFragment.joinEventWaitlist(event);
+            }
+        });
 
         // Initializes the edit event fragment with the given event
         editEventButton.setOnClickListener(new View.OnClickListener() {
