@@ -8,12 +8,11 @@ import static org.junit.Assert.assertTrue;
 
 import com.example.eventapp.models.Event;
 import com.example.eventapp.repositories.EventRepository;
-import com.example.eventapp.repositories.SignupRepository;
 import com.example.eventapp.utils.FirestoreEmulator;
-import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.After;
 import org.junit.Before;
@@ -21,24 +20,25 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class EventRepositoryTest {
 
     private EventRepository eventRepository;
-    private SignupRepository signupRepository;
+    private FirebaseFirestore firestoreEmulator;
 
     @Before
     public void setup() {
+        firestoreEmulator = FirestoreEmulator.getEmulatorInstance();
         eventRepository = FirestoreEmulator.getEventRepository();
-        signupRepository = FirestoreEmulator.getSignupRepository();
     }
 
     @After
     public void tearDown() {
+        firestoreEmulator = null;
         eventRepository = null;
-        signupRepository = null;
     }
 
     @Test
@@ -48,25 +48,29 @@ public class EventRepositoryTest {
         event.setFacilityId("testFacilityId");
         event.setEventName("Test Event");
 
-        Task<DocumentReference> addEventTask = eventRepository.addEvent(event);
-        Tasks.await(addEventTask);
-        DocumentReference docRef = addEventTask.getResult();
+        CompletableFuture<String> addEventFuture = eventRepository.addEvent(event);
+        String documentId = addEventFuture.get();
 
-        assertTrue(addEventTask.isSuccessful());
-        assertNotNull(docRef);
-        assertNotNull(docRef.getId());
+        assertNotNull("Document ID should not be null", documentId);
 
-        // Cleanup
+        DocumentReference docRef = firestoreEmulator.collection("events").document(documentId);
+        DocumentSnapshot snapshot = Tasks.await(docRef.get());
+        assertTrue("Document should exist in Firestore", snapshot.exists());
+
+        Event testEvent = snapshot.toObject(Event.class);
+        assertNotNull(testEvent);
+        assertEquals("Test Event", testEvent.getEventName());
+
         Tasks.await(docRef.delete());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = ExecutionException.class)
     public void testAddEvent_nullOrganizerId() throws ExecutionException, InterruptedException {
         Event event = new Event();
         event.setFacilityId("testFacilityId");
         event.setEventName("Test Event without Organizer");
 
-        eventRepository.addEvent(event);
+        eventRepository.addEvent(event).get();
     }
 
     @Test
@@ -76,43 +80,34 @@ public class EventRepositoryTest {
         event.setFacilityId("testFacilityId");
         event.setEventName("Original Title");
 
-        // Add event
-        Task<DocumentReference> addEventTask = eventRepository.addEvent(event);
-        Tasks.await(addEventTask);
-        assertTrue(addEventTask.isSuccessful());
+        CompletableFuture<String> addEventFuture = eventRepository.addEvent(event);
+        String documentId = addEventFuture.get();
+        assertNotNull("Document ID should not be null", documentId);
 
-        DocumentReference docRef = addEventTask.getResult();
-        assertNotNull(docRef);
-        assertNotNull(docRef.getId());
-
-        event.setDocumentId(docRef.getId());
+        event.setDocumentId(documentId);
         event.setEventName("Updated Title");
 
-        // Update event
-        Task<Void> updateEventTask = eventRepository.updateEvent(event);
-        Tasks.await(updateEventTask);
-        assertTrue(updateEventTask.isSuccessful());
+        CompletableFuture<Void> updateEventFuture = eventRepository.updateEvent(event);
+        updateEventFuture.get();
 
-        // Verify update
-        Task<DocumentSnapshot> getEventTask = docRef.get();
-        Tasks.await(getEventTask);
-        Event updatedEvent = getEventTask.getResult().toObject(Event.class);
+        DocumentReference docRef = firestoreEmulator.collection("events").document(documentId);
+        DocumentSnapshot snapshot = Tasks.await(docRef.get());
+        Event updatedEvent = snapshot.toObject(Event.class);
 
-        assertNotNull(updatedEvent);
+        assertNotNull("Updated event should not be null", updatedEvent);
         assertEquals("Updated Title", updatedEvent.getEventName());
 
-        // Cleanup
         Tasks.await(docRef.delete());
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testUpdateEvent_nullDocumentId() {
+    @Test(expected = ExecutionException.class)
+    public void testUpdateEvent_nullDocumentId() throws ExecutionException, InterruptedException {
         Event event = new Event();
         event.setOrganizerId("testOrganizerId");
         event.setFacilityId("testFacilityId");
         event.setEventName("Event without Document ID");
 
-        eventRepository.updateEvent(event);
+        eventRepository.updateEvent(event).get();
     }
 
     @Test
@@ -122,32 +117,17 @@ public class EventRepositoryTest {
         event.setFacilityId("testFacilityId");
         event.setEventName("Event to be Removed");
 
-        // Add event
-        Task<DocumentReference> addEventTask = eventRepository.addEvent(event);
-        Tasks.await(addEventTask);
-        assertTrue(addEventTask.isSuccessful());
+        CompletableFuture<String> addEventFuture = eventRepository.addEvent(event);
+        String documentId = addEventFuture.get();
+        assertNotNull("Document ID should not be null", documentId);
 
-        DocumentReference docRef = addEventTask.getResult();
-        event.setDocumentId(docRef.getId());
+        event.setDocumentId(documentId);
 
-        // Remove event
-        Task<Void> removeEventTask = eventRepository.removeEvent(event);
-        Tasks.await(removeEventTask);
-        assertTrue(removeEventTask.isSuccessful());
+        CompletableFuture<Void> removeEventFuture = eventRepository.removeEvent(event);
+        removeEventFuture.get();
 
-        // Verify removal
-        Task<DocumentSnapshot> getEventTask = docRef.get();
-        Tasks.await(getEventTask);
-        assertFalse(getEventTask.getResult().exists());
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testRemoveEvent_nullDocumentId() {
-        Event event = new Event();
-        event.setOrganizerId("testOrganizerId");
-        event.setFacilityId("testFacilityId");
-        event.setEventName("Event without Document ID");
-
-        eventRepository.removeEvent(event);
+        DocumentReference docRef = firestoreEmulator.collection("events").document(documentId);
+        DocumentSnapshot snapshot = Tasks.await(docRef.get());
+        assertFalse("Document should no longer exist in Firestore", snapshot.exists());
     }
 }

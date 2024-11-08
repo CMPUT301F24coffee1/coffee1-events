@@ -79,7 +79,7 @@ public class EventsViewModelTest {
         event.setEventName("Test Event");
         event.setFacilityId("testFacilityId");
 
-        Tasks.await(eventsViewModel.addEvent(event));
+        eventsViewModel.addEvent(event).get();
 
         assertNotNull(event.getDocumentId());
 
@@ -89,7 +89,10 @@ public class EventsViewModelTest {
         Tasks.await(getEventTask);
 
         assertTrue(getEventTask.getResult().exists());
-        assertEquals("Test Event", getEventTask.getResult().toObject(Event.class).getEventName());
+        Event addedEvent = getEventTask.getResult().toObject(Event.class);
+
+        assertNotNull(addedEvent);
+        assertEquals("Test Event", addedEvent.getEventName());
     }
 
     @Test
@@ -98,7 +101,7 @@ public class EventsViewModelTest {
         event.setEventName("Test Event");
         event.setFacilityId("testFacilityId");
 
-        Tasks.await(eventsViewModel.addEvent(event));
+        eventsViewModel.addEvent(event).get();
 
         Task<DocumentSnapshot> getEventTask = firestoreEmulator.collection("events")
                 .document(event.getDocumentId())
@@ -106,7 +109,7 @@ public class EventsViewModelTest {
         Tasks.await(getEventTask);
         assertTrue(getEventTask.getResult().exists());
 
-        Tasks.await(eventsViewModel.removeEvent(event));
+        eventsViewModel.removeEvent(event).get();
 
         Task<DocumentSnapshot> getRemovedEventTask = firestoreEmulator.collection("events")
                 .document(event.getDocumentId())
@@ -122,7 +125,7 @@ public class EventsViewModelTest {
         event.setEventName("Test Event");
         event.setFacilityId("testFacilityId");
 
-        Tasks.await(eventsViewModel.addEvent(event));
+        eventsViewModel.addEvent(event).get();
 
         Task<DocumentSnapshot> getEventTask = firestoreEmulator.collection("events")
                 .document(event.getDocumentId())
@@ -131,7 +134,7 @@ public class EventsViewModelTest {
         assertEquals("Test Event", Objects.requireNonNull(getEventTask.getResult().toObject(Event.class)).getEventName());
 
         event.setEventName("Updated Event");
-        Tasks.await(eventsViewModel.updateEvent(event));
+        eventsViewModel.updateEvent(event).get();
 
         Task<DocumentSnapshot> getUpdatedEventTask = firestoreEmulator.collection("events")
                 .document(event.getDocumentId())
@@ -150,7 +153,7 @@ public class EventsViewModelTest {
         event.setEventName("Test Event");
         event.setFacilityId("testFacilityId");
 
-        Tasks.await(eventsViewModel.addEvent(event));
+        eventsViewModel.addEvent(event).get();
         assertNotNull(event.getDocumentId());
 
         Tasks.await(eventsViewModel.registerToEvent(event));
@@ -170,7 +173,7 @@ public class EventsViewModelTest {
         event.setEventName("Test Event");
         event.setFacilityId("testFacilityId");
 
-        Tasks.await(eventsViewModel.addEvent(event));
+        eventsViewModel.addEvent(event).get();
         assertNotNull(event.getDocumentId());
 
         Tasks.await(eventsViewModel.registerToEvent(event));

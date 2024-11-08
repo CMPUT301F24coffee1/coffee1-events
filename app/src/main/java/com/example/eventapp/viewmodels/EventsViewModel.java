@@ -89,54 +89,52 @@ public class EventsViewModel extends ViewModel {
         signedUpEventsLiveData.addSource(signedUpEvents, signedUpEventsLiveData::setValue);
     }
 
-    public Task<String> addEvent(Event event) {
+    public CompletableFuture<String> addEvent(Event event) {
         User currentUser = currentUserLiveData.getValue();
+        CompletableFuture<String> addEventFuture = new CompletableFuture<>();
+
         if (currentUser != null) {
             event.setOrganizerId(currentUser.getUserId());
 
-            Task<DocumentReference> addEventTask = eventRepository.addEvent(event);
-            TaskCompletionSource<String> documentIdTask = new TaskCompletionSource<>();
+            CompletableFuture<String> repositoryFuture = eventRepository.addEvent(event);
 
-            addEventTask.addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    String documentId = task.getResult().getId();
-                    event.setDocumentId(documentId);
-                    documentIdTask.setResult(documentId);
-                    Log.i(TAG, "Added event with name: " + event.getEventName());
-                } else {
-                    documentIdTask.setException(Objects.requireNonNull(task.getException()));
-                    Log.e(TAG, "Failed to add event", task.getException());
-                }
+            repositoryFuture.thenAccept(documentId -> {
+                event.setDocumentId(documentId);
+                addEventFuture.complete(documentId);
+                Log.i(TAG, "Added event with name: " + event.getEventName());
+            }).exceptionally(throwable -> {
+                addEventFuture.completeExceptionally(throwable);
+                Log.e(TAG, "addEvent: failed to add event to repository", throwable);
+                return null;
             });
-            return documentIdTask.getTask();
+        } else {
+            addEventFuture.completeExceptionally(new Exception("User is not yet fetched"));
         }
-        return null;
+        return addEventFuture;
     }
 
-    public Task<Void> removeEvent(Event event) {
-        Task<Void> removeEventTask = eventRepository.removeEvent(event);
+    public CompletableFuture<Void> removeEvent(Event event) {
+        CompletableFuture<Void> removeEventFuture = eventRepository.removeEvent(event);
 
-        removeEventTask.addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Log.i(TAG, "Removed event with name: " + event.getEventName());
-            } else {
-                Log.e(TAG, "Failed to remove event", task.getException());
-            }
+        removeEventFuture.thenAccept(discard -> {
+            Log.i(TAG, "Removed event with name: " + event.getEventName());
+        }).exceptionally(throwable -> {
+            Log.e(TAG, "Failed to remove event", throwable);
+            return null;
         });
-        return removeEventTask;
+        return removeEventFuture;
     }
 
-    public Task<Void> updateEvent(Event updatedEvent) {
-        Task<Void> updateEventTask = eventRepository.updateEvent(updatedEvent);
+    public CompletableFuture<Void> updateEvent(Event event) {
+        CompletableFuture<Void> updateEventFuture = eventRepository.updateEvent(event);
 
-        updateEventTask.addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Log.i(TAG, "Updated event with name: " + updatedEvent.getEventName());
-            } else {
-                Log.e(TAG, "Failed to update event", task.getException());
-            }
+        updateEventFuture.thenAccept(discard -> {
+            Log.i(TAG, "Updated event with name: " + event.getEventName());
+        }).exceptionally(throwable -> {
+            Log.e(TAG, "Failed to update event", throwable);
+            return null;
         });
-        return updateEventTask;
+        return updateEventFuture;
     }
 
     public Task<DocumentReference> registerToEvent(Event event) {
