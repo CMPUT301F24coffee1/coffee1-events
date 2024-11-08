@@ -9,6 +9,8 @@ google-services.json
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/appInsightsSettings.xml
+
 .DS_Store
 /build
 /captures
