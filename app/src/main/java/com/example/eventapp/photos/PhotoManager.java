@@ -118,7 +118,7 @@ public class PhotoManager {
      * @param userId the ID of the user whose profile picture is to be generated
      * @return a bitmap containing the generated profile picture
      */
-    public Bitmap generateDefaultProfilePicture(String userName, String userId) {
+    public static Bitmap generateDefaultProfilePicture(String userName, String userId) {
 
         String nameAndIdHash = userName + userId;
         String initials = getInitials(userName);
@@ -146,10 +146,13 @@ public class PhotoManager {
      * @param name the name for the initials to be parsed from
      * @return a string containing just the initials of the input name
      */
-    private String getInitials(String name) {
+    private static String getInitials(String name) {
+        if (name.isEmpty()) {
+            return name;
+        }
         String[] words = name.split(" ");
-        if (words.length < 2) return name.substring(0,1).toUpperCase();
-        return (words[0].substring(0,1) + words[1].substring(0, 1)).toUpperCase();
+        if (words.length < 2) return String.format("%c", name.charAt(0)).toUpperCase();
+        return (String.format("%c%c", words[0].charAt(0), words[1].charAt(0))).toUpperCase();
     }
 
     /**
@@ -157,7 +160,7 @@ public class PhotoManager {
      * @param name the name to generate a hash from
      * @return the colour corresponding to the hash of the name
      */
-    private int getColorFromName(String name) {
+    private static int getColorFromName(String name) {
         int hash = name.hashCode();
         int[] colors = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.CYAN, Color.MAGENTA};
         return colors[Math.abs(hash) % colors.length];
