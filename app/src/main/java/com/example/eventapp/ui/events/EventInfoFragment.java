@@ -2,7 +2,6 @@ package com.example.eventapp.ui.events;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,17 +9,20 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.lifecycle.ViewModelProvider;
+
 import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
-import com.example.eventapp.ui.events.EventsFragment;
+import com.example.eventapp.viewmodels.EventsViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import java.util.Date;
 
 public class EventInfoFragment extends BottomSheetDialogFragment {
 
+    private EventsViewModel eventsViewModel;
     private final Event event;
     private final EventsFragment eventsFragment;
+    private int currentWaitlistButtonState;
 
     /**
      * This is the constructor for the Event Info Fragment.
@@ -41,6 +43,12 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         void editEventInfo(Event event);
     }
 
+    interface waitlistListener{
+        void joinEventWaitlist(Event event);
+        void leaveEventWaitlist(Event event);
+        boolean isAlreadyOnWaitlist(Event event);
+    }
+
     /**
      * Initialize and run the event info fragment with the current event's info.
      * Includes the edit event button which initializes the edit event fragment
@@ -56,9 +64,11 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
     @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+        eventsViewModel = new ViewModelProvider(requireActivity()).get(EventsViewModel.class);
         View view = inflater.inflate(R.layout.event_info_popup, null);
         TextView eventName = view.findViewById(R.id.popup_event_name_text);
         Button editEventButton = view.findViewById(R.id.popup_edit_event_info_button);
+        Button waitlistButton = view.findViewById(R.id.popup_event_waitlist_button);
         ImageView eventImage = view.findViewById(R.id.popup_event_poster_image);
         TextView eventDuration = view.findViewById(R.id.popup_event_duration_text);
         TextView eventRegistrationDeadline = view.findViewById(R.id.popup_event_registration_deadline_text);
@@ -83,6 +93,29 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
             eventEntrantsCount.setText("No Entrant Limit");
         }
 
+        boolean isAlreadyInWaitlist = isAlreadyOnWaitlist(event);
+
+        // initial button text
+        if(isAlreadyInWaitlist){
+            currentWaitlistButtonState = 1;
+            waitlistButton.setText("Leave Waitlist");
+        }else{
+            currentWaitlistButtonState = 0;
+            waitlistButton.setText("Join Waitlist");
+        }
+
+        waitlistButton.setOnClickListener(view1 -> {
+            if(currentWaitlistButtonState == 1){ // leave waitlist
+                leaveEventWaitlist(event);
+                waitlistButton.setText("Join Waitlist");
+                currentWaitlistButtonState = 0;
+            }else{ // join waitlist
+                joinEventWaitlist(event);
+                waitlistButton.setText("Leave Waitlist");
+                currentWaitlistButtonState = 1;
+            }
+        });
+
         // Initializes the edit event fragment with the given event
         editEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,5 +124,17 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
             }
         });
         return view;
+    }
+
+    private void joinEventWaitlist(Event event){
+        eventsViewModel.registerToEvent(event);
+    }
+
+    private void leaveEventWaitlist(Event event){
+        eventsViewModel.unregisterFromEvent(event);
+    }
+
+    private boolean isAlreadyOnWaitlist(Event event){
+        return eventsViewModel.isSignedUp(event);
     }
 }

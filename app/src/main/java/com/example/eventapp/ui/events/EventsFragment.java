@@ -53,7 +53,7 @@ public class EventsFragment extends Fragment implements
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
-        eventsViewModel = new ViewModelProvider(this).get(EventsViewModel.class);
+        eventsViewModel = new ViewModelProvider(requireActivity()).get(EventsViewModel.class);
         binding = FragmentEventsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
