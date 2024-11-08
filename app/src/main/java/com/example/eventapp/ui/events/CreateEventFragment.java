@@ -92,8 +92,8 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
             public void onClick(View view) {
                 Log.d("CreateEventFragment", "set event duration button clicked");
                 // closes and opens instantly, add/override animations later
-                showDatePickerFragment(0);
                 showDatePickerFragment(1);
+                showDatePickerFragment(0);
             }
         });
 

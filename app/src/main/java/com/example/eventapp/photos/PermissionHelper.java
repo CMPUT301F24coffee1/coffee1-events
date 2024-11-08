@@ -10,7 +10,13 @@ import androidx.core.content.ContextCompat;
 
 public class PermissionHelper {
 
-    // Request permissions based on Android version
+    /**
+     * Makes sure the activity has the necessary permissions
+     * depending on the user's SDK
+     * Unused/not needed for now
+     * @param activity the current activity
+     * @param requestPermissionLauncher Launches permissions requester
+     */
     public static void requestPhotoPermissions(Activity activity, ActivityResultLauncher<String[]> requestPermissionLauncher) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             // For Android 13 and above, request READ_MEDIA_IMAGES for images only

@@ -2,7 +2,6 @@ package com.example.eventapp.ui.events;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,30 +9,60 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.lifecycle.ViewModelProvider;
+
 import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
+import com.example.eventapp.viewmodels.EventsViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import java.util.Date;
 
 public class EventInfoFragment extends BottomSheetDialogFragment {
 
+    private EventsViewModel eventsViewModel;
     private final Event event;
+    private final EventsFragment eventsFragment;
+    private int currentWaitlistButtonState;
 
-    public EventInfoFragment (Event event) {
+    /**
+     * This is the constructor for the Event Info Fragment.
+     * It is used to get the necessary data to show event info and edit the event
+     * @param event Event that is clicked and needs to display info for
+     * @param eventsFragment The main events fragment instance which can be used to
+     *                       call the show function for the edit event
+     */
+    public EventInfoFragment (Event event, EventsFragment eventsFragment) {
         this.event = event;
+        this.eventsFragment = eventsFragment;
     }
 
+    /**
+     * Interface for main event fragment to implement in order to edit event
+     */
     interface EditEventInfoListener{
         void editEventInfo(Event event);
     }
 
+    /**
+     * Initialize and run the event info fragment with the current event's info.
+     * Includes the edit event button which initializes the edit event fragment
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     */
     @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+        eventsViewModel = new ViewModelProvider(requireActivity()).get(EventsViewModel.class);
         View view = inflater.inflate(R.layout.event_info_popup, null);
         TextView eventName = view.findViewById(R.id.popup_event_name_text);
         Button editEventButton = view.findViewById(R.id.popup_edit_event_info_button);
+        Button waitlistButton = view.findViewById(R.id.popup_event_waitlist_button);
         ImageView eventImage = view.findViewById(R.id.popup_event_poster_image);
         TextView eventDuration = view.findViewById(R.id.popup_event_duration_text);
         TextView eventRegistrationDeadline = view.findViewById(R.id.popup_event_registration_deadline_text);
@@ -58,12 +87,47 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
             eventEntrantsCount.setText("No Entrant Limit");
         }
 
-        editEventButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d("EventInfoFragment", "Edit Button Clicked");
+        boolean isAlreadyInWaitlist = isAlreadyOnWaitlist(event);
+
+        // initial button text
+        if(isAlreadyInWaitlist){
+            currentWaitlistButtonState = 1;
+            waitlistButton.setText("Leave Waitlist");
+        }else{
+            currentWaitlistButtonState = 0;
+            waitlistButton.setText("Join Waitlist");
+        }
+
+        waitlistButton.setOnClickListener(view1 -> {
+            if(currentWaitlistButtonState == 1){ // leave waitlist
+                leaveEventWaitlist(event);
+                waitlistButton.setText("Join Waitlist");
+                currentWaitlistButtonState = 0;
+            }else{ // join waitlist
+                joinEventWaitlist(event);
+                waitlistButton.setText("Leave Waitlist");
+                currentWaitlistButtonState = 1;
             }
         });
+
+        // Initializes the edit event fragment with the given event
+        if(eventsViewModel.canEdit(event)){
+            editEventButton.setOnClickListener(view12 -> eventsFragment.showEditEventPopup(event));
+            editEventButton.setVisibility(View.VISIBLE);
+        }
+
         return view;
+    }
+
+    private void joinEventWaitlist(Event event){
+        eventsViewModel.registerToEvent(event);
+    }
+
+    private void leaveEventWaitlist(Event event){
+        eventsViewModel.unregisterFromEvent(event);
+    }
+
+    private boolean isAlreadyOnWaitlist(Event event){
+        return eventsViewModel.isSignedUp(event);
     }
 }

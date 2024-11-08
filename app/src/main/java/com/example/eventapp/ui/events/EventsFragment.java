@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EventsFragment extends Fragment implements
-        EventAdapter.OnEventClickListener, EventInfoFragment.EditEventInfoListener, CreateEventFragment.CreateEventListener {
+        EventAdapter.OnEventClickListener, EventInfoFragment.EditEventInfoListener, CreateEventFragment.CreateEventListener, EditEventFragment.EditEventListener {
 
     private EventsViewModel eventsViewModel;
     private ArrayList<Event> organizedEvents;
@@ -30,6 +30,8 @@ public class EventsFragment extends Fragment implements
     private EventAdapter organizedEventsAdapter;
     private EventAdapter signedUpEventsAdapter;
     private CreateEventFragment currentCreateEventFragment;
+    private EditEventFragment currentEditEventFragment;
+    private EventInfoFragment currentEventInfoFragment;
 
     private FragmentEventsBinding binding;
 
@@ -40,15 +42,25 @@ public class EventsFragment extends Fragment implements
     }
 
     @Override
-    public void editEventInfo(Event event) {
-        Log.d("EventsFragment", "Editing event " + event.getEventName());
+    public void saveEditedEvent(Event updatedEvent) {
+        eventsViewModel.updateEvent(updatedEvent);
+        currentEditEventFragment.dismiss();
+        currentEventInfoFragment.dismiss();
+        Log.d("EventsFragment", "Event edited: " + updatedEvent.getEventName());
+    }
+
+    @Override
+    public void deleteEvent(Event event){
+        eventsViewModel.removeEvent(event);
+        currentEditEventFragment.dismiss();
+        currentEventInfoFragment.dismiss();
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
-        eventsViewModel = new ViewModelProvider(this).get(EventsViewModel.class);
+        eventsViewModel = new ViewModelProvider(requireActivity()).get(EventsViewModel.class);
         binding = FragmentEventsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -113,8 +125,20 @@ public class EventsFragment extends Fragment implements
     }
 
     private void showEventInfoPopup(Event event) {
-        EventInfoFragment eventInfoFragment = new EventInfoFragment(event);
+        EventInfoFragment eventInfoFragment = new EventInfoFragment(event, this);
+        currentEventInfoFragment = eventInfoFragment;
         eventInfoFragment.show(getActivity().getSupportFragmentManager(), "event_info");
+    }
+
+    @Override
+    public void editEventInfo(Event event) {
+        showEditEventPopup(event);
+    }
+
+    public void showEditEventPopup(Event event) {
+        EditEventFragment editEventFragment = new EditEventFragment(event, this);
+        currentEditEventFragment = editEventFragment;
+        editEventFragment.show(getActivity().getSupportFragmentManager(), "edit_event");
     }
 
     @Override

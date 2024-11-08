@@ -30,6 +30,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.eventapp.databinding.ActivityMainBinding;
 import com.google.firebase.FirebaseApp;
 
+import java.util.Random;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -147,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         userRepository.getUser(userId)
             .thenAccept(user -> {
                 if (user == null) {
-                    createAndLoadDevOrganizer(userRepository, userId);
+                    createAndLoadNewUser(userRepository, userId);
                 } else {
                     Log.d(TAG, "User already exists with ID: " + userId);
                     userRepository.setCurrentUser(user);
@@ -156,13 +157,14 @@ public class MainActivity extends AppCompatActivity {
             .exceptionally(throwable -> {
                 Log.e(TAG, "Failed to retrieve user", throwable);
                 Log.d(TAG, "Creating user after failing to retrieve from db");
-                createAndLoadDevOrganizer(userRepository, userId);
+                createAndLoadNewUser(userRepository, userId);
                 return null;
             });
     }
 
-    private void createAndLoadDevOrganizer(UserRepository userRepository, String userId) {
-        User user = new User("DevOrganizer", true);
+    private void createAndLoadNewUser(UserRepository userRepository, String userId) {
+        String randomizedName = getRandomAlienName(this);
+        User user = new User(randomizedName);
         user.setUserId(userId);
 
         userRepository.saveUser(user)
@@ -174,5 +176,25 @@ public class MainActivity extends AppCompatActivity {
                     Log.e(TAG, "Failed to create organizer with ID: " + user.getUserId());
                 }
             });
+    }
+
+    /**
+     * Generates a random alien name (lol) by selecting a random first and last name from the
+     * /res/values/alien_names.xml
+     * @param context the MainActivity context (needed to access resource files)
+     * @return A randomly generated alien name in the format "FirstName LastName"
+     */
+    public String getRandomAlienName(MainActivity context) {
+        // Get the first and last name arrays from resources
+        String[] firstNames = context.getResources().getStringArray(R.array.firstNames);
+        String[] lastNames = context.getResources().getStringArray(R.array.lastNames);
+
+        // Select a random first name and last name
+        Random random = new Random();
+        String firstName = firstNames[random.nextInt(firstNames.length)];
+        String lastName = lastNames[random.nextInt(lastNames.length)];
+
+        // Return the full name
+        return firstName + " " + lastName;
     }
 }

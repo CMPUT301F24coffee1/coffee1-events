@@ -25,14 +25,27 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Utility class for selecting a photo from a user's photos and returning the photo's Uri.
+ * Includes methods to open the photo picker and launch the ActivityResultLauncher
+ */
 public class PhotoPicker {
 
-    // Interface for callback to handle the selected photo URI
+    /**
+     * Interface that can be used to access the selected photo's Uri
+     */
     public interface PhotoPickerCallback {
         void onPhotoPicked(Uri photoUri); // Called when a photo is selected
     }
 
-    // Method to create a photo picker launcher, designed for fragments
+    /**
+     * Registers ActivityResultLauncher to start a photo picker intent and handle the result.
+     * This launcher is intended for use in a Fragment and will invoke the provided callback
+     * with the URI of the selected photo, if available.
+     * @param fragment The fragment that the launcher is registered in.
+     * @param callback If the photo selection is successful, this is used to handle the selected photo Uri
+     * @return An ActivityResultLauncher that can be used to launch a photo picker intent
+     */
     public static ActivityResultLauncher<Intent> getPhotoPickerLauncher(
             Fragment fragment,
             PhotoPickerCallback callback) {
