@@ -9,13 +9,17 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.lifecycle.ViewModelProvider;
+
 import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
+import com.example.eventapp.viewmodels.EventsViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 public class EventInfoFragment extends BottomSheetDialogFragment {
 
+    private EventsViewModel eventsViewModel;
     private final Event event;
     private final EventsFragment eventsFragment;
     private int currentWaitlistButtonState;
@@ -60,6 +64,7 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
     @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+        eventsViewModel = new ViewModelProvider(requireActivity()).get(EventsViewModel.class);
         View view = inflater.inflate(R.layout.event_info_popup, null);
         TextView eventName = view.findViewById(R.id.popup_event_name_text);
         Button editEventButton = view.findViewById(R.id.popup_edit_event_info_button);
@@ -88,7 +93,7 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
             eventEntrantsCount.setText("No Entrant Limit");
         }
 
-        boolean isAlreadyInWaitlist = eventsFragment.isAlreadyOnWaitlist(event);
+        boolean isAlreadyInWaitlist = isAlreadyOnWaitlist(event);
 
         // initial button text
         if(isAlreadyInWaitlist){
@@ -99,16 +104,13 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
             waitlistButton.setText("Join Waitlist");
         }
 
-        waitlistButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(currentWaitlistButtonState == 1){ // leave waitlist
-                    eventsFragment.leaveEventWaitlist(event);
-                    waitlistButton.setText("Join Waitlist");
-                }else{
-                    eventsFragment.joinEventWaitlist(event);
-                    waitlistButton.setText("Leave Waitlist");
-                }
+        waitlistButton.setOnClickListener(view1 -> {
+            if(currentWaitlistButtonState == 1){ // leave waitlist
+                leaveEventWaitlist(event);
+                waitlistButton.setText("Join Waitlist");
+            }else{
+                joinEventWaitlist(event);
+                waitlistButton.setText("Leave Waitlist");
             }
         });
 
@@ -120,5 +122,17 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
             }
         });
         return view;
+    }
+
+    private void joinEventWaitlist(Event event){
+        eventsViewModel.registerToEvent(event);
+    }
+
+    private void leaveEventWaitlist(Event event){
+        eventsViewModel.unregisterFromEvent(event);
+    }
+
+    private boolean isAlreadyOnWaitlist(Event event){
+        return eventsViewModel.isSignedUp(event);
     }
 }

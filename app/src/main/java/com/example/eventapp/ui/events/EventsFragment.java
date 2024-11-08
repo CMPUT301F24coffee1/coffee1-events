@@ -22,8 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EventsFragment extends Fragment implements
-        EventAdapter.OnEventClickListener, EventInfoFragment.EditEventInfoListener, CreateEventFragment.CreateEventListener, EditEventFragment.EditEventListener,
-EventInfoFragment.waitlistListener {
+        EventAdapter.OnEventClickListener, EventInfoFragment.EditEventInfoListener, CreateEventFragment.CreateEventListener, EditEventFragment.EditEventListener {
 
     private EventsViewModel eventsViewModel;
     private ArrayList<Event> organizedEvents;
@@ -43,22 +42,6 @@ EventInfoFragment.waitlistListener {
     }
 
     @Override
-    public void joinEventWaitlist(Event event){
-        Log.d("EventsFragment", event.getDocumentId());
-        eventsViewModel.registerToEvent(event);
-    }
-
-    @Override
-    public void leaveEventWaitlist(Event event){
-        eventsViewModel.unregisterFromEvent(event);
-    }
-
-    @Override
-    public boolean isAlreadyOnWaitlist(Event event){
-        return eventsViewModel.isSignedUp(event);
-    }
-
-    @Override
     public void saveEditedEvent(Event updatedEvent) {
         eventsViewModel.updateEvent(updatedEvent);
         currentEditEventFragment.dismiss();
@@ -70,7 +53,7 @@ EventInfoFragment.waitlistListener {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
-        eventsViewModel = new ViewModelProvider(this).get(EventsViewModel.class);
+        eventsViewModel = new ViewModelProvider(requireActivity()).get(EventsViewModel.class);
         binding = FragmentEventsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
