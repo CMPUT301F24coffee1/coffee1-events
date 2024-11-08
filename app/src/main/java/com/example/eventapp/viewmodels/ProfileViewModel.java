@@ -37,18 +37,7 @@ public class ProfileViewModel extends ViewModel {
      * primarily operates with, and sets a forever observer on it
      */
     public ProfileViewModel() {
-        userRepository = UserRepository.getInstance();
-        facilityRepository = FacilityRepository.getInstance();
-        actualUserLiveData = userRepository.getCurrentUserLiveData();
-        currentUserLiveData = actualUserLiveData;
-        usersLiveData.addSource(userRepository.getAllUsersLiveData(), usersLiveData::setValue);
-
-        // load organized and signed-up events when current user data is available
-        currentUserLiveData.observeForever(user -> {
-            if (user != null) {
-                 loadFacilities(user.getUserId());
-            }
-        });
+        this(UserRepository.getInstance(), FacilityRepository.getInstance(), null);
     }
 
     /**

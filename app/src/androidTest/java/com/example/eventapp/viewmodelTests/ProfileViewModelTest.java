@@ -34,6 +34,7 @@ public class ProfileViewModelTest {
     private UserRepository userRepository;
     private FacilityRepository facilityRepository;
     private FirebaseFirestore firestoreEmulator;
+    private final MutableLiveData<User> currentUserLiveData = new MutableLiveData<>();
 
     @Before
     public void setup() {
@@ -43,13 +44,12 @@ public class ProfileViewModelTest {
 
         User testUser = new User();
         testUser.setUserId("testUserId");
-        MutableLiveData<User> liveData = new MutableLiveData<>();
-        liveData.setValue(testUser);
+        currentUserLiveData.setValue(testUser);
 
         profileViewModel = new ProfileViewModel(
                 userRepository,
                 facilityRepository,
-                liveData
+                currentUserLiveData
         );
     }
 
@@ -138,6 +138,23 @@ public class ProfileViewModelTest {
         assertEquals("Updated Name", updatedUser.getName());
         assertEquals("test@example.com", updatedUser.getEmail());
         assertEquals("1234567890", updatedUser.getPhoneNumber());
+    }
+
+    @Test
+    public void testRemoveUserPhoto_clearsPhotoUri() throws ExecutionException, InterruptedException {
+        User user = new User();
+        user.setUserId("testUserId");
+        user.setPhotoUriString("samplePhotoUri");
+        currentUserLiveData.setValue(user);
+
+        profileViewModel.removeUserPhoto();
+
+        DocumentReference userRef = firestoreEmulator.collection("users").document("testUserId");
+        DocumentSnapshot snapshot = Tasks.await(userRef.get());
+        User updatedUser = snapshot.toObject(User.class);
+
+        assertNotNull("Updated user should not be null", updatedUser);
+        assertEquals("Photo URI should be cleared", "", updatedUser.getPhotoUriString());
     }
 }
 
