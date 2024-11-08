@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.example.eventapp.models.User;
 import com.example.eventapp.models.Event;
@@ -28,8 +29,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
@@ -43,6 +47,7 @@ public class EventsViewModelTest {
     private SignupRepository signupRepository;
     private UserRepository userRepository;
     private FirebaseFirestore firestoreEmulator;
+    private final MutableLiveData<User> currentUserLiveData = new MutableLiveData<>();
 
     @Before
     public void setup() {
@@ -53,14 +58,13 @@ public class EventsViewModelTest {
 
         User testUser = new User();
         testUser.setUserId("testUserId");
-        MutableLiveData<User> liveData = new MutableLiveData<>();
-        liveData.setValue(testUser);
+        currentUserLiveData.setValue(testUser);
 
         eventsViewModel = new EventsViewModel(
                 eventRepository,
                 signupRepository,
                 userRepository,
-                liveData
+                currentUserLiveData
         );
     }
 
@@ -163,6 +167,7 @@ public class EventsViewModelTest {
                 .get();
         Tasks.await(getSignupTask);
 
+        assertTrue(getSignupTask.isSuccessful());
         assertFalse("Signup should exist", getSignupTask.getResult().isEmpty());
     }
 
@@ -185,6 +190,81 @@ public class EventsViewModelTest {
                 .get();
         Tasks.await(getSignupTask);
 
-        assertTrue("Signup should be removed", getSignupTask.isSuccessful());
+        assertTrue(getSignupTask.isSuccessful());
+        assertTrue("Signup should be removed", getSignupTask.getResult().isEmpty());
+    }
+
+    @Test
+    public void testIsSignedUp() throws ExecutionException, InterruptedException {
+        Event event = new Event();
+        event.setEventName("Test Event");
+        event.setFacilityId("testFacilityId");
+
+        eventsViewModel.addEvent(event).get();
+        assertNotNull(event.getDocumentId());
+
+        eventsViewModel.registerToEvent(event).get();
+
+        // Wait for signedUpEventsLiveData to be updated
+        CountDownLatch latch = new CountDownLatch(1);
+        Observer<List<Event>> observer = events -> {
+            if (events != null && !events.isEmpty()) {
+                latch.countDown();
+            }
+        };
+        eventsViewModel.getSignedUpEvents().observeForever(observer);
+
+        // Await until the latch is decremented, meaning LiveData has updated
+        boolean updated = latch.await(5, TimeUnit.SECONDS);
+        eventsViewModel.getSignedUpEvents().removeObserver(observer);
+
+        assertTrue("signedUpEventsLiveData should have been updated", updated);
+        assertTrue("User should be signed up for the event", eventsViewModel.isSignedUp(event));
+
+        Event otherEvent = new Event();
+        otherEvent.setEventName("Other Event");
+        otherEvent.setFacilityId("otherFacilityId");
+
+        eventsViewModel.addEvent(otherEvent).get();
+        assertNotNull(otherEvent.getDocumentId());
+
+        assertFalse("User should not be signed up for the other event", eventsViewModel.isSignedUp(otherEvent));
+    }
+
+    @Test
+    public void testIsUserOrganizerOrAdmin_adminUser() {
+        User adminUser = new User();
+        adminUser.setAdmin(true);
+        adminUser.setOrganizer(false);
+        currentUserLiveData.setValue(adminUser);
+
+        assertTrue("User is admin, should return true", eventsViewModel.isUserOrganizerOrAdmin());
+    }
+
+    @Test
+    public void testIsUserOrganizerOrAdmin_organizerUser() {
+        User organizerUser = new User();
+        organizerUser.setAdmin(false);
+        organizerUser.setOrganizer(true);
+        currentUserLiveData.setValue(organizerUser);
+
+        assertTrue("User is organizer, should return true", eventsViewModel.isUserOrganizerOrAdmin());
+    }
+
+    @Test
+    public void testIsUserOrganizerOrAdmin_nonAdminNonOrganizerUser() {
+        User regularUser = new User();
+        regularUser.setAdmin(false);
+        regularUser.setOrganizer(false);
+        currentUserLiveData.setValue(regularUser);
+
+        assertFalse("User is neither admin nor organizer, should return false", eventsViewModel.isUserOrganizerOrAdmin());
+    }
+
+    @Test
+    public void testIsUserOrganizerOrAdmin_nullUser() {
+        currentUserLiveData.setValue(null);
+
+        assertFalse("User is null, should return false", eventsViewModel.isUserOrganizerOrAdmin());
     }
 }
