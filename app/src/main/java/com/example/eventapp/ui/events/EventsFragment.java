@@ -54,6 +54,11 @@ EventInfoFragment.waitlistListener {
     }
 
     @Override
+    public boolean isAlreadyOnWaitlist(Event event){
+        return eventsViewModel.isSignedUp(event);
+    }
+
+    @Override
     public void saveEditedEvent(Event updatedEvent) {
         eventsViewModel.updateEvent(updatedEvent);
         currentEditEventFragment.dismiss();

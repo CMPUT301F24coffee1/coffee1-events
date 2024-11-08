@@ -18,6 +18,7 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
 
     private final Event event;
     private final EventsFragment eventsFragment;
+    private int currentWaitlistButtonState;
 
     /**
      * This is the constructor for the Event Info Fragment.
@@ -41,6 +42,7 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
     interface waitlistListener{
         void joinEventWaitlist(Event event);
         void leaveEventWaitlist(Event event);
+        boolean isAlreadyOnWaitlist(Event event);
     }
 
     /**
@@ -86,27 +88,29 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
             eventEntrantsCount.setText("No Entrant Limit");
         }
 
+        boolean isAlreadyInWaitlist = eventsFragment.isAlreadyOnWaitlist(event);
 
-        //if user is an entrant or an admin
-        // add check to see if already registered to determine the click behaviour
-        // join waitlist
+        // initial button text
+        if(isAlreadyInWaitlist){
+            currentWaitlistButtonState = 1;
+            waitlistButton.setText("Leave Waitlist");
+        }else{
+            currentWaitlistButtonState = 0;
+            waitlistButton.setText("Join Waitlist");
+        }
+
         waitlistButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                eventsFragment.joinEventWaitlist(event);
+                if(currentWaitlistButtonState == 1){ // leave waitlist
+                    eventsFragment.leaveEventWaitlist(event);
+                    waitlistButton.setText("Join Waitlist");
+                }else{
+                    eventsFragment.joinEventWaitlist(event);
+                    waitlistButton.setText("Leave Waitlist");
+                }
             }
         });
-
-        // leave waitlist
-        waitlistButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                eventsFragment.leaveEventWaitlist(event);
-            }
-        });
-
-        // if user is an organizer and not an admin
-        waitlistButton.setVisibility(View.GONE);
 
         // Initializes the edit event fragment with the given event
         editEventButton.setOnClickListener(new View.OnClickListener() {
