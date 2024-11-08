@@ -25,6 +25,20 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.util.ArrayList;
 
+/**
+ * A bottom sheet fragment that provides a form for creating a new event.
+ *
+ * <p>This fragment includes fields for entering event details, including name, description,
+ * geolocation requirement, and maximum entrants. It also allows users to select start and end dates,
+ * registration deadlines, and an optional poster image, which is uploaded to Firebase Storage.</p>
+ *
+ * <p>Implements the {@link DatePickerFragment.SetDateListener} interface to receive date inputs from
+ * a date picker dialog. The fragment communicates the new event data back to a parent component
+ * using a {@link CreateEventListener} interface.</p>
+ *
+ * <p><strong>Usage:</strong> Initialize with a {@link CreateEventListener} to handle the created event,
+ * and display the fragment as a bottom sheet.</p>
+ */
 public class CreateEventFragment extends BottomSheetDialogFragment implements DatePickerFragment.SetDateListener {
     private CreateEventListener createEventListener;
     private String posterUriString = "";

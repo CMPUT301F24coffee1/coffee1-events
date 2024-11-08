@@ -37,6 +37,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Objects;
 
+/**
+ * FacilityAddFragment is a fragment responsible for providing the interface to add a new Facility.
+ * It integrates with the ProfileViewModel to persist facility details and enables users to input
+ * facility information including name, description, and an optional photo. This fragment includes
+ * form validation, image uploading, and user feedback for successful facility creation.
+ */
 public class FacilityAddFragment extends Fragment {
 
     private ProfileViewModel profileViewModel;

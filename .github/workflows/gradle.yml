@@ -37,6 +37,9 @@ jobs:
 
     - name: Build with Gradle Wrapper
       run: ./gradlew assembleDebug
+
+    - name: Run Unit Tests
+      run: ./gradlew test
       
     - name: Start Firebase Emulators
       run: |

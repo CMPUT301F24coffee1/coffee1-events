@@ -15,6 +15,14 @@ import com.example.eventapp.models.Facility;
 
 import java.util.ArrayList;
 
+/**
+ * FacilitiesAdapter is a custom RecyclerView.Adapter for displaying a list of Facility items
+ * in a RecyclerView. Each Facility item is represented by a custom view holder displaying
+ * the facility's name, description, and an optional photo.
+ *
+ * This adapter also includes an interface, {@link OnFacilityClickListener}, for handling
+ * click events on individual facility items, allowing external actions when a facility is selected.
+ */
 public class FacilitiesAdapter extends RecyclerView.Adapter<FacilitiesAdapter.ViewHolder> {
     private final ArrayList<Facility> facilityList;
     private final FacilitiesAdapter.OnFacilityClickListener onFacilityClickListener;

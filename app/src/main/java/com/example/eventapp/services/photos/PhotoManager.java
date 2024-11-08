@@ -19,6 +19,13 @@ import java.io.InputStream;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * The PhotoManager class provides utility methods for handling photo operations, including
+ * compression, uploading to Firebase Storage, deletion, and generating default profile pictures.
+ * It includes a callback interface for upload status, allowing the calling component to respond
+ * to upload success or failure events. This class also contains helper methods to generate initials
+ * and color-based default profile images for users without custom profile pictures.
+ */
 public class PhotoManager {
 
 

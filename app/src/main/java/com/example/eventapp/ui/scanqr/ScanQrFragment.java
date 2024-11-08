@@ -20,6 +20,18 @@ import com.example.eventapp.viewmodels.ScanQrViewModel;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
+/**
+ * Fragment responsible for scanning QR codes and displaying the associated event details.
+ * Integrates a QR code scanner that retrieves event data based on the scanned QR code content.
+ *
+ * - Launches a QR scanner when the "Scan QR" button is clicked.
+ * - Updates the UI with the scanned QR code data and retrieves the corresponding event from the database.
+ * - Displays event information in a dialog fragment if the QR code matches an event.
+ *
+ * Uses:
+ * - {@link ScanQrViewModel} to manage and fetch event data.
+ * - {@link ActivityResultLauncher} to handle QR scan results.
+ */
 public class ScanQrFragment extends Fragment {
 
     private FragmentScanQrBinding binding;

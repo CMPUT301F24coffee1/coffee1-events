@@ -18,6 +18,7 @@ public class QRCodeGenerator {
         this.height = height;
     }
 
+    // not yet used - ignore
     public void generateQRCodeBitmap(){
         BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
         try {

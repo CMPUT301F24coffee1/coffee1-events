@@ -20,6 +20,16 @@ import com.example.eventapp.viewmodels.ProfileViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Fragment that displays and manages the list of user profiles for administrators.
+ * Integrates with a {@link ProfileViewModel} to observe and display users in a RecyclerView.
+ * Enables profile interaction through {@link ProfilesAdapter.OnProfileClickListener}, allowing
+ * administrators to view detailed information for individual users.
+ *
+ * This fragment observes live data from the ProfileViewModel, updating the displayed user list
+ * dynamically. When a profile is clicked, it opens a {@link ProfileInfoFragment} as a popup
+ * to show more details.
+ */
 public class AdminProfilesFragment extends Fragment implements
         ProfilesAdapter.OnProfileClickListener {
 
