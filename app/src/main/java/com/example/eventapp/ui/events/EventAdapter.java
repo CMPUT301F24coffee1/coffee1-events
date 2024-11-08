@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.eventapp.models.Event;
 import com.example.eventapp.R;
+import com.example.eventapp.services.photos.PhotoManager;
 
 import java.util.ArrayList;
 
@@ -77,7 +78,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                     .load(event.getPosterUri())
                     .into(viewHolder.getPosterView());
         } else {
-            viewHolder.getPosterView().setImageResource(R.drawable.default_event_poster);
+            viewHolder.getPosterView().setImageBitmap(PhotoManager.generateDefaultPoster(event.getDocumentId()));
         }
         viewHolder.itemView.setOnClickListener(v -> onEventClickListener.onEventClick(event));
     }

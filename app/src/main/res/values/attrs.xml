@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="textColor" format="reference" />
+    <attr name="textColorDark" format="reference" />
+    <attr name="colorSecondaryDark" format="reference" />
+    <attr name="colorOnSurfaceDark" format="reference" />
+</resources>

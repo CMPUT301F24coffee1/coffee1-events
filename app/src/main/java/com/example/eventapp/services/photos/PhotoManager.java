@@ -2,6 +2,8 @@ package com.example.eventapp.services.photos;
 
 import static android.content.ContentValues.TAG;
 
+import static java.lang.Long.parseLong;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -17,6 +19,7 @@ import com.google.firebase.storage.StorageReference;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -129,14 +132,14 @@ public class PhotoManager {
 
         String nameAndIdHash = userName + userId;
         String initials = getInitials(userName);
-        int color = getColorFromName(nameAndIdHash);
 
 
         Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
 
         Paint paint = new Paint();
-        paint.setColor(color);
+        Random rnd = new Random((long) nameAndIdHash.hashCode());
+        paint.setARGB(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
         paint.setStyle(Paint.Style.FILL);
         canvas.drawCircle(100, 100, 100, paint);
 
@@ -144,6 +147,24 @@ public class PhotoManager {
         paint.setTextSize(60);
         paint.setTextAlign(Paint.Align.CENTER);
         canvas.drawText(initials, 100, 120, paint);
+
+        return bitmap;
+    }
+
+    /**
+     * Generates a default event poster
+     * @param documentId The ID of the event document
+     * @return a bitmap containing the generated profile picture
+     */
+    public static Bitmap generateDefaultPoster(String documentId) {
+        Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+
+        Paint paint = new Paint();
+        Random rnd = new Random((long) documentId.hashCode());
+        paint.setARGB(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+        paint.setStyle(Paint.Style.FILL);
+        canvas.drawCircle(1, 1, 1, paint);
 
         return bitmap;
     }
@@ -160,16 +181,5 @@ public class PhotoManager {
         String[] words = name.split(" ");
         if (words.length < 2) return String.format("%c", name.charAt(0)).toUpperCase();
         return (String.format("%c%c", words[0].charAt(0), words[1].charAt(0))).toUpperCase();
-    }
-
-    /**
-     * Generates a hash code for an input name and returns a colour depending on the hash
-     * @param name the name to generate a hash from
-     * @return the colour corresponding to the hash of the name
-     */
-    private static int getColorFromName(String name) {
-        int hash = name.hashCode();
-        int[] colors = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.CYAN, Color.MAGENTA};
-        return colors[Math.abs(hash) % colors.length];
     }
 }

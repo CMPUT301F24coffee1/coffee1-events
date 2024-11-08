@@ -8,15 +8,19 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.eventapp.models.Event;
 import com.example.eventapp.R;
+import com.example.eventapp.models.Event;
 import com.example.eventapp.databinding.FragmentEventsBinding;
+import com.example.eventapp.models.User;
+import com.example.eventapp.repositories.UserRepository;
 import com.example.eventapp.viewmodels.EventsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +54,8 @@ public class EventsFragment extends Fragment implements
     private CreateEventFragment currentCreateEventFragment;
     private EditEventFragment currentEditEventFragment;
     private EventInfoFragment currentEventInfoFragment;
+    EventsListAdapter eventsListAdapter;
+    ViewPager2 viewPager;
 
     private FragmentEventsBinding binding;
 
@@ -86,23 +92,25 @@ public class EventsFragment extends Fragment implements
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         // set up RecyclerView for organized events
-        RecyclerView organizedEventsGrid = view.findViewById(R.id.organized_events_grid);
-        organizedEventsGrid.setLayoutManager(new GridLayoutManager(getContext(), 2));
         organizedEvents = new ArrayList<>();
         organizedEventsAdapter = new EventAdapter(organizedEvents, this);
-        organizedEventsGrid.setAdapter(organizedEventsAdapter);
 
         // set up RecyclerView for signed-up events
-        RecyclerView signedUpEventsGrid = view.findViewById(R.id.signed_up_events_grid);
-        signedUpEventsGrid.setLayoutManager(new GridLayoutManager(getContext(), 2));
         signedUpEvents = new ArrayList<>();
         signedUpEventsAdapter = new EventAdapter(signedUpEvents, this);
-        signedUpEventsGrid.setAdapter(signedUpEventsAdapter);
+
+        eventsListAdapter = new EventsListAdapter(organizedEventsAdapter, signedUpEventsAdapter);
+        viewPager = view.findViewById(R.id.events_viewpager);
+        viewPager.setAdapter(eventsListAdapter);
 
         eventsViewModel.getOrganizedEvents().observe(getViewLifecycleOwner(), this::updateOrganizedEventsList);
         eventsViewModel.getSignedUpEvents().observe(getViewLifecycleOwner(), this::updateSignedUpEventsList);
+
+        TabLayout tabLayout = view.findViewById(R.id.events_tabs);
+        new TabLayoutMediator(tabLayout, viewPager,
+                (tab, position) -> tab.setText(position == 0 ? getString(R.string.events) : getString(R.string.organized_events )))
+                .attach();
 
         FloatingActionButton createEventButton = view.findViewById(R.id.create_event_button);
         createEventButton.setOnClickListener(v -> {
@@ -110,10 +118,25 @@ public class EventsFragment extends Fragment implements
             showCreateEventPopup();
         });
 
-        boolean isOrganizer = true;
-        if (!isOrganizer) {
-            createEventButton.setVisibility(View.GONE);
-        }
+        LiveData<User> currentUserLiveData = UserRepository.getInstance().getCurrentUserLiveData();
+
+        currentUserLiveData.observeForever(user -> {
+            if (user != null) {
+                if (user.isOrganizer()) {
+                    createEventButton.setVisibility(View.VISIBLE);
+                    tabLayout.setVisibility(View.VISIBLE);
+                    eventsListAdapter.setItemCount(2);
+                    new TabLayoutMediator(tabLayout, viewPager,
+                            (tab, position) -> tab.setText(position == 0 ? getString(R.string.events) : getString(R.string.organized_events )))
+                            .attach();
+                } else {
+                    createEventButton.setVisibility(View.GONE);
+                    tabLayout.setVisibility(View.GONE);
+                    eventsListAdapter.setItemCount(1);
+                }
+            }
+        });
+
     }
 
     private void updateOrganizedEventsList(List<Event> newOrganizedEvents) {
