@@ -22,4 +22,34 @@
         android:name="com.example.eventapp.ui.profiles.AdminProfilesFragment"
         android:label="@string/title_profiles"
         tools:layout="@layout/fragment_admin_profiles" />
+
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.example.eventapp.ui.profiles.ProfileFragment"
+        android:label="@string/title_profile"
+        tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/navigation_profile_edit"
+        android:name="com.example.eventapp.ui.profiles.ProfileEditFragment"
+        android:label="@string/title_profile"
+        tools:layout="@layout/fragment_profile_edit" />
+
+    <fragment
+        android:id="@+id/navigation_facilities"
+        android:name="com.example.eventapp.ui.profiles.FacilitiesFragment"
+        android:label="@string/title_facilities"
+        tools:layout="@layout/fragment_facilities" />
+
+    <fragment
+        android:id="@+id/navigation_facility_edit"
+        android:name="com.example.eventapp.ui.profiles.FacilityEditFragment"
+        android:label="@string/title_facility_edit"
+        tools:layout="@layout/fragment_facility_edit" />
+
+    <fragment
+        android:id="@+id/navigation_facility_add"
+        android:name="com.example.eventapp.ui.profiles.FacilityAddFragment"
+        android:label="@string/title_facility_add"
+        tools:layout="@layout/fragment_facility_add" />
 </navigation>

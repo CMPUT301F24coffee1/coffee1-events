@@ -1,5 +1,7 @@
 package com.example.eventapp.models;
 
+import android.net.Uri;
+
 import com.google.firebase.firestore.Exclude;
 
 public class User {
@@ -9,6 +11,7 @@ public class User {
     private boolean isOrganizer;
     private boolean isAdmin;
 
+    private String photoUriString = "";
     private String email;
     private String phoneNumber;
     private boolean notificationOptOut = false;
@@ -22,15 +25,25 @@ public class User {
     }
 
     public User(String name, String email){
+        this.name = name;
         this.email = email;
         this.phoneNumber = "";
         this.notificationOptOut = false;
     }
 
     public User(String name, String email, String phoneNumber) {
+        this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.notificationOptOut = false;
+    }
+
+    public User(String name, String email, String phoneNumber, String photoUriString) {
+        this.name = name;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.notificationOptOut = false;
+        this.photoUriString = photoUriString;
     }
 
     public User(String name, boolean isOrganizer) {
@@ -75,6 +88,16 @@ public class User {
     public void setAdmin(boolean admin) {
         isAdmin = admin;
     }
+
+    public String getPhotoUriString() {
+        return photoUriString;
+    }
+
+    public void setPhotoUriString(String photoUriString) {this.photoUriString = photoUriString;}
+
+    public Uri getPhotoUri() { return Uri.parse(photoUriString);}
+
+    public Boolean hasPhoto() { return !photoUriString.isEmpty(); }
 
     public String getEmail() {
         return email;
