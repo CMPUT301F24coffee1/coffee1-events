@@ -53,6 +53,7 @@
     <string name="facility_creation_failed">Facility creation failed, please try again</string>
     <string name="facility_update_failed">Failed to update facility, please try again</string>
     <string name="user_update_failed">Failed to update profile, please try again</string>
+    <string name="scanned">Scanned: %1$s</string>
     <string name="you">(You)</string>
     <string name="edit_profile_desc">Edit Profile</string>
     <string name="no_user_id">No User ID</string>

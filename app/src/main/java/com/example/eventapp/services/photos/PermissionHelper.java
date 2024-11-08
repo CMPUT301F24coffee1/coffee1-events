@@ -1,4 +1,4 @@
-package com.example.eventapp.photos;
+package com.example.eventapp.services.photos;
 
 import android.Manifest;
 import android.app.Activity;

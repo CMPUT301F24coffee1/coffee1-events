@@ -1,3 +1,5 @@
+deploymentTargetSelector.xml
+*.log
 .firebaserc
 google-services.json
 *.iml

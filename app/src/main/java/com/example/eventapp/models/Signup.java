@@ -1,8 +1,9 @@
 package com.example.eventapp.models;
 
+import com.example.eventapp.interfaces.HasDocumentId;
 import com.google.firebase.firestore.Exclude;
 
-public class Signup {
+public class Signup implements HasDocumentId {
     @Exclude
     private String documentId;
     private String userId;
@@ -23,6 +24,7 @@ public class Signup {
         return documentId;
     }
 
+    @Override
     public void setDocumentId(String documentId) {
         this.documentId = documentId;
     }

@@ -25,7 +25,7 @@ import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.databinding.FragmentProfileBinding;
 import com.example.eventapp.models.User;
-import com.example.eventapp.photos.PhotoManager;
+import com.example.eventapp.services.photos.PhotoManager;
 import com.example.eventapp.viewmodels.ProfileViewModel;
 
 import java.util.Locale;

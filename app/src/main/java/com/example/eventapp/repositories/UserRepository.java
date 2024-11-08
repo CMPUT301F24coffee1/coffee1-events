@@ -74,36 +74,48 @@ public class UserRepository {
         currentListenerRegistration = setUserLiveData(currentUserLiveData, userId);
     }
 
-    public Task<Void> saveUser(User user) {
+    public CompletableFuture<Void> saveUser(User user) {
         String userId = getUserIdOrThrow(user);
+        CompletableFuture<Void> future = new CompletableFuture<>();
 
-        return userCollection.document(userId).set(user)
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Log.d(TAG, "saveUser: success for user with ID: " + userId);
-                } else {
-                    Log.e(TAG, "saveUser: fail", task.getException());
-                }
-            });
+        userCollection.document(userId).set(user)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "saveUser: success for user with ID: " + userId);
+                        future.complete(null);
+                    } else {
+                        Log.e(TAG, "saveUser: fail", task.getException());
+                        future.completeExceptionally(task.getException());
+                    }
+                });
+        return future;
     }
 
-    public Task<Void> removeUser(User user) {
+    public CompletableFuture<Void> removeUser(User user) {
         String userId = getUserIdOrThrow(user);
         return removeUser(userId);
     }
 
-    public Task<Void> removeUser(String userId) {
-        if (userId == null) throw new NullPointerException("userId cannot be null - set deviceId");
-        if (userId.equals(currentUserId)) throw new InvalidParameterException("cannot remove current logged in user");
+    public CompletableFuture<Void> removeUser(String userId) {
+        if (userId == null) { throw new NullPointerException("userId cannot be null - set deviceId"); }
+        CompletableFuture<Void> future = new CompletableFuture<>();
 
-        return userCollection.document(userId).delete()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Log.d(TAG, "removeUser: success for user with ID: " + userId);
-                } else {
-                    Log.e(TAG, "removeUser: fail", task.getException());
-                }
-            });
+        if (userId.equals(currentUserId)) {
+            future.completeExceptionally(new InvalidParameterException("cannot remove current logged in user"));
+            return future;
+        }
+
+        userCollection.document(userId).delete()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "removeUser: success for user with ID: " + userId);
+                        future.complete(null);
+                    } else {
+                        Log.e(TAG, "removeUser: fail", task.getException());
+                        future.completeExceptionally(task.getException());
+                    }
+                });
+        return future;
     }
 
     public CompletableFuture<User> getUser(String userId) {
@@ -168,35 +180,12 @@ public class UserRepository {
     }
 
     public LiveData<List<User>> getAllUsersLiveData() {
-        return runQueryLiveData("getAllUsersLiveData", userCollection);
+        return Common.runQueryLiveData("getAllUsersLiveData", userCollection, User.class, TAG);
     }
 
     public LiveData<User> getUserLiveData(String userId) {
         MutableLiveData<User> userLiveData = new MutableLiveData<>();
         setUserLiveData(userLiveData, userId);
         return userLiveData;
-    }
-
-    private LiveData<List<User>> runQueryLiveData(String methodName, Query query) {
-        MutableLiveData<List<User>> liveData = new MutableLiveData<>();
-
-        query.addSnapshotListener((querySnapshot, e) -> {
-            if (e != null) {
-                Log.e(TAG, "runQueryLiveData: " + methodName + ": listen failed", e);
-                liveData.setValue(new ArrayList<>());
-                return;
-            }
-
-            if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                List<User> users = querySnapshot.toObjects(User.class);
-
-                Log.d(TAG, "runQueryLiveData: " + methodName + ": success");
-                liveData.setValue(users);
-            } else {
-                Log.d(TAG, "runQueryLiveData: " + methodName + ": no documents found");
-                liveData.setValue(new ArrayList<>());
-            }
-        });
-        return liveData;
     }
 }
