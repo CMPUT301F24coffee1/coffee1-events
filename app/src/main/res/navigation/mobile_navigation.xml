@@ -3,16 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@+id/navigation_events">
 
     <fragment
-        android:id="@+id/navigation_home"
+        android:id="@+id/navigation_events"
         android:name="com.example.eventapp.ui.events.EventsFragment"
         android:label="@string/title_events"
         tools:layout="@layout/fragment_events" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_scanqr"
         android:name="com.example.eventapp.ui.scanqr.ScanQrFragment"
         android:label="@string/title_scanqr"
         tools:layout="@layout/fragment_scan_qr" />

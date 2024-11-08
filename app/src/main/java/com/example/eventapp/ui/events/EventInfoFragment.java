@@ -17,6 +17,7 @@ import com.example.eventapp.models.Event;
 import com.example.eventapp.services.FormatDate;
 import com.example.eventapp.viewmodels.EventsViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class EventInfoFragment extends BottomSheetDialogFragment {
 
@@ -62,7 +63,7 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         eventsViewModel = new ViewModelProvider(requireActivity()).get(EventsViewModel.class);
         View view = inflater.inflate(R.layout.event_info_popup, null);
         TextView eventName = view.findViewById(R.id.popup_event_name_text);
-        Button editEventButton = view.findViewById(R.id.popup_edit_event_info_button);
+        FloatingActionButton editEventButton = view.findViewById(R.id.popup_edit_event_info_button);
         Button waitlistButton = view.findViewById(R.id.popup_event_waitlist_button);
         ImageView eventImage = view.findViewById(R.id.popup_event_poster_image);
         TextView eventDuration = view.findViewById(R.id.popup_event_duration_text);

@@ -1,158 +1,184 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:layout_height="match_parent">
 
-    <!-- work in progress -->
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.cardview.widget.CardView
+        android:id="@+id/handle"
+        android:layout_width="120dp"
+        android:layout_height="6dp"
+        android:layout_marginTop="6dp"
+        app:cardBackgroundColor="@color/material_dynamic_neutral_variant60"
+        app:cardCornerRadius="100dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-        <!-- EditText fields for now, replace later with better ways to get input -->
-
-        <EditText
-            android:id="@+id/popup_create_event_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="32dp"
-            android:hint="Event Name"
-            android:textSize="40sp"
-            app:layout_constraintEnd_toStartOf="@+id/popup_create_event_button"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <Button
-            android:id="@+id/popup_create_event_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:text="Create"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/popup_create_event_name"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/popup_create_event_image"
-            android:layout_width="0dp"
-            android:layout_height="200sp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_name"
-            tools:srcCompat="@tools:sample/avatars" />
-
-<!--        <EditText-->
-<!--            android:id="@+id/popup_create_event_registration_deadline"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginStart="8dp"-->
-<!--            android:layout_marginTop="8dp"-->
-<!--            android:layout_marginEnd="8dp"-->
-<!--            android:hint="Event Registration Deadline"-->
-<!--            android:textSize="18sp"-->
-<!--            android:textStyle="italic"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintHorizontal_bias="0.0"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_geolocation_checkbox_layout" />-->
-
+        <!-- work in progress -->
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/popup_create_event_geolocation_checkbox_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_image">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-            <Button
-                android:id="@+id/popup_create_event_duration_button"
+            <!-- EditText fields for now, replace later with better ways to get input -->
+
+            <EditText
+                android:id="@+id/popup_create_event_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Set Event Duration"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="32dp"
+                android:hint="Event Name"
+                android:textSize="40sp"
+                app:layout_constraintEnd_toStartOf="@+id/popup_create_event_button"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- referenced https://stackoverflow.com/a/44496405 by Mahesh Lad, on October 23, 2024 -->
-            <CheckBox
-                android:id="@+id/popup_create_event_geolocation_checkbox"
+            <Button
+                android:id="@+id/popup_create_event_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layoutDirection="rtl"
-                android:paddingEnd="8dp"
-                android:text="Require Geolocation"
-                android:textSize="15sp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:backgroundTint="?attr/colorPrimary"
+                android:text="Create"
+                android:textColor="?attr/textColor"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/popup_create_event_name"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/popup_create_event_image"
+                android:layout_width="0dp"
+                android:layout_height="200sp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/popup_create_event_name"
+                tools:srcCompat="@tools:sample/avatars" />
+
+    <!--        <EditText-->
+    <!--            android:id="@+id/popup_create_event_registration_deadline"-->
+    <!--            android:layout_width="0dp"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_marginStart="8dp"-->
+    <!--            android:layout_marginTop="8dp"-->
+    <!--            android:layout_marginEnd="8dp"-->
+    <!--            android:hint="Event Registration Deadline"-->
+    <!--            android:textSize="18sp"-->
+    <!--            android:textStyle="italic"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintHorizontal_bias="0.0"-->
+    <!--            app:layout_constraintStart_toStartOf="parent"-->
+    <!--            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_geolocation_checkbox_layout" />-->
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/popup_create_event_geolocation_checkbox_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/popup_create_event_image">
+
+                <Button
+                    android:id="@+id/popup_create_event_duration_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:text="Set Event Duration"
+                    android:textColor="?attr/textColor"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- referenced https://stackoverflow.com/a/44496405 by Mahesh Lad, on October 23, 2024 -->
+                <CheckBox
+                    android:id="@+id/popup_create_event_geolocation_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="?attr/textColorDark"
+                    android:layoutDirection="rtl"
+                    android:paddingEnd="8dp"
+                    android:text="Require Geolocation"
+                    android:textColor="?attr/textColor"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <EditText
+                android:id="@+id/popup_create_event_description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:hint="@string/event_description"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/popup_create_event_registration_deadline_button" />
+            <!-- app:layout_constraintTop_toBottomOf="@+id/popup_create_event_registration_deadline" /> -->
+
+            <!-- referenced https://stackoverflow.com/a/66137898 by Anael, on October 24, 2024 -->
+            <EditText
+                android:id="@+id/popup_create_event_max_entrants"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="10dp"
+                android:hint="Max Number of Entrants (Optional)"
+                android:textSize="20sp"
                 android:textStyle="bold"
+                android:inputType="phone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/popup_create_event_description"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <Button
+                android:id="@+id/popup_create_event_registration_deadline_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:backgroundTint="?attr/colorPrimary"
+                android:text="Set Registration Deadline"
+                android:textColor="?attr/textColor"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/popup_create_event_geolocation_checkbox_layout" />
+
+            <Button
+                android:id="@+id/popup_create_event_add_poster"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="?attr/colorPrimary"
+                android:text="Add Poster"
+                android:textColor="?attr/textColor"
+                app:layout_constraintBottom_toTopOf="@+id/popup_create_event_image"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/popup_create_event_name"
+                app:layout_constraintTop_toBottomOf="@+id/popup_create_event_button" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <EditText
-            android:id="@+id/popup_create_event_description"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:hint="@string/lorem_ipsum"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_registration_deadline_button" />
-        <!-- app:layout_constraintTop_toBottomOf="@+id/popup_create_event_registration_deadline" /> -->
-
-        <!-- referenced https://stackoverflow.com/a/66137898 by Anael, on October 24, 2024 -->
-        <EditText
-            android:id="@+id/popup_create_event_max_entrants"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="10dp"
-            android:hint="Max Number of Entrants (Optional)"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:inputType="phone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_description"
-            app:layout_constraintVertical_bias="0.0" />
-
-        <Button
-            android:id="@+id/popup_create_event_registration_deadline_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="Set Registration Deadline"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_geolocation_checkbox_layout" />
-
-        <Button
-            android:id="@+id/popup_create_event_add_poster"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Add Poster"
-            app:layout_constraintBottom_toTopOf="@+id/popup_create_event_image"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/popup_create_event_name"
-            app:layout_constraintTop_toBottomOf="@+id/popup_create_event_button" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.core.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,16 +1,63 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Theme.EventApp" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_700</item>
-        <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
+        <!-- Status bar colour -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="actionBarTheme">@style/toolbarStyle</item>
+        <!-- Navigation colour -->
+        <item name="bottomNavigationStyle">@style/navViewStyle</item>
+        <!-- Window background colour -->
+        <item name="android:windowBackground">@color/material_dynamic_neutral20</item>
+        <!-- Text Colours -->
+        <item name="textColor">@color/material_dynamic_neutral95</item>
+        <item name="android:textColor">?attr/textColor</item>
+        <item name="textColorDark">@color/material_dynamic_neutral80</item>
+        <item name="android:textColorHint">?attr/textColorDark</item>
+        <item name="textInputStyle">@style/editTextTheme</item>
+        <!-- Button Colours -->
+        <item name="materialButtonStyle">@style/buttonTheme</item>
+        <item name="floatingActionButtonStyle">@style/fabTheme</item>
+
+        <!-- Primary colours -->
+        <item name="colorPrimary">@color/material_dynamic_primary50</item>
+        <item name="colorPrimaryDark">@color/material_dynamic_primary20</item>
+        <item name="colorPrimaryVariant">@color/material_dynamic_primary80</item>
+        <!-- Secondary colours -->
+        <item name="colorSecondary">@color/material_dynamic_secondary50</item>
+        <item name="colorSecondaryDark">@color/material_dynamic_secondary20</item>
+        <item name="colorSecondaryVariant">@color/material_dynamic_secondary80</item>
+
+        <!-- Surface colours -->
+        <item name="colorSurface">@color/material_dynamic_neutral_variant30</item>
+        <item name="colorOnSurface">@color/material_dynamic_neutral_variant20</item>
+        <item name="colorOnSurfaceDark">@color/material_dynamic_neutral10</item>
+        <item name="colorOnSurfaceVariant">@color/material_dynamic_neutral_variant40</item>
+
     </style>
+
+    <style name="buttonTheme" parent="Widget.MaterialComponents.Button">
+        <item name="android:textColor">?attr/textColor</item>
+    </style>
+    <style name="fabTheme" parent="Widget.Design.FloatingActionButton">
+        <item name="backgroundTint">?attr/colorPrimary</item>
+    </style>
+    <style name="editTextTheme" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="boxBackgroundColor">?attr/colorOnSurfaceDark</item>
+        <item name="boxStrokeColor">?attr/textColorDark</item>
+        <item name="helperTextTextColor">@color/negative_colour</item>
+        <item name="android:textColorHint">?attr/textColorDark</item>
+    </style>
+
+    <style name="toolbarStyle" parent="Widget.AppCompat.ActionBar">
+        <item name="android:textColorPrimary">?attr/textColor</item>
+    </style>
+
+    <style name="navViewStyle" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="itemTextColor">@color/bottom_nav_item_color</item>
+        <item name="itemIconTint">@color/bottom_nav_item_color</item>
+    </style>
+
+
 </resources>
