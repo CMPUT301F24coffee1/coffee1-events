@@ -2,6 +2,7 @@ package com.example.eventapp.ui.profiles;
 
 import static android.content.ContentValues.TAG;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -177,6 +178,7 @@ public class ProfileEditFragment extends Fragment {
 
         profileViewModel.getUser().observe(getViewLifecycleOwner(), this::updateUserInfo);
         profileViewModel.getFacilities().observe(getViewLifecycleOwner(), this::updateFacilities);
+        profileViewModel.getActualUser().observe(getViewLifecycleOwner(), this::verifyDeleteButton);
 
         return root;
     }
@@ -192,6 +194,7 @@ public class ProfileEditFragment extends Fragment {
         final CardView photoCard = binding.profileEditPhotoCard;
         final FloatingActionButton removePhoto = binding.profileEditRemovePhoto;
         final EditText nameField = binding.profileEditNameInput;
+        final FloatingActionButton deleteButton = binding.profileEditDelete;
 
         PhotoPicker.PhotoPickerCallback pickerCallback = photoUri -> {
             // Save the URI for later use after validation
@@ -224,6 +227,19 @@ public class ProfileEditFragment extends Fragment {
             removePhoto.setVisibility(View.GONE);
             photo.setImageBitmap(PhotoManager.generateDefaultProfilePicture(nameField.getText().toString(), userId));
             selectedPhotoUri = null;
+        });
+
+        deleteButton.setOnClickListener(v -> {
+            if (hasFacilities()) {
+                Toast.makeText(getContext(), getString(R.string.error_cant_delete_profile), Toast.LENGTH_SHORT).show();
+            } else {
+                new AlertDialog.Builder(getActivity()).setMessage(R.string.confirm_delete_profile)
+                    .setPositiveButton(R.string.confirm, (dialog, id) -> {
+                        profileViewModel.deleteSelectedUser();
+                        NavHostFragment.findNavController(this).popBackStack();
+                    }).setNegativeButton(R.string.cancel, (dialog, id) ->
+                        Toast.makeText(getContext(), getString(R.string.profile_delete_cancelled), Toast.LENGTH_SHORT).show()).create().show();
+            }
         });
     }
 
@@ -258,6 +274,16 @@ public class ProfileEditFragment extends Fragment {
             removePhoto.setVisibility(View.GONE);
             photo.setImageBitmap(PhotoManager.generateDefaultProfilePicture(nameField.getText().toString(), userId));
         }
+    }
+
+    /**
+     * Verifies if the user is an admin, and if they are, shows them the delete button
+     */
+    private void verifyDeleteButton(User user) {
+        final FloatingActionButton deleteButton = binding.profileEditDelete;
+        deleteButton.setVisibility(user.isAdmin()
+                && !Objects.equals(user.getUserId(), Objects.requireNonNull(profileViewModel.getUser().getValue()).getUserId())
+                ? View.VISIBLE : View.GONE);
     }
 
     /**

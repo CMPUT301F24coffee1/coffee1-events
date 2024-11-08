@@ -68,6 +68,13 @@ public class ProfileViewModel extends ViewModel {
     }
 
     /**
+     * Deletes the currently selected User
+     */
+    public void deleteSelectedUser() {
+        userRepository.removeUser(currentUserLiveData.getValue());
+    }
+
+    /**
      * Gets the live data from the user
      * @return Live data from the user
      */
