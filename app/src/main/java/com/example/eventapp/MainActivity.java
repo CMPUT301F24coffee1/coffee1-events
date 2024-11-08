@@ -14,6 +14,7 @@ import android.Manifest;
 
 import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.UserRepository;
+import com.example.eventapp.viewmodels.ProfileViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
@@ -22,6 +23,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -131,6 +133,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         // Manual navigation is necessary for the top nav bar
         if (item.getItemId() == R.id.navigation_profile) {
+            ProfileViewModel profileViewModel =
+                    new ViewModelProvider(this).get(ProfileViewModel.class);
+            profileViewModel.setSelectedUser(Objects.requireNonNull(profileViewModel.getActualUser().getValue()));
             navController.navigate(R.id.navigation_profile);
         } else if (item.getItemId() == R.id.navigation_profile_edit) {
             navController.navigate(R.id.navigation_profile_edit);

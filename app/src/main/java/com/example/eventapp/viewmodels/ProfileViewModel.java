@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
@@ -19,10 +20,12 @@ import java.util.List;
 
 public class ProfileViewModel extends ViewModel {
 
-    private final LiveData<User> currentUserLiveData;
+    private LiveData<User> currentUserLiveData;
+    private final LiveData<User> actualUserLiveData;
     private final UserRepository userRepository;
     private final FacilityRepository facilityRepository;
     private final MediatorLiveData<List<Facility>> facilitiesLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<List<User>> usersLiveData = new MediatorLiveData<>();
     private Facility selectedFacility;
     private LiveData<List<Facility>> currentFacilitiesSource;
 
@@ -34,7 +37,9 @@ public class ProfileViewModel extends ViewModel {
     public ProfileViewModel() {
         userRepository = UserRepository.getInstance();
         facilityRepository = FacilityRepository.getInstance();
-        currentUserLiveData = userRepository.getCurrentUserLiveData();
+        actualUserLiveData = userRepository.getCurrentUserLiveData();
+        currentUserLiveData = actualUserLiveData;
+        usersLiveData.addSource(userRepository.getAllUsersLiveData(), usersLiveData::setValue);
 
         // load organized and signed-up events when current user data is available
         currentUserLiveData.observeForever(user -> {
@@ -47,12 +52,14 @@ public class ProfileViewModel extends ViewModel {
     /**
      * Initializes ProfileViewModel, but allows you to pre-specify the repositories for testing purposes
      */
-    public ProfileViewModel(UserRepository userRepository, FacilityRepository facilityRepository) {
+    public ProfileViewModel(@NonNull UserRepository userRepository, FacilityRepository facilityRepository) {
         this.userRepository = userRepository;
         this.facilityRepository = facilityRepository;
-        currentUserLiveData = userRepository.getCurrentUserLiveData();
+        actualUserLiveData = userRepository.getCurrentUserLiveData();
+        currentUserLiveData = actualUserLiveData;
+        usersLiveData.addSource(userRepository.getAllUsersLiveData(), usersLiveData::setValue);
 
-        // load organized and signed-up events when current user data is available
+        // load facilities when user data is available
         currentUserLiveData.observeForever(user -> {
             if (user != null) {
                 loadFacilities(user.getUserId());
@@ -74,6 +81,31 @@ public class ProfileViewModel extends ViewModel {
      */
     public LiveData<List<Facility>> getFacilities() {
         return facilitiesLiveData;
+    }
+
+    /**
+     * Gets the live data of the list of profiles
+     * @return Live data of the list of profiles
+     */
+    public LiveData<List<User>> getUsers() {
+        return usersLiveData;
+    }
+
+    /**
+     * Sets the currently selected user
+     * @param user User that is now being selected
+     */
+    public void setSelectedUser(User user) {
+        currentUserLiveData = userRepository.getUserLiveData(user.getUserId());
+        loadFacilities(user.getUserId()); // Load the new facilities from the selected user
+    }
+
+    /**
+     * Returns the actual user the device is logged in as
+     * @return The user the device is logged in as
+     */
+    public LiveData<User> getActualUser() {
+        return actualUserLiveData;
     }
 
     /**

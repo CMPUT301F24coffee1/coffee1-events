@@ -54,6 +54,7 @@ public class ProfileEditFragment extends Fragment {
     private String photoUriString = "";
     private boolean removingPhoto = false;
     private String userId;
+    private boolean userHasPhoto = false;
 
     private enum Confirmed { YES, NAME, EMAIL, PHONE, ORGANIZER }
 
@@ -211,13 +212,14 @@ public class ProfileEditFragment extends Fragment {
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             @Override
             public void afterTextChanged(Editable s) {
-                if (selectedPhotoUri == null) {
+                if (!userHasPhoto) {
                     photo.setImageBitmap(PhotoManager.generateDefaultProfilePicture(nameField.getText().toString(), userId));
                 }
             }
         });
 
         removePhoto.setOnClickListener(v -> {
+            userHasPhoto = false;
             removingPhoto = true;
             removePhoto.setVisibility(View.GONE);
             photo.setImageBitmap(PhotoManager.generateDefaultProfilePicture(nameField.getText().toString(), userId));
@@ -246,6 +248,7 @@ public class ProfileEditFragment extends Fragment {
         optNotifs.setChecked(user.isNotificationOptOut());
         isOrganizer.setChecked(user.isOrganizer());
         if (user.hasPhoto()) {
+            userHasPhoto = true;
             removePhoto.setVisibility(View.VISIBLE);
             oldPhotoUri = user.getPhotoUri();
             Glide.with(requireContext())
