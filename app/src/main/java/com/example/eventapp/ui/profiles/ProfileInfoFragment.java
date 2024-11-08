@@ -21,7 +21,7 @@ import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.databinding.ProfileInfoPopupBinding;
 import com.example.eventapp.models.User;
-import com.example.eventapp.photos.PhotoManager;
+import com.example.eventapp.services.photos.PhotoManager;
 import com.example.eventapp.viewmodels.ProfileViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;

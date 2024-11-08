@@ -1,4 +1,4 @@
-package com.example.eventapp.ui.events;
+package com.example.eventapp.services;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

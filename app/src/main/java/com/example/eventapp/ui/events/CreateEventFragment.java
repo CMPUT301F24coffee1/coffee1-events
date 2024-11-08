@@ -19,8 +19,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
-import com.example.eventapp.photos.PhotoPicker;
-import com.example.eventapp.photos.PhotoManager;
+import com.example.eventapp.services.photos.PhotoPicker;
+import com.example.eventapp.services.photos.PhotoManager;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.util.ArrayList;

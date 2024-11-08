@@ -30,8 +30,8 @@ import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.databinding.FragmentFacilityAddBinding;
 import com.example.eventapp.models.Facility;
-import com.example.eventapp.photos.PhotoPicker;
-import com.example.eventapp.photos.PhotoManager;
+import com.example.eventapp.services.photos.PhotoPicker;
+import com.example.eventapp.services.photos.PhotoManager;
 import com.example.eventapp.viewmodels.ProfileViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 

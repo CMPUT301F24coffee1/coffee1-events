@@ -181,15 +181,12 @@ public class MainActivity extends AppCompatActivity {
         User user = new User(randomizedName);
         user.setUserId(userId);
 
-        userRepository.saveUser(user)
-            .addOnCompleteListener(saveUserTask -> {
-                if (saveUserTask.isSuccessful()) {
-                    Log.i(TAG, "Successfully created organizer with ID: " + user.getUserId());
-                    userRepository.setCurrentUser(user);
-                } else {
-                    Log.e(TAG, "Failed to create organizer with ID: " + user.getUserId());
-                }
-            });
+        userRepository.saveUser(user).thenAccept(discard -> {
+            userRepository.setCurrentUser(user);
+        }).exceptionally(throwable -> {
+            Log.e(TAG, "Failed to create organizer with ID: " + user.getUserId());
+            return null;
+        });
     }
 
     /**

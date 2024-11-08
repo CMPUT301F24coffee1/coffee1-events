@@ -1,4 +1,4 @@
-package com.example.eventapp.ui.events;
+package com.example.eventapp.services;
 
 import android.graphics.Bitmap;
 import android.util.Log;
