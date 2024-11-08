@@ -18,6 +18,16 @@ import com.example.eventapp.repositories.UserRepository;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * ProfilesAdapter is a custom RecyclerView.Adapter for displaying a list of user profiles
+ * in a RecyclerView. Each item in the list displays a profile's name, photo, and indicates
+ * if the profile belongs to the current user.
+ * <p>
+ * This adapter includes an interface, {@link OnProfileClickListener}, to handle profile
+ * selection events. It also uses Glide for loading profile photos from URIs and can generate
+ * a default profile picture when no photo is available.
+ * </p>
+ */
 public class ProfilesAdapter extends RecyclerView.Adapter<ProfilesAdapter.ViewHolder> {
     private final ArrayList<User> profileList;
     private final ProfilesAdapter.OnProfileClickListener onProfileClickListener;

@@ -5,22 +5,25 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.eventapp.models.Facility;
 import com.example.eventapp.models.User;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.Query;
 
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 
+/**
+ * The `UserRepository` class is a singleton repository responsible for handling Firestore operations
+ * related to `User` data management. This includes adding, updating, retrieving, and removing user records.
+ * The repository also manages the current user’s real-time data updates via LiveData and provides
+ * methods to retrieve lists of users as LiveData, enabling dynamic UI updates as data changes in Firestore.
+ * It includes utility functions for setting the current user and retrieving a user’s unique identifier.
+ */
 public class UserRepository {
 
     private static final String TAG = "UserRepository";
@@ -31,14 +34,27 @@ public class UserRepository {
     private String currentUserId = null;
     private ListenerRegistration currentListenerRegistration = null;
 
+    /**
+     * Initializes a new instance of UserRepository with the default Firebase instance.
+     */
     private UserRepository() {
         userCollection = FirebaseFirestore.getInstance().collection("users");
     }
 
+    /**
+     * Initializes a new instance of UserRepository with a specified Firestore test instance.
+     *
+     * @param testInstance The Firestore instance for testing.
+     */
     private UserRepository(FirebaseFirestore testInstance) {
         userCollection = testInstance.collection("users");
     }
 
+    /**
+     * Retrieves the singleton instance of UserRepository.
+     *
+     * @return The singleton instance of UserRepository.
+     */
     public static synchronized UserRepository getInstance() {
         if (instance == null) {
             instance = new UserRepository();
@@ -46,6 +62,12 @@ public class UserRepository {
         return instance;
     }
 
+    /**
+     * Retrieves a test instance of UserRepository using a specified Firestore instance.
+     *
+     * @param testInstance The Firestore instance for testing.
+     * @return A singleton test instance of UserRepository.
+     */
     public static synchronized UserRepository getTestInstance(FirebaseFirestore testInstance) {
         if (instance == null) {
             instance = new UserRepository(testInstance);
@@ -53,10 +75,20 @@ public class UserRepository {
         return instance;
     }
 
+    /**
+     * Gets the current user's LiveData.
+     *
+     * @return LiveData representing the current user.
+     */
     public LiveData<User> getCurrentUserLiveData() {
         return currentUserLiveData;
     }
 
+    /**
+     * Sets the current user and updates the LiveData with real-time updates.
+     *
+     * @param user The user to set as the current user.
+     */
     public void setCurrentUser(User user) {
         String userId = getUserIdOrThrow(user);
         Log.d(TAG, "setCurrentUser: setting current user to user with ID: " + userId);
@@ -74,6 +106,13 @@ public class UserRepository {
         currentListenerRegistration = setUserLiveData(currentUserLiveData, userId);
     }
 
+    /**
+     * Saves a user document to Firestore.
+     *
+     * @param user The user to save.
+     * @return A CompletableFuture indicating the completion of the save operation.
+     * @throws NullPointerException if user or userId is null.
+     */
     public CompletableFuture<Void> saveUser(User user) {
         String userId = getUserIdOrThrow(user);
         CompletableFuture<Void> future = new CompletableFuture<>();
@@ -91,11 +130,26 @@ public class UserRepository {
         return future;
     }
 
+    /**
+     * Removes a user document from Firestore.
+     *
+     * @param user The user to remove.
+     * @return A CompletableFuture indicating the completion of the removal.
+     * @throws NullPointerException if user or userId is null.
+     */
     public CompletableFuture<Void> removeUser(User user) {
         String userId = getUserIdOrThrow(user);
         return removeUser(userId);
     }
 
+    /**
+     * Removes a user document from Firestore based on userId.
+     *
+     * @param userId The ID of the user to remove.
+     * @return A CompletableFuture indicating the completion of the removal.
+     * @throws NullPointerException if userId is null.
+     * @throws InvalidParameterException if userId matches the current logged-in user's ID.
+     */
     public CompletableFuture<Void> removeUser(String userId) {
         if (userId == null) { throw new NullPointerException("userId cannot be null - set deviceId"); }
         CompletableFuture<Void> future = new CompletableFuture<>();
@@ -118,6 +172,12 @@ public class UserRepository {
         return future;
     }
 
+    /**
+     * Retrieves a user document by userId.
+     *
+     * @param userId The ID of the user to retrieve.
+     * @return A CompletableFuture containing the user document, or null if not found.
+     */
     public CompletableFuture<User> getUser(String userId) {
         CompletableFuture<User> future = new CompletableFuture<>();
 
@@ -146,6 +206,13 @@ public class UserRepository {
         return future;
     }
 
+    /**
+     * Retrieves the userId from a user object or throws an exception if not set.
+     *
+     * @param user The user object to retrieve the userId from.
+     * @return The userId if present.
+     * @throws NullPointerException if user or userId is null.
+     */
     private String getUserIdOrThrow(User user) throws NullPointerException {
         if (user == null) throw new NullPointerException("user cannot be null");
         String userId = user.getUserId();
@@ -153,6 +220,13 @@ public class UserRepository {
         return userId;
     }
 
+    /**
+     * Sets up real-time updates for a user's LiveData by adding a snapshot listener to the user's document.
+     *
+     * @param liveData The LiveData object to update with user data.
+     * @param userId The ID of the user to listen for updates on.
+     * @return The ListenerRegistration for removing the listener if needed.
+     */
     private ListenerRegistration setUserLiveData(MutableLiveData<User> liveData, String userId) {
         DocumentReference userDocRef = userCollection.document(userId);
 
@@ -179,10 +253,21 @@ public class UserRepository {
         });
     }
 
+    /**
+     * Retrieves a LiveData list of all users.
+     *
+     * @return LiveData containing a list of all users.
+     */
     public LiveData<List<User>> getAllUsersLiveData() {
         return Common.runQueryLiveData("getAllUsersLiveData", userCollection, User.class, TAG);
     }
 
+    /**
+     * Retrieves the LiveData for a specific user by userId.
+     *
+     * @param userId The ID of the user to retrieve.
+     * @return LiveData containing the user data.
+     */
     public LiveData<User> getUserLiveData(String userId) {
         MutableLiveData<User> userLiveData = new MutableLiveData<>();
         setUserLiveData(userLiveData, userId);

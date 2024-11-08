@@ -28,6 +28,16 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Locale;
 
+/**
+ * ProfileInfoFragment is a BottomSheetDialogFragment that displays a popup with detailed
+ * profile information of a selected user. The fragment fetches the user data from a
+ * ProfileViewModel and populates its view with the user's name, email, phone number,
+ * and profile picture. It also conditionally displays a button to manage facilities
+ * for organizer users and allows navigation to the edit profile view.
+ *
+ * This fragment manages its view lifecycle by observing changes in user data and
+ * clearing its binding when the view is destroyed.
+ */
 public class ProfileInfoFragment extends BottomSheetDialogFragment {
 
     private ProfileInfoPopupBinding binding;

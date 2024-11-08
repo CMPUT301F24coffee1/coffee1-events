@@ -38,6 +38,22 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Objects;
 
+/**
+ * FacilityEditFragment is responsible for displaying and managing the facility edit screen,
+ * allowing users to update facility information, including its name, description, and photo.
+ * This fragment interfaces with a {@link ProfileViewModel} to save and update facility data.
+ *
+ * <p>The class includes functionality to:
+ * <ul>
+ *   <li>Handle photo selection and upload, with support for removing an existing photo.</li>
+ *   <li>Validate input data before confirming updates.</li>
+ *   <li>Provide a delete option for the facility with confirmation dialogs.</li>
+ *   <li>Interface with the {@link ProfileViewModel} to persist changes.</li>
+ * </ul>
+ *
+ * <p><strong>Note:</strong> This class uses the Android View Binding and Glide libraries to
+ * manage view elements and load images, respectively.
+ */
 public class FacilityEditFragment extends Fragment {
 
     private ProfileViewModel profileViewModel;

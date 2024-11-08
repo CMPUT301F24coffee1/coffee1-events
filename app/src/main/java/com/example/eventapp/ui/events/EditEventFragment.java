@@ -27,6 +27,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * EditEventFragment is a BottomSheetDialogFragment that provides an interface for users
+ * to edit an existing event's details, such as name, description, duration, registration deadline,
+ * geolocation requirements, max entrants, and poster image.
+ * <p>
+ * The fragment allows users to select and upload a new poster image, set event dates through
+ * a date picker, and save or delete the event. It communicates updates to the main event fragment
+ * using an {@link EditEventListener} interface.
+ * <p>
+ * Implements the {@link DatePickerFragment.SetDateListener} interface to handle selected dates.
+ */
 public class EditEventFragment extends BottomSheetDialogFragment implements DatePickerFragment.SetDateListener {
     private EventsViewModel eventsViewModel;
     private Event event;

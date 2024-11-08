@@ -44,6 +44,13 @@ public class MainActivity extends AppCompatActivity {
     NavController navController;
     Menu navMenu;
 
+    /**
+     * Initializes the main activity and sets up Firebase, bindings, navigation, and permission handling.
+     * This method handles the configuration of the navigation controller, dynamically adjusts the visibility
+     * of navigation elements based on the user's role, and requests photo access permissions if necessary.
+     *
+     * @param savedInstanceState The saved instance state from a previous activity instance, if any.
+     */
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,7 +121,6 @@ public class MainActivity extends AppCompatActivity {
                 navView.getMenu().findItem(R.id.navigation_admin_profiles).setVisible(user.isAdmin());
             }
         });
-
     }
 
     /**
@@ -156,6 +162,13 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Retrieves an existing user by userId or creates and loads a new user if the user does not exist.
+     * If the user is successfully retrieved, it is set as the current user.
+     * In case of retrieval failure, a new user is created and loaded.
+     *
+     * @param userId The unique identifier of the user to retrieve or create.
+     */
     private void createOrLoadCurrentUser(String userId) {
         UserRepository userRepository = UserRepository.getInstance();
 
@@ -176,6 +189,13 @@ public class MainActivity extends AppCompatActivity {
             });
     }
 
+    /**
+     * Creates a new user with a randomized name and assigns it the provided userId.
+     * After creating the user, it saves the user to the repository and sets it as the current user.
+     *
+     * @param userRepository The UserRepository instance for saving and setting the current user.
+     * @param userId The unique identifier to assign to the newly created user.
+     */
     private void createAndLoadNewUser(UserRepository userRepository, String userId) {
         String randomizedName = getRandomAlienName(this);
         User user = new User(randomizedName);

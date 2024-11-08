@@ -26,6 +26,17 @@ import com.example.eventapp.viewmodels.ProfileViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * FacilitiesFragment is a UI component in the app that displays a list of facilities associated
+ * with the current user. It allows users to view details of each facility, add new facilities,
+ * and navigate to detailed information through the FacilityInfoFragment.
+ *
+ * This fragment interacts with the ProfileViewModel to observe and update facility data in
+ * real-time, and it uses FacilitiesAdapter to manage the display of facilities in a RecyclerView.
+ *
+ * Implements {@link FacilitiesAdapter.OnFacilityClickListener} to handle clicks on individual
+ * facility items, showing detailed information in a popup when a facility is selected.
+ */
 public class FacilitiesFragment extends Fragment implements
         FacilitiesAdapter.OnFacilityClickListener {
 

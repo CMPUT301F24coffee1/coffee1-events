@@ -18,6 +18,18 @@ import com.example.eventapp.services.FormatDate;
 import com.example.eventapp.viewmodels.EventsViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+/**
+ * A fragment that displays detailed information about a specific event within a bottom sheet dialog.
+ * This fragment allows users to view event details, join or leave the event waitlist, and, if permitted,
+ * edit the event information through the main events fragment.
+ *
+ * <p>The fragment is constructed with an {@link Event} object and a reference to the {@link EventsFragment}
+ * to enable editing functionality. It uses the {@link EventsViewModel} to handle waitlist actions
+ * and check edit permissions.</p>
+ *
+ * <p>This fragment provides a button to join or leave the waitlist, depending on the user’s current
+ * status, and an option to edit event information for users with the appropriate permissions.</p>
+ */
 public class EventInfoFragment extends BottomSheetDialogFragment {
 
     private EventsViewModel eventsViewModel;

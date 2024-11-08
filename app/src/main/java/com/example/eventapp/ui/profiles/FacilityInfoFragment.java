@@ -21,6 +21,15 @@ import com.example.eventapp.viewmodels.ProfileViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+/**
+ * FacilityInfoFragment displays detailed information about a selected facility in a bottom sheet dialog.
+ * This fragment retrieves the selected facility's information from a shared ProfileViewModel, displaying
+ * attributes such as the facility name, description, and photo. The fragment also provides an edit button
+ * allowing users to navigate to the facility edit screen.
+ *
+ * <p>This fragment is used as a part of the user interface to present facility details in a focused view.
+ * It leverages Glide for image loading and uses Android Navigation for transitions.</p>
+ */
 public class FacilityInfoFragment extends BottomSheetDialogFragment {
 
     /**
@@ -79,5 +88,4 @@ public class FacilityInfoFragment extends BottomSheetDialogFragment {
             navController.navigate(R.id.navigation_facility_edit);
         });
     }
-
 }

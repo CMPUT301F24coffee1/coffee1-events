@@ -15,11 +15,17 @@ import com.example.eventapp.repositories.SignupRepository;
 import com.example.eventapp.repositories.UserRepository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 
+/**
+ * The EventsViewModel class is responsible for managing and organizing event-related data
+ * and operations for the associated view in a structured MVVM pattern. This view model
+ * communicates with repositories to perform CRUD operations on events, handle user signups,
+ * and track events the user is organizing or attending. It also manages the status and
+ * permissions of the current user in relation to events.
+ */
 public class EventsViewModel extends ViewModel {
 
     private final String TAG = "EventsViewModel";
@@ -32,6 +38,10 @@ public class EventsViewModel extends ViewModel {
     private final MediatorLiveData<List<Event>> organizedEventsLiveData = new MediatorLiveData<>();
     private final MediatorLiveData<List<Event>> signedUpEventsLiveData = new MediatorLiveData<>();
 
+    /**
+     * Default constructor for EventsViewModel.
+     * Initializes the view model with default repositories for events, signups, and users.
+     */
     public EventsViewModel() {
         this(
                 EventRepository.getInstance(),
@@ -41,6 +51,14 @@ public class EventsViewModel extends ViewModel {
         );
     }
 
+    /**
+     * Parameterized constructor for EventsViewModel for dependency injection.
+     *
+     * @param eventRepository The EventRepository instance.
+     * @param signupRepository The SignupRepository instance.
+     * @param userRepository The UserRepository instance.
+     * @param injectedUserLiveData LiveData of the current user, allowing for test injection.
+     */
     public EventsViewModel(
             EventRepository eventRepository,
             SignupRepository signupRepository,
@@ -68,30 +86,74 @@ public class EventsViewModel extends ViewModel {
         });
     }
 
+    /**
+     * Retrieves LiveData containing a list of events organized by the current user.
+     *
+     * @return LiveData of a list of organized events.
+     */
     public LiveData<List<Event>> getOrganizedEvents() {
         return organizedEventsLiveData;
     }
 
+    /**
+     * Retrieves LiveData containing a list of events the user is signed up for.
+     *
+     * @return LiveData of a list of signed-up events.
+     */
     public LiveData<List<Event>> getSignedUpEvents() {
         return signedUpEventsLiveData;
     }
 
+    /**
+     * Loads events organized by the specified user and updates the corresponding LiveData.
+     *
+     * @param userId The ID of the user whose organized events are to be loaded.
+     */
     private void loadOrganizedEvents(String userId) {
         LiveData<List<Event>> organizedEvents = eventRepository.getEventsOfOrganizerLiveData(userId);
         organizedEventsLiveData.addSource(organizedEvents, organizedEventsLiveData::setValue);
     }
 
+    /**
+     * Loads events the specified user is signed up for and updates the corresponding LiveData.
+     *
+     * @param userId The ID of the user whose signed-up events are to be loaded.
+     */
     private void loadSignedUpEvents(String userId) {
         LiveData<List<Event>> signedUpEvents = eventRepository.getSignedUpEventsOfUserLiveData(userId);
         signedUpEventsLiveData.addSource(signedUpEvents, signedUpEventsLiveData::setValue);
     }
 
+    /**
+     * Adds a new event and assigns the current user as the organizer.
+     *
+     * @param event The event to add.
+     * @return A CompletableFuture containing the event's document ID.
+     */
     public CompletableFuture<String> addEvent(Event event) {
-        return Optional.ofNullable(currentUserLiveData.getValue())
-                .map(currentUser -> processEventWithUser(currentUser, event))
-                .orElseGet(() -> CompletableFuture.failedFuture(new Exception("User is not yet fetched")));
+        CompletableFuture<String> future = new CompletableFuture<>();
+
+        User currentUser = currentUserLiveData.getValue();
+        if (currentUser != null) {
+            processEventWithUser(currentUser, event)
+                    .thenAccept(future::complete)
+                    .exceptionally(throwable -> {
+                        future.completeExceptionally(throwable);
+                        return null;
+                    });
+        } else {
+            future.completeExceptionally(new Exception("User is not yet fetched"));
+        }
+        return future;
     }
 
+    /**
+     * Processes an event with a user, assigning the user as the event's organizer.
+     *
+     * @param currentUser The current user organizing the event.
+     * @param event The event to be processed.
+     * @return A CompletableFuture containing the event's document ID.
+     */
     private CompletableFuture<String> processEventWithUser(User currentUser, Event event) {
         event.setOrganizerId(currentUser.getUserId());
 
@@ -103,6 +165,13 @@ public class EventsViewModel extends ViewModel {
                 });
     }
 
+    /**
+     * Updates the event with a QR code hash after it has been added to the database.
+     *
+     * @param event The event to be updated with a QR code hash.
+     * @param documentId The document ID of the added event.
+     * @return A CompletableFuture containing the event's document ID after the update.
+     */
     private CompletableFuture<String> handleEventAdded(Event event, String documentId) {
         event.setDocumentId(documentId);
         event.setQrCodeHash(documentId + "--display");
@@ -118,6 +187,12 @@ public class EventsViewModel extends ViewModel {
                 });
     }
 
+    /**
+     * Removes an event from the database.
+     *
+     * @param event The event to remove.
+     * @return A CompletableFuture indicating the completion of the removal.
+     */
     public CompletableFuture<Void> removeEvent(Event event) {
         CompletableFuture<Void> removeEventFuture = eventRepository.removeEvent(event);
 
@@ -130,6 +205,12 @@ public class EventsViewModel extends ViewModel {
         return removeEventFuture;
     }
 
+    /**
+     * Updates an existing event in the database.
+     *
+     * @param event The event with updated information.
+     * @return A CompletableFuture indicating the completion of the update.
+     */
     public CompletableFuture<Void> updateEvent(Event event) {
         CompletableFuture<Void> updateEventFuture = eventRepository.updateEvent(event);
 
@@ -142,6 +223,12 @@ public class EventsViewModel extends ViewModel {
         return updateEventFuture;
     }
 
+    /**
+     * Registers the current user for a specified event.
+     *
+     * @param event The event to register for.
+     * @return A CompletableFuture containing the document ID of the new signup.
+     */
     public CompletableFuture<String> registerToEvent(Event event) {
         User currentUser = currentUserLiveData.getValue();
         if (currentUser != null) {
@@ -150,6 +237,12 @@ public class EventsViewModel extends ViewModel {
         return null;
     }
 
+    /**
+     * Unregisters the current user from a specified event.
+     *
+     * @param event The event to unregister from.
+     * @return A CompletableFuture indicating the completion of the unregistration.
+     */
     public CompletableFuture<Void> unregisterFromEvent(Event event) {
         User currentUser = currentUserLiveData.getValue();
         if (currentUser != null) {
@@ -158,6 +251,12 @@ public class EventsViewModel extends ViewModel {
         return null;
     }
 
+    /**
+     * Checks if the current user is signed up for a specific event.
+     *
+     * @param event The event to check for signup status.
+     * @return True if the user is signed up; otherwise, false.
+     */
     public boolean isSignedUp(Event event){
         List<Event> eventsList = signedUpEventsLiveData.getValue();
         if(eventsList == null){
@@ -172,11 +271,22 @@ public class EventsViewModel extends ViewModel {
         return false;
     }
 
+    /**
+     * Checks if the current user has organizer or admin privileges.
+     *
+     * @return True if the user is an organizer or admin; otherwise, false.
+     */
     public boolean isUserOrganizerOrAdmin(){
         User currentUser = currentUserLiveData.getValue();
         return currentUser != null && (currentUser.isAdmin() || currentUser.isOrganizer());
     }
 
+    /**
+     * Checks if the current user has permission to edit a specific event.
+     *
+     * @param event The event to check for edit permission.
+     * @return True if the user can edit the event; otherwise, false.
+     */
     public boolean canEdit(Event event){
         User currentUser = currentUserLiveData.getValue();
         if (currentUser == null) {
@@ -187,7 +297,11 @@ public class EventsViewModel extends ViewModel {
                 (currentUser.isOrganizer() && currentUser.getUserId().equals(event.getOrganizerId()));
     }
 
-
+    /**
+     * Retrieves the LiveData text label associated with this view model.
+     *
+     * @return LiveData containing the text label.
+     */
     public LiveData<String> getText() {
         return mText;
     }
