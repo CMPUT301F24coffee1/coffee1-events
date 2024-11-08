@@ -124,7 +124,7 @@ public class EventsViewModel extends ViewModel {
             return false;
         }
         for (int i = 0; i < eventsList.size(); i++){
-            if(eventsList.get(i).getDocumentId() == event.getDocumentId()){
+            if(eventsList.get(i).getQrCodeHash().equals(event.getQrCodeHash())){
                 return true;
             }
         }

@@ -35,7 +35,7 @@ public class ScanQrFragment extends Fragment {
                     String scannedData = result.getContents();
                     scanQrViewModel.setText(scannedData); // Update ViewModel with scanned data
                     // Display the scanned result in the TextView
-                    String qrData = result.getContents().split("--")[0];
+                    String qrData = result.getContents();
                     binding.textScanQr.setText("Scanned: " + qrData);
                     eventsViewModel.getEventByQrCodeHash(qrData)
                         .thenAccept(scannedEvent -> {
