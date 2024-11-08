@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Nothing here, to force the user to only use one theme. At the moment, it's all night mode,
     on the other theme. -->
 </resources>

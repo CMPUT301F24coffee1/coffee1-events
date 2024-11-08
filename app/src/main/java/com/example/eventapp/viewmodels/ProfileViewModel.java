@@ -20,6 +20,11 @@ import com.example.eventapp.repositories.UserRepository;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * ProfileViewModel is a ViewModel that manages and interacts with the data needed for the user profile screen.
+ * It interfaces with repositories to manage user and facility information, observing changes and exposing
+ * LiveData for facilities, users, and the current logged-in user.
+ */
 public class ProfileViewModel extends ViewModel {
 
     private LiveData<User> currentUserLiveData;

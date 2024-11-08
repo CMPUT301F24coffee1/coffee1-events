@@ -11,12 +11,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.eventapp.models.Event;
 import com.example.eventapp.R;
-import com.example.eventapp.photos.PhotoManager;
+import com.example.eventapp.services.photos.PhotoManager;
 
 import java.util.ArrayList;
 
-//referenced the android developer docs
-//https://developer.android.com/develop/ui/views/layout/recyclerview
+/**
+ * EventAdapter is a RecyclerView adapter for displaying a list of {@link Event} objects in a RecyclerView.
+ * Each item in the list is represented by an {@link EventAdapter.ViewHolder} that displays the event's
+ * name and poster image. The adapter supports item click events through the {@link OnEventClickListener} interface.
+ * <p>
+ * The layout and functionality of this adapter rely on Android's RecyclerView API, as well as the Glide
+ * library for image loading.
+ * </p>
+ *
+ * <p>References:</p>
+ * <ul>
+ *     <li><a href="https://developer.android.com/develop/ui/views/layout/recyclerview">RecyclerView Documentation</a></li>
+ * </ul>
+ */
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> {
     private final ArrayList<Event> eventList;
     private final OnEventClickListener onEventClickListener;

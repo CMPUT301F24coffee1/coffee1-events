@@ -63,4 +63,10 @@
     <string name="events">Events</string>
     <string name="organized_events">Organized Events</string>
     <string name="event_description">Event Description</string>
+    <string name="event_duration">From: %1$s To: %2$s</string>
+    <string name="registration_deadline">Registration Deadline: %1$s</string>
+    <string name="join_waitlist">Join Waitlist</string>
+    <string name="leave_waitlist">Leave Waitlist</string>
+    <string name="entrants_count_with_max">Entrants: %1$d/%2$d</string>
+    <string name="entrants_count">Entrants: %1$d</string>
 </resources>

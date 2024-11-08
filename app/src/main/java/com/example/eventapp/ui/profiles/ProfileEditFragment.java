@@ -45,6 +45,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Fragment that allows a user to edit their profile information, including their name, email, phone number,
+ * notifications preferences, and organizer status. The fragment provides options to update the profile picture,
+ * delete the profile if no facilities are owned, and validate input fields. Changes are saved to the ViewModel
+ * and reflected in the database.
+ *
+ * <p>Functionality includes:</p>
+ * <ul>
+ *   <li>Updating user information fields, including name, email, phone, and photo</li>
+ *   <li>Validating form inputs before confirmation</li>
+ *   <li>Saving changes to the ViewModel and database</li>
+ *   <li>Removing the profile photo or deleting the user profile</li>
+ * </ul>
+ *
+ * <p>Additionally, administrators can delete any user’s profile except for the currently logged-in user.</p>
+ */
 public class ProfileEditFragment extends Fragment {
 
     private ProfileViewModel profileViewModel;

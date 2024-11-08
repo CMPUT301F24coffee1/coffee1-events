@@ -30,6 +30,14 @@ import com.example.eventapp.viewmodels.ProfileViewModel;
 
 import java.util.Locale;
 
+/**
+ * ProfileFragment displays the user's profile information, allowing them to view and manage
+ * their personal details and access related sections (such as managing facilities if they are an organizer).
+ *
+ * This fragment interacts with the {@link ProfileViewModel} to retrieve and update the user's data,
+ * and configures the user interface based on their role and available data.
+ * It includes menu management, profile photo loading, and navigation to other sections.
+ */
 public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;

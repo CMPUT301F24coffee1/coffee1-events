@@ -9,8 +9,23 @@ import androidx.fragment.app.DialogFragment;
 
 import java.util.Calendar;
 
-//referenced the android developer docs
-//https://developer.android.com/develop/ui/views/components/pickers
+/**
+ * DatePickerFragment is a dialog fragment that displays a date picker to the user. It allows for
+ * selecting a date, which is then returned as a Unix timestamp in seconds via a callback listener.
+ * This fragment can be used to set dates for different purposes, identified by the provided type.
+ *
+ * <p>Implements {@link DatePickerDialog.OnDateSetListener} to handle the date selection event
+ * from the date picker dialog.</p>
+ *
+ * <p>Example usage:</p>
+ * <pre>{@code
+ * DatePickerFragment datePicker = new DatePickerFragment(listener, type);
+ * datePicker.show(fragmentManager, "datePicker");
+ * }</pre>
+ *
+ * <p>Reference: <a href="https://developer.android.com/develop/ui/views/components/pickers">
+ * Android Developer Docs - Pickers</a></p>
+ */
 public class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
     private Calendar calendar;
     private SetDateListener listener;

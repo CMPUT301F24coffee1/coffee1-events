@@ -24,8 +24,25 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * The EventsFragment class is responsible for displaying and managing the user's events,
+ * including events they organize and events they are signed up for. This fragment implements
+ * multiple listeners for event-related actions, such as creating, editing, and deleting events,
+ * as well as viewing event information.
+ *
+ * This fragment uses the EventsViewModel to observe changes to organized and signed-up events
+ * and updates the corresponding RecyclerViews. It provides options to add new events, view
+ * detailed event information, and modify existing events. The EventsFragment also handles
+ * displaying the appropriate UI elements for event actions, including popups for creating,
+ * editing, and viewing event details.
+ *
+ * Implements:
+ * - {@link EventAdapter.OnEventClickListener}: to handle clicks on event items in RecyclerViews.
+ * - {@link EventInfoFragment.EditEventInfoListener}: to handle editing from the event info popup.
+ * - {@link CreateEventFragment.CreateEventListener}: to handle creation of a new event.
+ * - {@link EditEventFragment.EditEventListener}: to handle saving or deleting edits on an event.
+ */
 public class EventsFragment extends Fragment implements
         EventAdapter.OnEventClickListener, EventInfoFragment.EditEventInfoListener, CreateEventFragment.CreateEventListener, EditEventFragment.EditEventListener {
 

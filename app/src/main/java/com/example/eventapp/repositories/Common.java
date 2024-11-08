@@ -10,6 +10,13 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Common utility class providing shared methods for Firestore data handling.
+ *
+ * This class includes methods to execute Firestore queries and convert query results into
+ * LiveData for easy observation in the application. Additionally, it supports parsing Firestore
+ * documents into specific model objects, with document IDs automatically assigned when applicable.
+ */
 public class Common {
 
     /**
@@ -43,6 +50,14 @@ public class Common {
         return liveData;
     }
 
+    /**
+     * Parses a QuerySnapshot into a list of objects of type T, setting document IDs if applicable.
+     *
+     * @param querySnapshot The QuerySnapshot containing documents to parse.
+     * @param clazz The class type of the documents being parsed.
+     * @param <T> The type of documents being parsed.
+     * @return A list of objects of type T parsed from the QuerySnapshot.
+     */
     private static <T> List<T> parseDocuments(QuerySnapshot querySnapshot, Class<T> clazz) {
         List<T> items = querySnapshot.toObjects(clazz);
         for (int i = 0; i < items.size(); i++) {

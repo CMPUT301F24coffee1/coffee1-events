@@ -2,15 +2,20 @@ package com.example.eventapp.repositories;
 
 import android.util.Log;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 import com.example.eventapp.models.Signup;
 import com.google.firebase.firestore.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * The `SignupRepository` class is a singleton repository that provides access to Firestore operations
+ * for managing `Signup` data. It supports adding, updating, retrieving, and removing signup records,
+ * along with providing LiveData-based methods for observing lists of signups filtered by user ID
+ * or event ID. This class enables seamless interaction with Firestore for sign-up data management
+ * within the application.
+ */
 public class SignupRepository {
 
     private static final String TAG = "SignupRepository";
@@ -25,6 +30,11 @@ public class SignupRepository {
         signupCollection = testInstance.collection("signups");
     }
 
+    /**
+     * Retrieves a singleton instance of SignupRepository.
+     *
+     * @return The singleton instance of SignupRepository.
+     */
     public static synchronized SignupRepository getInstance() {
         if (instance == null) {
             instance = new SignupRepository();
@@ -32,6 +42,12 @@ public class SignupRepository {
         return instance;
     }
 
+    /**
+     * Retrieves a test instance of SignupRepository with the specified Firestore instance.
+     *
+     * @param testInstance The Firestore instance for testing.
+     * @return A test instance of SignupRepository.
+     */
     public static synchronized SignupRepository getTestInstance(FirebaseFirestore testInstance) {
         if (instance == null) {
             instance = new SignupRepository(testInstance);
@@ -39,6 +55,13 @@ public class SignupRepository {
         return instance;
     }
 
+    /**
+     * Adds a signup document to Firestore.
+     *
+     * @param signup The signup details to be added.
+     * @return A CompletableFuture containing the document ID of the added signup.
+     * @throws NullPointerException if signup, userId, or eventId is null.
+     */
     public CompletableFuture<String> addSignup(Signup signup) {
         Objects.requireNonNull(signup);
         String userId = signup.getUserId();
@@ -71,6 +94,13 @@ public class SignupRepository {
         return future;
     }
 
+    /**
+     * Updates an existing signup document in Firestore.
+     *
+     * @param signup The signup document with updated information.
+     * @return A CompletableFuture indicating the completion of the update.
+     * @throws NullPointerException if signup or documentId is null.
+     */
     public CompletableFuture<Void> updateSignup(Signup signup) {
         Objects.requireNonNull(signup);
         String documentId = signup.getDocumentId();
@@ -95,6 +125,13 @@ public class SignupRepository {
         return future;
     }
 
+    /**
+     * Removes a signup document from Firestore based on userId and eventId.
+     *
+     * @param userId The user ID associated with the signup.
+     * @param eventId The event ID associated with the signup.
+     * @return A CompletableFuture indicating the completion of the removal.
+     */
     public CompletableFuture<Void> removeSignup(String userId, String eventId) {
 
         return getSignup(userId, eventId)
@@ -112,6 +149,13 @@ public class SignupRepository {
             });
     }
 
+    /**
+     * Removes a specified signup document from Firestore.
+     *
+     * @param signup The signup document to be removed.
+     * @return A CompletableFuture indicating the completion of the removal.
+     * @throws NullPointerException if signup or documentId is null.
+     */
     public CompletableFuture<Void> removeSignup(Signup signup) {
         Objects.requireNonNull(signup);
         String documentId = signup.getDocumentId();
@@ -137,6 +181,13 @@ public class SignupRepository {
         return future;
     }
 
+    /**
+     * Retrieves a signup document based on userId and eventId.
+     *
+     * @param userId The user ID associated with the signup.
+     * @param eventId The event ID associated with the signup.
+     * @return A CompletableFuture containing the signup, or null if not found.
+     */
     public CompletableFuture<Signup> getSignup(String userId, String eventId) {
         CompletableFuture<Signup> future = new CompletableFuture<>();
 
@@ -169,11 +220,23 @@ public class SignupRepository {
         return future;
     }
 
+    /**
+     * Retrieves a LiveData list of signups associated with a specific user.
+     *
+     * @param userId The ID of the user.
+     * @return LiveData containing a list of signups for the specified user.
+     */
     public LiveData<List<Signup>> getSignupsOfUserLiveData(String userId) {
         Query query = signupCollection.whereEqualTo("userId", userId);
         return Common.runQueryLiveData("getSignupsOfUserLiveData", query, Signup.class, TAG);
     }
 
+    /**
+     * Retrieves a LiveData list of signups associated with a specific event.
+     *
+     * @param eventId The ID of the event.
+     * @return LiveData containing a list of signups for the specified event.
+     */
     public LiveData<List<Signup>> getSignupsOfEventLiveData(String eventId) {
         Query query = signupCollection.whereEqualTo("eventId", eventId);
         return Common.runQueryLiveData("getSignupsOfEventLiveData", query, Signup.class, TAG);
