@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_marginBottom="80dp"
     tools:context=".ui.events.EventsFragment">
 
     <TextView
@@ -53,7 +54,7 @@
         android:layout_margin="16dp"
         android:contentDescription="Add new event button"
         android:src="@android:drawable/ic_input_add"
-        app:layout_constraintBottom_toBottomOf="@+id/organized_events_grid"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
