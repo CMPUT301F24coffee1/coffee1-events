@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.eventapp.models.Event;
 import com.example.eventapp.models.Facility;
 import com.example.eventapp.photos.PhotoManager;
 import com.google.android.gms.tasks.Task;
@@ -92,12 +93,20 @@ public class FacilityRepository {
     }
 
     public LiveData<List<Facility>> getFacilitiesOfOrganizerLiveData(String organizerId) {
-        MutableLiveData<List<Facility>> liveData = new MutableLiveData<>();
         Query query = facilityCollection.whereEqualTo("organizerId", organizerId);
+        return runQueryLiveData("getFacilitiesOfOrganizerLiveData", query);
+    }
+
+    public LiveData<List<Facility>> getAllFacilitiesLiveData() {
+        return runQueryLiveData("getAllFacilitiesLiveData", facilityCollection);
+    }
+
+    private LiveData<List<Facility>> runQueryLiveData(String methodName, Query query) {
+        MutableLiveData<List<Facility>> liveData = new MutableLiveData<>();
 
         query.addSnapshotListener((querySnapshot, e) -> {
             if (e != null) {
-                Log.e(TAG, "getFacilitiesOfOrganizerLiveData: listen failed", e);
+                Log.e(TAG, "runQueryLiveData: " + methodName + ": listen failed", e);
                 liveData.setValue(new ArrayList<>());
                 return;
             }
@@ -108,10 +117,10 @@ public class FacilityRepository {
                 for (int i = 0; i < facilities.size(); i++) {
                     facilities.get(i).setDocumentId(querySnapshot.getDocuments().get(i).getId());
                 }
-                Log.d(TAG, "getFacilitiesOfOrganizerLiveData: success");
+                Log.d(TAG, "runQueryLiveData: " + methodName + ": success");
                 liveData.setValue(facilities);
             } else {
-                Log.d(TAG, "getFacilitiesOfOrganizerLiveData: no facilities found");
+                Log.d(TAG, "runQueryLiveData: " + methodName + ": no documents found");
                 liveData.setValue(new ArrayList<>());
             }
         });
