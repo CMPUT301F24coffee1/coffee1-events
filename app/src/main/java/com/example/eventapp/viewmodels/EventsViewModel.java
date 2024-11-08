@@ -15,7 +15,9 @@ import com.example.eventapp.repositories.SignupRepository;
 import com.example.eventapp.repositories.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 
 public class EventsViewModel extends ViewModel {
@@ -85,27 +87,35 @@ public class EventsViewModel extends ViewModel {
     }
 
     public CompletableFuture<String> addEvent(Event event) {
-        User currentUser = currentUserLiveData.getValue();
-        CompletableFuture<String> addEventFuture = new CompletableFuture<>();
+        return Optional.ofNullable(currentUserLiveData.getValue())
+                .map(currentUser -> processEventWithUser(currentUser, event))
+                .orElseGet(() -> CompletableFuture.failedFuture(new Exception("User is not yet fetched")));
+    }
 
-        if (currentUser != null) {
-            event.setOrganizerId(currentUser.getUserId());
+    private CompletableFuture<String> processEventWithUser(User currentUser, Event event) {
+        event.setOrganizerId(currentUser.getUserId());
 
-            CompletableFuture<String> repositoryFuture = eventRepository.addEvent(event);
+        return eventRepository.addEvent(event)
+                .thenCompose(documentId -> handleEventAdded(event, documentId))
+                .exceptionally(throwable -> {
+                    Log.e(TAG, "addEvent: failed to add event", throwable);
+                    throw new CompletionException(throwable);
+                });
+    }
 
-            repositoryFuture.thenAccept(documentId -> {
-                event.setDocumentId(documentId);
-                addEventFuture.complete(documentId);
-                Log.i(TAG, "Added event with name: " + event.getEventName());
-            }).exceptionally(throwable -> {
-                addEventFuture.completeExceptionally(throwable);
-                Log.e(TAG, "addEvent: failed to add event to repository", throwable);
-                return null;
-            });
-        } else {
-            addEventFuture.completeExceptionally(new Exception("User is not yet fetched"));
-        }
-        return addEventFuture;
+    private CompletableFuture<String> handleEventAdded(Event event, String documentId) {
+        event.setDocumentId(documentId);
+        event.setQrCodeHash(documentId + "--display");
+
+        return updateEvent(event)
+                .thenApply(discard -> {
+                    Log.i(TAG, "Added event with name: " + event.getEventName());
+                    return documentId;
+                })
+                .exceptionally(throwable -> {
+                    Log.e(TAG, "addEvent: failed to update event with qrCodeHash", throwable);
+                    throw new CompletionException(throwable);
+                });
     }
 
     public CompletableFuture<Void> removeEvent(Event event) {
