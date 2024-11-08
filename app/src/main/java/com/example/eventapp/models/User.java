@@ -12,8 +12,8 @@ public class User {
     private boolean isAdmin;
 
     private String photoUriString = "";
-    private String email;
-    private String phoneNumber;
+    private String email = "";
+    private String phoneNumber = "";
     private boolean notificationOptOut = false;
 
     public User() {

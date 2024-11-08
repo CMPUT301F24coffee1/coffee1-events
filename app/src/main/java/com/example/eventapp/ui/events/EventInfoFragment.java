@@ -43,12 +43,6 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         void editEventInfo(Event event);
     }
 
-    interface waitlistListener{
-        void joinEventWaitlist(Event event);
-        void leaveEventWaitlist(Event event);
-        boolean isAlreadyOnWaitlist(Event event);
-    }
-
     /**
      * Initialize and run the event info fragment with the current event's info.
      * Includes the edit event button which initializes the edit event fragment
@@ -117,12 +111,11 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         });
 
         // Initializes the edit event fragment with the given event
-        editEventButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                eventsFragment.showEditEventPopup(event);
-            }
-        });
+        if(eventsViewModel.canEdit(event)){
+            editEventButton.setOnClickListener(view12 -> eventsFragment.showEditEventPopup(event));
+            editEventButton.setVisibility(View.VISIBLE);
+        }
+
         return view;
     }
 

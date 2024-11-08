@@ -168,6 +168,21 @@ public class EventsViewModel extends ViewModel {
         return false;
     }
 
+    public boolean isUserOrganizerOrAdmin(){
+        User currentUser = currentUserLiveData.getValue();
+        return currentUser != null && (currentUser.isAdmin() || currentUser.isOrganizer());
+    }
+
+    public boolean canEdit(Event event){
+        User currentUser = currentUserLiveData.getValue();
+        if (currentUser == null) {
+            return false;
+        }
+        // check if correct organizer
+        return currentUser.isAdmin() ||
+                (currentUser.isOrganizer() && currentUser.getUserId().equals(event.getOrganizerId()));
+    }
+
     public LiveData<String> getText() {
         return mText;
     }

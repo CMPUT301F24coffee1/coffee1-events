@@ -100,6 +100,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:text="Edit"
+            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/popup_event_name_text"
             app:layout_constraintTop_toTopOf="parent" />

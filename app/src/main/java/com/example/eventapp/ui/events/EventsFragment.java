@@ -50,6 +50,13 @@ public class EventsFragment extends Fragment implements
     }
 
     @Override
+    public void deleteEvent(Event event){
+        eventsViewModel.removeEvent(event);
+        currentEditEventFragment.dismiss();
+        currentEventInfoFragment.dismiss();
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
