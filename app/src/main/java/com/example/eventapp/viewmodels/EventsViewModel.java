@@ -127,6 +127,15 @@ public class EventsViewModel extends ViewModel {
         }
         return false;
     }
+
+    public boolean isUserOrganizerOrAdmin(){
+        User currentUser = currentUserLiveData.getValue();
+        if(currentUser.isAdmin() || currentUser.isOrganizer()){
+            return true;
+        }
+        return false;
+    }
+
     public LiveData<String> getText() {
         return mText;
     }

@@ -43,12 +43,6 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         void editEventInfo(Event event);
     }
 
-    interface waitlistListener{
-        void joinEventWaitlist(Event event);
-        void leaveEventWaitlist(Event event);
-        boolean isAlreadyOnWaitlist(Event event);
-    }
-
     /**
      * Initialize and run the event info fragment with the current event's info.
      * Includes the edit event button which initializes the edit event fragment
