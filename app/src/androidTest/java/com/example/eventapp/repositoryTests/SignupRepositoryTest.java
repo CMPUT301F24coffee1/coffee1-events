@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
@@ -38,31 +37,60 @@ public class SignupRepositoryTest {
         Signup signup = new Signup("testUserId", "testEventId");
 
         String documentId = signupRepository.addSignup(signup).get();
-        assertNotNull(documentId);
+        assertNotNull("Document ID should not be null", documentId);
 
-        assertNotNull(signupRepository.getSignup("testUserId", "testEventId").get());
+        Signup retrievedSignup = signupRepository.getSignup("testUserId", "testEventId").get();
+        assertNotNull("Retrieved signup should not be null", retrievedSignup);
+        assertEquals("testUserId", retrievedSignup.getUserId());
+        assertEquals("testEventId", retrievedSignup.getEventId());
 
         // Cleanup
-        signupRepository.removeSignup(signup).get();
+        signupRepository.removeSignup(retrievedSignup).get();
+    }
+
+    @Test(expected = ExecutionException.class)
+    public void testAddSignup_nullUserId() throws ExecutionException, InterruptedException {
+        Signup signup = new Signup(null, "testEventId");
+        signupRepository.addSignup(signup).get();
+    }
+
+    @Test(expected = ExecutionException.class)
+    public void testAddSignup_nullEventId() throws ExecutionException, InterruptedException {
+        Signup signup = new Signup("testUserId", null);
+        signupRepository.addSignup(signup).get();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testAddSignup_nullSignup() throws ExecutionException, InterruptedException {
+        signupRepository.addSignup(null).get();
     }
 
     @Test
     public void testUpdateSignup_success() throws ExecutionException, InterruptedException {
         Signup signup = new Signup("testUserId", "testEventId");
-
         String documentId = signupRepository.addSignup(signup).get();
         signup.setDocumentId(documentId);
         signup.setEventId("newEventId");
 
         signupRepository.updateSignup(signup).get();
 
-        CompletableFuture<Signup> getSignupFuture = signupRepository.getSignup("testUserId", "newEventId");
-        Signup updatedSignup = getSignupFuture.get();
-        assertNotNull(updatedSignup);
+        Signup updatedSignup = signupRepository.getSignup("testUserId", "newEventId").get();
+        assertNotNull("Updated signup should not be null", updatedSignup);
         assertEquals("newEventId", updatedSignup.getEventId());
 
         // Cleanup
         signupRepository.removeSignup(updatedSignup).get();
+    }
+
+    @Test(expected = ExecutionException.class)
+    public void testUpdateSignup_nullDocumentId() throws ExecutionException, InterruptedException {
+        Signup signup = new Signup("testUserId", "testEventId");
+        signupRepository.updateSignup(signup).get();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testUpdateSignup_nullSignup() throws ExecutionException, InterruptedException {
+        signupRepository.updateSignup(null).get();
     }
 
     @Test
@@ -71,13 +99,27 @@ public class SignupRepositoryTest {
         String documentId = signupRepository.addSignup(signup).get();
         signup.setDocumentId(documentId);
 
-        CompletableFuture<Void> removeSignupFuture = signupRepository.removeSignup(signup);
-        removeSignupFuture.get();
+        signupRepository.removeSignup(signup).get();
 
-        CompletableFuture<Signup> getRemovedSignupFuture = signupRepository
-                .getSignup("testUserId", "testEventId");
-        Signup removedSignup = getRemovedSignupFuture.get();
-        assertNull(removedSignup);
+        Signup removedSignup = signupRepository.getSignup("testUserId", "testEventId").get();
+        assertNull("Signup should have been removed", removedSignup);
+    }
+
+    @Test
+    public void testRemoveSignupByUserIdAndEventId_success() throws ExecutionException, InterruptedException {
+        Signup signup = new Signup("testUserId", "testEventId");
+        String documentId = signupRepository.addSignup(signup).get();
+        assertNotNull("Document ID should not be null", documentId);
+
+        signupRepository.removeSignup("testUserId", "testEventId").get();
+
+        Signup removedSignup = signupRepository.getSignup("testUserId", "testEventId").get();
+        assertNull("Signup should have been removed", removedSignup);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRemoveSignup_nullSignup() throws ExecutionException, InterruptedException {
+        signupRepository.removeSignup(null).get();
     }
 
     @Test
@@ -86,9 +128,8 @@ public class SignupRepositoryTest {
         String documentId = signupRepository.addSignup(signup).get();
         signup.setDocumentId(documentId);
 
-        CompletableFuture<Signup> getSignupFuture = signupRepository.getSignup("testUserId", "testEventId");
-        Signup retrievedSignup = getSignupFuture.get();
-        assertNotNull(retrievedSignup);
+        Signup retrievedSignup = signupRepository.getSignup("testUserId", "testEventId").get();
+        assertNotNull("Retrieved signup should not be null", retrievedSignup);
         assertEquals("testUserId", retrievedSignup.getUserId());
         assertEquals("testEventId", retrievedSignup.getEventId());
 
@@ -98,10 +139,7 @@ public class SignupRepositoryTest {
 
     @Test
     public void testGetSignup_nonExistingSignup() throws ExecutionException, InterruptedException {
-        CompletableFuture<Signup> getNonExistingSignupFuture = signupRepository
-                .getSignup("nonExistingUserId", "nonExistingEventId");
-
-        Signup retrievedSignup = getNonExistingSignupFuture.get();
-        assertNull(retrievedSignup);
+        Signup retrievedSignup = signupRepository.getSignup("nonExistingUserId", "nonExistingEventId").get();
+        assertNull("Signup should be null for non-existing userId and eventId", retrievedSignup);
     }
 }

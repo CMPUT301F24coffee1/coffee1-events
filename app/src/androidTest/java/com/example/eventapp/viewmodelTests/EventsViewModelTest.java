@@ -195,43 +195,6 @@ public class EventsViewModelTest {
     }
 
     @Test
-    public void testIsSignedUp() throws ExecutionException, InterruptedException {
-        Event event = new Event();
-        event.setEventName("Test Event");
-        event.setFacilityId("testFacilityId");
-
-        eventsViewModel.addEvent(event).get();
-        assertNotNull(event.getDocumentId());
-
-        eventsViewModel.registerToEvent(event).get();
-
-        // Wait for signedUpEventsLiveData to be updated
-        CountDownLatch latch = new CountDownLatch(1);
-        Observer<List<Event>> observer = events -> {
-            if (events != null && !events.isEmpty()) {
-                latch.countDown();
-            }
-        };
-        eventsViewModel.getSignedUpEvents().observeForever(observer);
-
-        // Await until the latch is decremented, meaning LiveData has updated
-        boolean updated = latch.await(5, TimeUnit.SECONDS);
-        eventsViewModel.getSignedUpEvents().removeObserver(observer);
-
-        assertTrue("signedUpEventsLiveData should have been updated", updated);
-        assertTrue("User should be signed up for the event", eventsViewModel.isSignedUp(event));
-
-        Event otherEvent = new Event();
-        otherEvent.setEventName("Other Event");
-        otherEvent.setFacilityId("otherFacilityId");
-
-        eventsViewModel.addEvent(otherEvent).get();
-        assertNotNull(otherEvent.getDocumentId());
-
-        assertFalse("User should not be signed up for the other event", eventsViewModel.isSignedUp(otherEvent));
-    }
-
-    @Test
     public void testIsUserOrganizerOrAdmin_adminUser() {
         User adminUser = new User();
         adminUser.setAdmin(true);

@@ -1,6 +1,5 @@
 package com.example.eventapp.repositoryTests;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -74,6 +73,11 @@ public class FacilityRepositoryTest {
         facilityRepository.addFacility(facility).get();
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testAddFacility_nullFacility() throws ExecutionException, InterruptedException {
+        facilityRepository.addFacility(null).get();
+    }
+
     @Test
     public void testUpdateFacility_success() throws ExecutionException, InterruptedException {
         Facility facility = new Facility();
@@ -81,7 +85,6 @@ public class FacilityRepositoryTest {
         facility.setFacilityName("Original Name");
         facility.setFacilityDescription("Original Description");
 
-        // Add facility and get document ID
         CompletableFuture<String> addFacilityFuture = facilityRepository.addFacility(facility);
         String documentId = addFacilityFuture.get();
         assertNotNull("Document ID should not be null", documentId);
@@ -90,11 +93,9 @@ public class FacilityRepositoryTest {
         facility.setFacilityName("Updated Name");
         facility.setFacilityDescription("Updated Description");
 
-        // Update facility
         CompletableFuture<Void> updateFacilityFuture = facilityRepository.updateFacility(facility);
         updateFacilityFuture.get();
 
-        // Verify update
         DocumentReference docRef = firestoreEmulator.collection("facilities").document(documentId);
         DocumentSnapshot snapshot = Tasks.await(docRef.get());
         Facility updatedFacility = snapshot.toObject(Facility.class);
@@ -117,6 +118,11 @@ public class FacilityRepositoryTest {
         facilityRepository.updateFacility(facility).get();
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testUpdateFacility_nullFacility() throws ExecutionException, InterruptedException {
+        facilityRepository.updateFacility(null).get();
+    }
+
     @Test
     public void testRemoveFacility_success() throws ExecutionException, InterruptedException {
         Facility facility = new Facility();
@@ -124,18 +130,15 @@ public class FacilityRepositoryTest {
         facility.setFacilityName("Facility to be Removed");
         facility.setFacilityDescription("Description");
 
-        // Add facility and get document ID
         CompletableFuture<String> addFacilityFuture = facilityRepository.addFacility(facility);
         String documentId = addFacilityFuture.get();
         assertNotNull("Document ID should not be null", documentId);
 
         facility.setDocumentId(documentId);
 
-        // Remove facility
         CompletableFuture<Void> removeFacilityFuture = facilityRepository.removeFacility(facility);
         removeFacilityFuture.get();
 
-        // Verify removal
         DocumentReference docRef = firestoreEmulator.collection("facilities").document(documentId);
         DocumentSnapshot snapshot = Tasks.await(docRef.get());
         assertFalse("Document should no longer exist in Firestore", snapshot.exists());
@@ -149,5 +152,10 @@ public class FacilityRepositoryTest {
         facility.setFacilityDescription("Test Description");
 
         facilityRepository.removeFacility(facility).get();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRemoveFacility_nullFacility() throws ExecutionException, InterruptedException {
+        facilityRepository.removeFacility(null).get();
     }
 }

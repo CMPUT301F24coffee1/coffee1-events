@@ -73,6 +73,11 @@ public class EventRepositoryTest {
         eventRepository.addEvent(event).get();
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testAddEvent_nullEvent() throws ExecutionException, InterruptedException {
+        eventRepository.addEvent(null).get();
+    }
+
     @Test
     public void testUpdateEvent_success() throws ExecutionException, InterruptedException {
         Event event = new Event();
@@ -110,6 +115,11 @@ public class EventRepositoryTest {
         eventRepository.updateEvent(event).get();
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testUpdateEvent_nullEvent() throws ExecutionException, InterruptedException {
+        eventRepository.updateEvent(null).get();
+    }
+
     @Test
     public void testRemoveEvent_success() throws ExecutionException, InterruptedException {
         Event event = new Event();
@@ -129,5 +139,20 @@ public class EventRepositoryTest {
         DocumentReference docRef = firestoreEmulator.collection("events").document(documentId);
         DocumentSnapshot snapshot = Tasks.await(docRef.get());
         assertFalse("Document should no longer exist in Firestore", snapshot.exists());
+    }
+
+    @Test(expected = ExecutionException.class)
+    public void testRemoveEvent_nullDocumentId() throws ExecutionException, InterruptedException {
+        Event event = new Event();
+        event.setOrganizerId("testOrganizerId");
+        event.setFacilityId("testFacilityId");
+        event.setEventName("Event without Document ID");
+
+        eventRepository.removeEvent(event).get();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRemoveEvent_nullEvent() throws ExecutionException, InterruptedException {
+        eventRepository.removeEvent(null).get();
     }
 }

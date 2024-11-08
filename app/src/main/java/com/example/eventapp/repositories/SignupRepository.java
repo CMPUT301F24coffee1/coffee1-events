@@ -86,7 +86,7 @@ public class SignupRepository {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Log.d(TAG, "updateSignup: success - ID: " + documentId);
-                        future.complete(null); // Complete the future with no value
+                        future.complete(null);
                     } else {
                         Log.e(TAG, "updateSignup: fail", task.getException());
                         future.completeExceptionally(task.getException());
