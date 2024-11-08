@@ -1,4 +1,4 @@
-package com.example.eventapp;
+package com.example.eventapp.repositoryTests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -11,7 +11,6 @@ import com.example.eventapp.models.User;
 import com.example.eventapp.utils.FirestoreEmulator;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.DocumentSnapshot;
 
 import org.junit.After;
 import org.junit.Before;
