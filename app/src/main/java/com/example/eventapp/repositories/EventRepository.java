@@ -7,9 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.eventapp.models.Event;
 import com.example.eventapp.models.Signup;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -17,6 +15,7 @@ import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class EventRepository {
@@ -50,59 +49,84 @@ public class EventRepository {
         return instance;
     }
 
-    public Task<DocumentReference> addEvent(Event event) {
+    public CompletableFuture<String> addEvent(Event event) {
+        Objects.requireNonNull(event);
         String organizerId = event.getOrganizerId();
         String facilityId = event.getFacilityId();
+        CompletableFuture<String> future = new CompletableFuture<>();
+
         if (organizerId == null) {
-            throw new NullPointerException("organizerId cannot be null");
+            future.completeExceptionally(new NullPointerException("organizerId cannot be null"));
+            return future;
         }
         if (facilityId == null) {
             Log.w(TAG, "addEvent: facilityId is null - event does not belong to any facility");
         }
 
-        return eventCollection.add(event)
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    String documentId = task.getResult().getId();
-                    event.setDocumentId(documentId);
-                    Log.d(TAG, "addEvent: success - ID: " + documentId);
-                } else {
-                    Log.e(TAG, "addEvent: fail", task.getException());
-                }
-            });
+        eventCollection.add(event)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        String documentId = task.getResult().getId();
+                        event.setDocumentId(documentId);
+                        Log.d(TAG, "addEvent: success - ID: " + documentId);
+                        future.complete(documentId);
+                    } else {
+                        Log.e(TAG, "addEvent: fail", task.getException());
+                        future.completeExceptionally(task.getException());
+                    }
+                });
+        return future;
     }
 
-    public Task<Void> updateEvent(Event event) {
+    public CompletableFuture<Void> updateEvent(Event event) {
+        Objects.requireNonNull(event);
         String documentId = event.getDocumentId();
-        if (documentId == null) throw new NullPointerException("documentId is null - never set documentId");
+        CompletableFuture<Void> future = new CompletableFuture<>();
 
-        return eventCollection.document(documentId).set(event)
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Log.d(TAG, "updateEvent: success - ID: " + documentId);
-                } else {
-                    Log.e(TAG, "updateEvent: fail", task.getException());
-                }
-            });
+        if (documentId == null) {
+            future.completeExceptionally(new NullPointerException("documentId is null - never set documentId"));
+            return future;
+        }
+
+        eventCollection.document(documentId).set(event)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "updateEvent: success - ID: " + documentId);
+                        future.complete(null);
+                    } else {
+                        Log.e(TAG, "updateEvent: fail", task.getException());
+                        future.completeExceptionally(task.getException());
+                    }
+                });
+        return future;
     }
 
-    public Task<Void> removeEvent(Event event) {
+    public CompletableFuture<Void> removeEvent(Event event) {
+        Objects.requireNonNull(event);
         String documentId = event.getDocumentId();
-        if (documentId == null) throw new NullPointerException("documentId is null - never set documentId");
+        CompletableFuture<Void> future = new CompletableFuture<>();
 
-        return eventCollection.document(documentId).delete()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Log.d(TAG, "removeEvent: success - ID: " + documentId);
-                } else {
-                    Log.e(TAG, "removeEvent: fail", task.getException());
-                }
-            });
+        if (documentId == null) {
+            future.completeExceptionally(new NullPointerException("documentId is null - never set documentId"));
+            return future;
+        }
+
+        eventCollection.document(documentId).delete()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "removeEvent: success - ID: " + documentId);
+                        future.complete(null);
+                    } else {
+                        Log.e(TAG, "removeEvent: fail", task.getException());
+                        future.completeExceptionally(task.getException());
+                    }
+                });
+        return future;
     }
-    
+
     public CompletableFuture<Event> getEventByQrCodeHash(String qrCodeHash) {
         CompletableFuture<Event> future = new CompletableFuture<>();
-    
+
         eventCollection
                 .whereEqualTo("qrCodeHash", qrCodeHash)
                 .limit(1)
@@ -124,7 +148,7 @@ public class EventRepository {
                     Log.e(TAG, "getEventByQrCodeHash: failed to retrieve event", e);
                     future.completeExceptionally(e);
                 });
-    
+
         return future;
     }
 
@@ -164,7 +188,7 @@ public class EventRepository {
     public LiveData<List<Event>> getEventsOfOrganizerLiveData(String organizerId) {
         Query query = eventCollection.whereEqualTo("organizerId", organizerId);
 
-        return runQueryLiveData("getEventsOfOrganizerLiveData", query);
+        return Common.runQueryLiveData("getEventsOfOrganizerLiveData", query, Event.class, TAG);
     }
 
     public LiveData<List<Event>> getEventsOfOrganizerLiveData(String organizerId, String facilityId) {
@@ -172,42 +196,16 @@ public class EventRepository {
                 .whereEqualTo("organizerId", organizerId)
                 .whereEqualTo("facilityId", facilityId);
 
-        return runQueryLiveData("getEventsOfOrganizerLiveData", query);
+        return Common.runQueryLiveData("getEventsOfOrganizerLiveData", query, Event.class, TAG);
     }
 
     public LiveData<List<Event>> getEventsOfFacilityLiveData(String facilityId) {
         Query query = eventCollection.whereEqualTo("facilityId", facilityId);
 
-        return runQueryLiveData("getEventsOfFacilityLiveData", query);
+        return Common.runQueryLiveData("getEventsOfFacilityLiveData", query, Event.class, TAG);
     }
 
     public LiveData<List<Event>> getAllExistingEventsLiveData() {
-        return runQueryLiveData("getAllEventsLiveData", eventCollection);
-    }
-
-    private LiveData<List<Event>> runQueryLiveData(String methodName, Query query) {
-        MutableLiveData<List<Event>> liveData = new MutableLiveData<>();
-
-        query.addSnapshotListener((querySnapshot, e) -> {
-            if (e != null) {
-                Log.e(TAG, "runQueryLiveData: " + methodName + ": listen failed", e);
-                liveData.setValue(new ArrayList<>());
-                return;
-            }
-
-            if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                List<Event> events = querySnapshot.toObjects(Event.class);
-
-                for (int i = 0; i < events.size(); i++) {
-                    events.get(i).setDocumentId(querySnapshot.getDocuments().get(i).getId());
-                }
-                Log.d(TAG, "runQueryLiveData: " + methodName + ": success");
-                liveData.setValue(events);
-            } else {
-                Log.d(TAG, "runQueryLiveData: " + methodName + ": no documents found");
-                liveData.setValue(new ArrayList<>());
-            }
-        });
-        return liveData;
+        return Common.runQueryLiveData("getAllEventsLiveData", eventCollection, Event.class, TAG);
     }
 }

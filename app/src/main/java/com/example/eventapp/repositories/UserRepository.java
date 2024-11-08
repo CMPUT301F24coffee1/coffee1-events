@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.eventapp.models.Facility;
 import com.example.eventapp.models.User;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
@@ -12,8 +13,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -70,36 +74,48 @@ public class UserRepository {
         currentListenerRegistration = setUserLiveData(currentUserLiveData, userId);
     }
 
-    public Task<Void> saveUser(User user) {
+    public CompletableFuture<Void> saveUser(User user) {
         String userId = getUserIdOrThrow(user);
+        CompletableFuture<Void> future = new CompletableFuture<>();
 
-        return userCollection.document(userId).set(user)
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Log.d(TAG, "saveUser: success for user with ID: " + userId);
-                } else {
-                    Log.e(TAG, "saveUser: fail", task.getException());
-                }
-            });
+        userCollection.document(userId).set(user)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "saveUser: success for user with ID: " + userId);
+                        future.complete(null);
+                    } else {
+                        Log.e(TAG, "saveUser: fail", task.getException());
+                        future.completeExceptionally(task.getException());
+                    }
+                });
+        return future;
     }
 
-    public Task<Void> removeUser(User user) {
+    public CompletableFuture<Void> removeUser(User user) {
         String userId = getUserIdOrThrow(user);
         return removeUser(userId);
     }
 
-    public Task<Void> removeUser(String userId) {
-        if (userId == null) throw new NullPointerException("userId cannot be null - set deviceId");
-        if (userId.equals(currentUserId)) throw new InvalidParameterException("cannot remove current logged in user");
+    public CompletableFuture<Void> removeUser(String userId) {
+        if (userId == null) { throw new NullPointerException("userId cannot be null - set deviceId"); }
+        CompletableFuture<Void> future = new CompletableFuture<>();
 
-        return userCollection.document(userId).delete()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Log.d(TAG, "removeUser: success for user with ID: " + userId);
-                } else {
-                    Log.e(TAG, "removeUser: fail", task.getException());
-                }
-            });
+        if (userId.equals(currentUserId)) {
+            future.completeExceptionally(new InvalidParameterException("cannot remove current logged in user"));
+            return future;
+        }
+
+        userCollection.document(userId).delete()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "removeUser: success for user with ID: " + userId);
+                        future.complete(null);
+                    } else {
+                        Log.e(TAG, "removeUser: fail", task.getException());
+                        future.completeExceptionally(task.getException());
+                    }
+                });
+        return future;
     }
 
     public CompletableFuture<User> getUser(String userId) {
@@ -161,5 +177,15 @@ public class UserRepository {
                 liveData.setValue(user);
             }
         });
+    }
+
+    public LiveData<List<User>> getAllUsersLiveData() {
+        return Common.runQueryLiveData("getAllUsersLiveData", userCollection, User.class, TAG);
+    }
+
+    public LiveData<User> getUserLiveData(String userId) {
+        MutableLiveData<User> userLiveData = new MutableLiveData<>();
+        setUserLiveData(userLiveData, userId);
+        return userLiveData;
     }
 }

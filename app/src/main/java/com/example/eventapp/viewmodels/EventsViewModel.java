@@ -31,14 +31,31 @@ public class EventsViewModel extends ViewModel {
     private final MediatorLiveData<List<Event>> signedUpEventsLiveData = new MediatorLiveData<>();
 
     public EventsViewModel() {
+        this(
+                EventRepository.getInstance(),
+                SignupRepository.getInstance(),
+                UserRepository.getInstance(),
+                null
+        );
+    }
+
+    public EventsViewModel(
+            EventRepository eventRepository,
+            SignupRepository signupRepository,
+            UserRepository userRepository,
+            LiveData<User> injectedUserLiveData) {
         mText = new MutableLiveData<>();
         mText.setValue("Events");
 
-        eventRepository = EventRepository.getInstance();
-        signupRepository = SignupRepository.getInstance();
+        this.eventRepository = eventRepository;
+        this.signupRepository = signupRepository;
 
-        UserRepository userRepository = UserRepository.getInstance();
-        currentUserLiveData = userRepository.getCurrentUserLiveData();
+        // dependency injection for tests
+        if (injectedUserLiveData != null) {
+            currentUserLiveData = injectedUserLiveData;
+        } else {
+            currentUserLiveData = userRepository.getCurrentUserLiveData();
+        }
 
         // load organized and signed-up events when current user data is available
         currentUserLiveData.observeForever(user -> {
@@ -67,55 +84,68 @@ public class EventsViewModel extends ViewModel {
         signedUpEventsLiveData.addSource(signedUpEvents, signedUpEventsLiveData::setValue);
     }
 
-    public void addEvent(Event event) {
+    public CompletableFuture<String> addEvent(Event event) {
         User currentUser = currentUserLiveData.getValue();
+        CompletableFuture<String> addEventFuture = new CompletableFuture<>();
+
         if (currentUser != null) {
             event.setOrganizerId(currentUser.getUserId());
 
-            eventRepository.addEvent(event).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Log.i(TAG, "Added event with name: " + event.getEventName());
-                    event.setQrCodeHash(task.getResult().getId() + "--display");
-                    updateEvent(event);
-                } else {
-                    Log.e(TAG, "Failed to add event", task.getException());
-                }
+            CompletableFuture<String> repositoryFuture = eventRepository.addEvent(event);
+
+            repositoryFuture.thenAccept(documentId -> {
+                event.setDocumentId(documentId);
+                addEventFuture.complete(documentId);
+                Log.i(TAG, "Added event with name: " + event.getEventName());
+            }).exceptionally(throwable -> {
+                addEventFuture.completeExceptionally(throwable);
+                Log.e(TAG, "addEvent: failed to add event to repository", throwable);
+                return null;
             });
+        } else {
+            addEventFuture.completeExceptionally(new Exception("User is not yet fetched"));
         }
+        return addEventFuture;
     }
 
-    public void removeEvent(Event event) {
-        eventRepository.removeEvent(event).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Log.i(TAG, "Removed event with name: " + event.getEventName());
-            } else {
-                Log.e(TAG, "Failed to remove event", task.getException());
-            }
+    public CompletableFuture<Void> removeEvent(Event event) {
+        CompletableFuture<Void> removeEventFuture = eventRepository.removeEvent(event);
+
+        removeEventFuture.thenAccept(discard -> {
+            Log.i(TAG, "Removed event with name: " + event.getEventName());
+        }).exceptionally(throwable -> {
+            Log.e(TAG, "Failed to remove event", throwable);
+            return null;
         });
+        return removeEventFuture;
     }
 
-    public void updateEvent(Event updatedEvent) {
-        eventRepository.updateEvent(updatedEvent).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Log.i(TAG, "Updated event with name: " + updatedEvent.getEventName());
-            } else {
-                Log.e(TAG, "Failed to update event", task.getException());
-            }
+    public CompletableFuture<Void> updateEvent(Event event) {
+        CompletableFuture<Void> updateEventFuture = eventRepository.updateEvent(event);
+
+        updateEventFuture.thenAccept(discard -> {
+            Log.i(TAG, "Updated event with name: " + event.getEventName());
+        }).exceptionally(throwable -> {
+            Log.e(TAG, "Failed to update event", throwable);
+            return null;
         });
+        return updateEventFuture;
     }
 
-    public void unregisterFromEvent(Event event) {
+    public CompletableFuture<String> registerToEvent(Event event) {
         User currentUser = currentUserLiveData.getValue();
         if (currentUser != null) {
-            signupRepository.removeSignup(currentUser.getUserId(), event.getDocumentId());
+            return signupRepository.addSignup(new Signup(currentUser.getUserId(), event.getDocumentId()));
         }
+        return null;
     }
 
-    public void registerToEvent(Event event) {
+    public CompletableFuture<Void> unregisterFromEvent(Event event) {
         User currentUser = currentUserLiveData.getValue();
         if (currentUser != null) {
-            signupRepository.addSignup(new Signup(currentUser.getUserId(), event.getDocumentId()));
+            return signupRepository.removeSignup(currentUser.getUserId(), event.getDocumentId());
         }
+        return null;
     }
 
     public boolean isSignedUp(Event event){
@@ -133,19 +163,17 @@ public class EventsViewModel extends ViewModel {
 
     public boolean isUserOrganizerOrAdmin(){
         User currentUser = currentUserLiveData.getValue();
-        if(currentUser.isAdmin() || currentUser.isOrganizer()){
-            return true;
-        }
-        return false;
+        return currentUser != null && (currentUser.isAdmin() || currentUser.isOrganizer());
     }
 
     public boolean canEdit(Event event){
         User currentUser = currentUserLiveData.getValue();
-        if(currentUser.isAdmin()){
-            return true;
+        if (currentUser == null) {
+            return false;
         }
         // check if correct organizer
-        return currentUser.isOrganizer() && currentUser.getUserId().equals(event.getOrganizerId());
+        return currentUser.isAdmin() ||
+                (currentUser.isOrganizer() && currentUser.getUserId().equals(event.getOrganizerId()));
     }
 
     public CompletableFuture<Event> getEventByQrCodeHash(String qrCodeHash){

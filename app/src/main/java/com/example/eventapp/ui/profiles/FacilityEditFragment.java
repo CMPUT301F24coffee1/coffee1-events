@@ -53,7 +53,7 @@ public class FacilityEditFragment extends Fragment {
     /**
      * Behaviour to run when the View is created, in this case,
      * creating the View Model, linking it, and using the View Model
-     * to fill out user information for the profile
+     * to fill out user information for the facility
      * Also populates the menu with a confirm button, and specifies that the data should be
      * sent to the View Model on confirmation
      * @param inflater The LayoutInflater object that can be used to inflate
@@ -249,8 +249,7 @@ public class FacilityEditFragment extends Fragment {
     }
 
     /**
-     * Makes sure to clear the binding, and, if confirm button was pressed,
-     * update the User in the View Model with the new information
+     * Clears the binding
      */
     @Override
     public void onDestroyView() {

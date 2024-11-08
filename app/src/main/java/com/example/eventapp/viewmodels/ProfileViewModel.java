@@ -5,8 +5,10 @@ import static android.content.ContentValues.TAG;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.eventapp.models.Facility;
@@ -16,13 +18,16 @@ import com.example.eventapp.repositories.FacilityRepository;
 import com.example.eventapp.repositories.UserRepository;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class ProfileViewModel extends ViewModel {
 
-    private final LiveData<User> currentUserLiveData;
+    private LiveData<User> currentUserLiveData;
+    private final LiveData<User> actualUserLiveData;
     private final UserRepository userRepository;
     private final FacilityRepository facilityRepository;
     private final MediatorLiveData<List<Facility>> facilitiesLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<List<User>> usersLiveData = new MediatorLiveData<>();
     private Facility selectedFacility;
     private LiveData<List<Facility>> currentFacilitiesSource;
 
@@ -32,32 +37,40 @@ public class ProfileViewModel extends ViewModel {
      * primarily operates with, and sets a forever observer on it
      */
     public ProfileViewModel() {
-        userRepository = UserRepository.getInstance();
-        facilityRepository = FacilityRepository.getInstance();
-        currentUserLiveData = userRepository.getCurrentUserLiveData();
-
-        // load organized and signed-up events when current user data is available
-        currentUserLiveData.observeForever(user -> {
-            if (user != null) {
-                 loadFacilities(user.getUserId());
-            }
-        });
+        this(UserRepository.getInstance(), FacilityRepository.getInstance(), null);
     }
 
     /**
      * Initializes ProfileViewModel, but allows you to pre-specify the repositories for testing purposes
      */
-    public ProfileViewModel(UserRepository userRepository, FacilityRepository facilityRepository) {
+    public ProfileViewModel(
+            @NonNull UserRepository userRepository,
+            FacilityRepository facilityRepository,
+            MutableLiveData<User> injectedLiveData) {
         this.userRepository = userRepository;
         this.facilityRepository = facilityRepository;
-        currentUserLiveData = userRepository.getCurrentUserLiveData();
 
-        // load organized and signed-up events when current user data is available
+        if (injectedLiveData == null) {
+            actualUserLiveData = userRepository.getCurrentUserLiveData();
+        } else {
+            actualUserLiveData = injectedLiveData;
+        }
+        currentUserLiveData = actualUserLiveData;
+        usersLiveData.addSource(userRepository.getAllUsersLiveData(), usersLiveData::setValue);
+
+        // load facilities when user data is available
         currentUserLiveData.observeForever(user -> {
             if (user != null) {
                 loadFacilities(user.getUserId());
             }
         });
+    }
+
+    /**
+     * Deletes the currently selected User
+     */
+    public void deleteSelectedUser() {
+        userRepository.removeUser(currentUserLiveData.getValue());
     }
 
     /**
@@ -77,6 +90,31 @@ public class ProfileViewModel extends ViewModel {
     }
 
     /**
+     * Gets the live data of the list of profiles
+     * @return Live data of the list of profiles
+     */
+    public LiveData<List<User>> getUsers() {
+        return usersLiveData;
+    }
+
+    /**
+     * Sets the currently selected user
+     * @param user User that is now being selected
+     */
+    public void setSelectedUser(User user) {
+        currentUserLiveData = userRepository.getUserLiveData(user.getUserId());
+        loadFacilities(user.getUserId()); // Load the new facilities from the selected user
+    }
+
+    /**
+     * Returns the actual user the device is logged in as
+     * @return The user the device is logged in as
+     */
+    public LiveData<User> getActualUser() {
+        return actualUserLiveData;
+    }
+
+    /**
      * Updates a user in the user repository with new information
      * @param name The new name of the user
      * @param email The new email of the user
@@ -85,8 +123,9 @@ public class ProfileViewModel extends ViewModel {
      * @param isOrganizer Whether or not the user is an organizer
      * @param photoUriString The Uri string of the newly updated photo
      */
-    public void updateUser(String name, String email, String phone, boolean optNotifs, boolean isOrganizer, String photoUriString) {
+    public CompletableFuture<Void> updateUser(String name, String email, String phone, boolean optNotifs, boolean isOrganizer, String photoUriString) {
         User user = currentUserLiveData.getValue();
+
         if (user != null) {
             user.setName(name);
             user.setEmail(email);
@@ -94,14 +133,18 @@ public class ProfileViewModel extends ViewModel {
             user.setNotificationOptOut(optNotifs);
             user.setOrganizer(isOrganizer);
             user.setPhotoUriString(photoUriString);
-            userRepository.saveUser(user).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Log.i(TAG, "Updated user with name: " + user.getName());
-                } else {
-                    Log.e(TAG, "Failed to update user: " + user.getName(), task.getException());
-                }
+
+            CompletableFuture<Void> future = userRepository.saveUser(user);
+
+            future.thenAccept(discard -> {
+                Log.i(TAG, "Updated user with name: " + user.getName());
+            }).exceptionally(throwable -> {
+                Log.e(TAG, "Failed to update user: " + user.getName(), throwable);
+                return null;
             });
+            return future;
         }
+        return null;
     }
 
     /**
@@ -120,19 +163,22 @@ public class ProfileViewModel extends ViewModel {
      * Adds a facility to the repository, which then updates the database
      * @param facility The facility to add to the repository
      */
-    public void addFacility(Facility facility) {
+    public CompletableFuture<String> addFacility(Facility facility) {
         User user = currentUserLiveData.getValue();
+
         if (user != null) {
             facility.setOrganizerId(user.getUserId());
+            CompletableFuture<String> future = facilityRepository.addFacility(facility);
 
-            facilityRepository.addFacility(facility).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Log.i(TAG, "Added facility with name: " + facility.getFacilityName());
-                } else {
-                    Log.e(TAG, "Failed to add facility", task.getException());
-                }
+            future.thenAccept(documentId -> {
+                Log.i(TAG, "Added facility with name: " + facility.getFacilityName());
+            }).exceptionally(throwable -> {
+                Log.e(TAG, "Failed to add facility", throwable);
+                return null;
             });
+            return future;
         }
+        return null;
     }
 
     /**
@@ -168,16 +214,16 @@ public class ProfileViewModel extends ViewModel {
     /**
      * Updates the currently selected Facility to the repository (from getSelectedFacility())
      */
-    public void updateSelectedFacility(Facility facility) {
-        facilityRepository.updateFacility(facility);
+    public CompletableFuture<Void> updateSelectedFacility(Facility facility) {
+        return facilityRepository.updateFacility(facility);
     }
 
     /**
      * Removes the currently selected Facility from the repository (from getSelectedFacility())
      */
-    public void removeSelectedFacility() {
+    public CompletableFuture<Void> removeSelectedFacility() {
         Facility facility = getSelectedFacility();
-        facilityRepository.removeFacility(facility);
+        return facilityRepository.removeFacility(facility);
     }
 
     /**
@@ -189,12 +235,12 @@ public class ProfileViewModel extends ViewModel {
             Uri photoUri = user.getPhotoUri();
             PhotoManager.deletePhotoFromFirebase(photoUri);
             user.setPhotoUriString("");
-            userRepository.saveUser(user).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Log.i(TAG, "Successfully removed photo from user: " + user.getName());
-                } else {
-                    Log.e(TAG, "Failed to remove photo from user: " + user.getName(), task.getException());
-                }
+
+            userRepository.saveUser(user).thenAccept(discard -> {
+                Log.i(TAG, "Successfully removed photo from user: " + user.getName());
+            }).exceptionally(throwable -> {
+                Log.e(TAG, "Failed to remove photo from user: " + user.getName(), throwable);
+                return null;
             });
         }
     }
@@ -208,5 +254,4 @@ public class ProfileViewModel extends ViewModel {
         selectedFacility.setPhotoUriString("");
         facilityRepository.updateFacility(selectedFacility);
     }
-
 }

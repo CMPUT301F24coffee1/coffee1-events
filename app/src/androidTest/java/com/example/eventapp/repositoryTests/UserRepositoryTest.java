@@ -1,4 +1,4 @@
-package com.example.eventapp;
+package com.example.eventapp.repositoryTests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -9,9 +9,6 @@ import static org.junit.Assert.assertTrue;
 import com.example.eventapp.repositories.UserRepository;
 import com.example.eventapp.models.User;
 import com.example.eventapp.utils.FirestoreEmulator;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.DocumentSnapshot;
 
 import org.junit.After;
 import org.junit.Before;
@@ -47,37 +44,31 @@ public class UserRepositoryTest {
         user.setOrganizer(false);
         user.setAdmin(false);
 
-        Task<Void> saveUserTask = userRepository.saveUser(user);
-        Tasks.await(saveUserTask);
+        userRepository.saveUser(user).get();
 
-        assertTrue(saveUserTask.isSuccessful());
-
-        // Verify user saved correctly
         CompletableFuture<User> getUserFuture = userRepository.getUser("testUserId");
         User savedUser = getUserFuture.get();
 
         assertNotNull(savedUser);
-        assertEquals(user.getName(), savedUser.getName());
-        assertEquals(user.getEmail(), savedUser.getEmail());
-        assertEquals(user.getPhoneNumber(), savedUser.getPhoneNumber());
-        assertEquals(user.isOrganizer(), savedUser.isOrganizer());
-        assertEquals(user.isAdmin(), savedUser.isAdmin());
+        assertEquals("Test User", savedUser.getName());
+        assertEquals("testuser@example.com", savedUser.getEmail());
+        assertEquals("1234567890", savedUser.getPhoneNumber());
+        assertFalse(savedUser.isOrganizer());
+        assertFalse(savedUser.isAdmin());
 
-        // Cleanup
-        Tasks.await(userRepository.removeUser(user));
+        userRepository.removeUser(user).get();
     }
 
     @Test(expected = NullPointerException.class)
-    public void testSaveUser_nullUser() {
-        userRepository.saveUser(null);
+    public void testSaveUser_nullUser() throws ExecutionException, InterruptedException {
+        userRepository.saveUser(null).get();
     }
 
     @Test(expected = NullPointerException.class)
-    public void testSaveUser_nullUserId() {
+    public void testSaveUser_nullUserId() throws ExecutionException, InterruptedException {
         User user = new User();
         user.setName("Test User");
-
-        userRepository.saveUser(user);
+        userRepository.saveUser(user).get();
     }
 
     @Test
@@ -86,69 +77,91 @@ public class UserRepositoryTest {
         user.setUserId("testUserId");
         user.setName("Test User");
 
-        // Save user first
-        Task<Void> saveUserTask = userRepository.saveUser(user);
-        Tasks.await(saveUserTask);
-        assertTrue(saveUserTask.isSuccessful());
+        userRepository.saveUser(user).get();
 
-        // Remove user
-        Task<Void> removeUserTask = userRepository.removeUser(user);
-        Tasks.await(removeUserTask);
-        assertTrue(removeUserTask.isSuccessful());
+        userRepository.removeUser(user).get();
 
-        // Verify removal
         CompletableFuture<User> getUserFuture = userRepository.getUser("testUserId");
-        User savedUser = getUserFuture.get();
-        assertNull(savedUser);
+        assertNull(getUserFuture.get());
     }
 
     @Test(expected = NullPointerException.class)
-    public void testRemoveUser_nullUser() {
-        userRepository.removeUser((User) null);
+    public void testRemoveUser_nullUser() throws ExecutionException, InterruptedException {
+        userRepository.removeUser((User) null).get();
     }
 
     @Test(expected = NullPointerException.class)
-    public void testRemoveUserById_nullUserId() {
-        userRepository.removeUser((String) null);
+    public void testRemoveUserById_nullUserId() throws ExecutionException, InterruptedException {
+        userRepository.removeUser((String) null).get();
+    }
+
+    @Test(expected = ExecutionException.class)
+    public void testRemoveUser_currentLoggedInUser() throws ExecutionException, InterruptedException {
+        User user = new User();
+        user.setUserId("testId");
+        user.setName("Current User");
+
+        userRepository.saveUser(user).get();
+        userRepository.setCurrentUser(user);
+
+        userRepository.removeUser(user).get();
     }
 
     @Test
     public void testGetUser_existingUser() throws ExecutionException, InterruptedException {
         String userId = "testUserId";
 
-        // Save user first
         User user = new User();
         user.setUserId(userId);
         user.setName("Test User");
         user.setEmail("testuser@example.com");
 
-        Task<Void> saveUserTask = userRepository.saveUser(user);
-        Tasks.await(saveUserTask);
-        assertTrue(saveUserTask.isSuccessful());
+        userRepository.saveUser(user).get();
 
-        // Get user
         CompletableFuture<User> getUserFuture = userRepository.getUser(userId);
         User retrievedUser = getUserFuture.get();
 
         assertNotNull(retrievedUser);
-        assertEquals(user.getName(), retrievedUser.getName());
-        assertEquals(user.getEmail(), retrievedUser.getEmail());
+        assertEquals("Test User", retrievedUser.getName());
+        assertEquals("testuser@example.com", retrievedUser.getEmail());
 
-        // Cleanup
-        Tasks.await(userRepository.removeUser(user));
+        userRepository.removeUser(user).get();
     }
 
     @Test
     public void testGetUser_nonExistingUser() throws ExecutionException, InterruptedException {
         String userId = "nonExistingUserId";
-
-        // Ensure user does not exist
         assertNull(userRepository.getUser(userId).get());
     }
 
     @Test(expected = NullPointerException.class)
-    public void testGetUser_nullUserId() throws ExecutionException, InterruptedException {
+    public void testGetUser_nullUserId() {
         userRepository.getUser(null);
+    }
+
+    @Test
+    public void testSaveAndRetrieveComplexUserObject() throws ExecutionException, InterruptedException {
+        User complexUser = new User();
+        complexUser.setUserId("complexUserId");
+        complexUser.setName("Complex User");
+        complexUser.setEmail("complexuser@example.com");
+        complexUser.setPhoneNumber("9876543210");
+        complexUser.setOrganizer(true);
+        complexUser.setAdmin(true);
+
+        userRepository.saveUser(complexUser).get();
+
+        CompletableFuture<User> getUserFuture = userRepository.getUser("complexUserId");
+        User retrievedUser = getUserFuture.get();
+
+        assertNotNull(retrievedUser);
+        assertEquals("Complex User", retrievedUser.getName());
+        assertEquals("complexuser@example.com", retrievedUser.getEmail());
+        assertEquals("9876543210", retrievedUser.getPhoneNumber());
+        assertTrue(retrievedUser.isOrganizer());
+        assertTrue(retrievedUser.isAdmin());
+
+        userRepository.removeUser(complexUser).get();
     }
 }
 
