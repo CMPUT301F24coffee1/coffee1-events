@@ -180,35 +180,12 @@ public class UserRepository {
     }
 
     public LiveData<List<User>> getAllUsersLiveData() {
-        return runQueryLiveData("getAllUsersLiveData", userCollection);
+        return Common.runQueryLiveData("getAllUsersLiveData", userCollection, User.class, TAG);
     }
 
     public LiveData<User> getUserLiveData(String userId) {
         MutableLiveData<User> userLiveData = new MutableLiveData<>();
         setUserLiveData(userLiveData, userId);
         return userLiveData;
-    }
-
-    private LiveData<List<User>> runQueryLiveData(String methodName, Query query) {
-        MutableLiveData<List<User>> liveData = new MutableLiveData<>();
-
-        query.addSnapshotListener((querySnapshot, e) -> {
-            if (e != null) {
-                Log.e(TAG, "runQueryLiveData: " + methodName + ": listen failed", e);
-                liveData.setValue(new ArrayList<>());
-                return;
-            }
-
-            if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                List<User> users = querySnapshot.toObjects(User.class);
-
-                Log.d(TAG, "runQueryLiveData: " + methodName + ": success");
-                liveData.setValue(users);
-            } else {
-                Log.d(TAG, "runQueryLiveData: " + methodName + ": no documents found");
-                liveData.setValue(new ArrayList<>());
-            }
-        });
-        return liveData;
     }
 }

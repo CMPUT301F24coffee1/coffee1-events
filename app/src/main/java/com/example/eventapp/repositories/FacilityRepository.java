@@ -122,36 +122,10 @@ public class FacilityRepository {
 
     public LiveData<List<Facility>> getFacilitiesOfOrganizerLiveData(String organizerId) {
         Query query = facilityCollection.whereEqualTo("organizerId", organizerId);
-        return runQueryLiveData("getFacilitiesOfOrganizerLiveData", query);
+        return Common.runQueryLiveData("getFacilitiesOfOrganizerLiveData", query, Facility.class, TAG);
     }
 
     public LiveData<List<Facility>> getAllFacilitiesLiveData() {
-        return runQueryLiveData("getAllFacilitiesLiveData", facilityCollection);
-    }
-
-    private LiveData<List<Facility>> runQueryLiveData(String methodName, Query query) {
-        MutableLiveData<List<Facility>> liveData = new MutableLiveData<>();
-
-        query.addSnapshotListener((querySnapshot, e) -> {
-            if (e != null) {
-                Log.e(TAG, "runQueryLiveData: " + methodName + ": listen failed", e);
-                liveData.setValue(new ArrayList<>());
-                return;
-            }
-
-            if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                List<Facility> facilities = querySnapshot.toObjects(Facility.class);
-
-                for (int i = 0; i < facilities.size(); i++) {
-                    facilities.get(i).setDocumentId(querySnapshot.getDocuments().get(i).getId());
-                }
-                Log.d(TAG, "runQueryLiveData: " + methodName + ": success");
-                liveData.setValue(facilities);
-            } else {
-                Log.d(TAG, "runQueryLiveData: " + methodName + ": no documents found");
-                liveData.setValue(new ArrayList<>());
-            }
-        });
-        return liveData;
+        return Common.runQueryLiveData("getAllFacilitiesLiveData", facilityCollection, Facility.class, TAG);
     }
 }

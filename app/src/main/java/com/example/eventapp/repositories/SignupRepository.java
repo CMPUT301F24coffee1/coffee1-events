@@ -171,37 +171,11 @@ public class SignupRepository {
 
     public LiveData<List<Signup>> getSignupsOfUserLiveData(String userId) {
         Query query = signupCollection.whereEqualTo("userId", userId);
-        return runQueryLiveData("getSignupsOfUserLiveData", query);
+        return Common.runQueryLiveData("getSignupsOfUserLiveData", query, Signup.class, TAG);
     }
 
     public LiveData<List<Signup>> getSignupsOfEventLiveData(String eventId) {
         Query query = signupCollection.whereEqualTo("eventId", eventId);
-        return runQueryLiveData("getSignupsOfEventLiveData", query);
-    }
-
-    private LiveData<List<Signup>> runQueryLiveData(String methodName, Query query) {
-        MutableLiveData<List<Signup>> liveData = new MutableLiveData<>();
-
-        query.addSnapshotListener((querySnapshot, e) -> {
-            if (e != null) {
-                Log.e(TAG, "runQueryLiveData: " + methodName + ": listen failed", e);
-                liveData.setValue(new ArrayList<>());
-                return;
-            }
-
-            if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                List<Signup> signups = querySnapshot.toObjects(Signup.class);
-
-                for (int i = 0; i < signups.size(); i++) {
-                    signups.get(i).setDocumentId(querySnapshot.getDocuments().get(i).getId());
-                }
-                Log.d(TAG, "runQueryLiveData: " + methodName + ": success");
-                liveData.setValue(signups);
-            } else {
-                Log.d(TAG, "runQueryLiveData: " + methodName + ": no documents found");
-                liveData.setValue(new ArrayList<>());
-            }
-        });
-        return liveData;
+        return Common.runQueryLiveData("getSignupsOfEventLiveData", query, Signup.class, TAG);
     }
 }

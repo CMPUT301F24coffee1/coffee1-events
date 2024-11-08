@@ -159,7 +159,7 @@ public class EventRepository {
     public LiveData<List<Event>> getEventsOfOrganizerLiveData(String organizerId) {
         Query query = eventCollection.whereEqualTo("organizerId", organizerId);
 
-        return runQueryLiveData("getEventsOfOrganizerLiveData", query);
+        return Common.runQueryLiveData("getEventsOfOrganizerLiveData", query, Event.class, TAG);
     }
 
     public LiveData<List<Event>> getEventsOfOrganizerLiveData(String organizerId, String facilityId) {
@@ -167,42 +167,16 @@ public class EventRepository {
                 .whereEqualTo("organizerId", organizerId)
                 .whereEqualTo("facilityId", facilityId);
 
-        return runQueryLiveData("getEventsOfOrganizerLiveData", query);
+        return Common.runQueryLiveData("getEventsOfOrganizerLiveData", query, Event.class, TAG);
     }
 
     public LiveData<List<Event>> getEventsOfFacilityLiveData(String facilityId) {
         Query query = eventCollection.whereEqualTo("facilityId", facilityId);
 
-        return runQueryLiveData("getEventsOfFacilityLiveData", query);
+        return Common.runQueryLiveData("getEventsOfFacilityLiveData", query, Event.class, TAG);
     }
 
     public LiveData<List<Event>> getAllExistingEventsLiveData() {
-        return runQueryLiveData("getAllEventsLiveData", eventCollection);
-    }
-
-    private LiveData<List<Event>> runQueryLiveData(String methodName, Query query) {
-        MutableLiveData<List<Event>> liveData = new MutableLiveData<>();
-
-        query.addSnapshotListener((querySnapshot, e) -> {
-            if (e != null) {
-                Log.e(TAG, "runQueryLiveData: " + methodName + ": listen failed", e);
-                liveData.setValue(new ArrayList<>());
-                return;
-            }
-
-            if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                List<Event> events = querySnapshot.toObjects(Event.class);
-
-                for (int i = 0; i < events.size(); i++) {
-                    events.get(i).setDocumentId(querySnapshot.getDocuments().get(i).getId());
-                }
-                Log.d(TAG, "runQueryLiveData: " + methodName + ": success");
-                liveData.setValue(events);
-            } else {
-                Log.d(TAG, "runQueryLiveData: " + methodName + ": no documents found");
-                liveData.setValue(new ArrayList<>());
-            }
-        });
-        return liveData;
+        return Common.runQueryLiveData("getAllEventsLiveData", eventCollection, Event.class, TAG);
     }
 }
