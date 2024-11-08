@@ -108,9 +108,11 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
             if(currentWaitlistButtonState == 1){ // leave waitlist
                 leaveEventWaitlist(event);
                 waitlistButton.setText("Join Waitlist");
-            }else{
+                currentWaitlistButtonState = 0;
+            }else{ // join waitlist
                 joinEventWaitlist(event);
                 waitlistButton.setText("Leave Waitlist");
+                currentWaitlistButtonState = 1;
             }
         });
 
