@@ -14,12 +14,14 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.example.eventapp.photos.PhotoPicker;
 import com.example.eventapp.photos.PhotoManager;
 import com.example.eventapp.models.Event;
 import com.example.eventapp.R;
+import com.example.eventapp.viewmodels.EventsViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -29,7 +31,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class EditEventFragment extends BottomSheetDialogFragment implements DatePickerFragment.SetDateListener {
-
+    private EventsViewModel eventsViewModel;
     private Event event;
     private String posterUriString;
     private Uri oldPosterUri;
@@ -85,6 +87,7 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        eventsViewModel = new ViewModelProvider(requireActivity()).get(EventsViewModel.class);
         timestamps = new ArrayList<>(Arrays.asList(event.getStartDate(), event.getEndDate(), event.getDeadline()));
         View view = inflater.inflate(R.layout.edit_event_popup, container, false);
 
@@ -132,13 +135,11 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
         // Set listeners
         selectPosterButton.setOnClickListener(v -> PhotoPicker.openPhotoPicker(photoPickerLauncher));
 
-        // delete button
-        deleteEventButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                editEventListener.deleteEvent(event);
-            }
-        });
+        if(eventsViewModel.isUserOrganizerOrAdmin()) {
+            // delete button
+            deleteEventButton.setVisibility(View.VISIBLE);
+            deleteEventButton.setOnClickListener(view1 -> editEventListener.deleteEvent(event));
+        }
 
         // Save button
         saveEventButton.setOnClickListener(v -> {
