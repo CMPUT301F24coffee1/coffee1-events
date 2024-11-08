@@ -177,6 +177,7 @@ public class EventRepository {
      * @return A CompletableFuture containing the event matching the QR code hash, or null if not found.
      */
     public CompletableFuture<Event> getEventByQrCodeHash(String qrCodeHash) {
+        Objects.requireNonNull(qrCodeHash);
         CompletableFuture<Event> future = new CompletableFuture<>();
 
         eventCollection
@@ -200,7 +201,6 @@ public class EventRepository {
                     Log.e(TAG, "getEventByQrCodeHash: failed to retrieve event", e);
                     future.completeExceptionally(e);
                 });
-
         return future;
     }
 
