@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.eventapp.models.Facility;
@@ -17,6 +18,7 @@ import com.example.eventapp.repositories.FacilityRepository;
 import com.example.eventapp.repositories.UserRepository;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class ProfileViewModel extends ViewModel {
 
@@ -52,10 +54,18 @@ public class ProfileViewModel extends ViewModel {
     /**
      * Initializes ProfileViewModel, but allows you to pre-specify the repositories for testing purposes
      */
-    public ProfileViewModel(@NonNull UserRepository userRepository, FacilityRepository facilityRepository) {
+    public ProfileViewModel(
+            @NonNull UserRepository userRepository,
+            FacilityRepository facilityRepository,
+            MutableLiveData<User> injectedLiveData) {
         this.userRepository = userRepository;
         this.facilityRepository = facilityRepository;
-        actualUserLiveData = userRepository.getCurrentUserLiveData();
+
+        if (injectedLiveData == null) {
+            actualUserLiveData = userRepository.getCurrentUserLiveData();
+        } else {
+            actualUserLiveData = injectedLiveData;
+        }
         currentUserLiveData = actualUserLiveData;
         usersLiveData.addSource(userRepository.getAllUsersLiveData(), usersLiveData::setValue);
 
@@ -124,8 +134,9 @@ public class ProfileViewModel extends ViewModel {
      * @param isOrganizer Whether or not the user is an organizer
      * @param photoUriString The Uri string of the newly updated photo
      */
-    public void updateUser(String name, String email, String phone, boolean optNotifs, boolean isOrganizer, String photoUriString) {
+    public CompletableFuture<Void> updateUser(String name, String email, String phone, boolean optNotifs, boolean isOrganizer, String photoUriString) {
         User user = currentUserLiveData.getValue();
+
         if (user != null) {
             user.setName(name);
             user.setEmail(email);
@@ -134,13 +145,17 @@ public class ProfileViewModel extends ViewModel {
             user.setOrganizer(isOrganizer);
             user.setPhotoUriString(photoUriString);
 
-            userRepository.saveUser(user).thenAccept(discard -> {
+            CompletableFuture<Void> future = userRepository.saveUser(user);
+
+            future.thenAccept(discard -> {
                 Log.i(TAG, "Updated user with name: " + user.getName());
             }).exceptionally(throwable -> {
                 Log.e(TAG, "Failed to update user: " + user.getName(), throwable);
                 return null;
             });
+            return future;
         }
+        return null;
     }
 
     /**
@@ -159,18 +174,22 @@ public class ProfileViewModel extends ViewModel {
      * Adds a facility to the repository, which then updates the database
      * @param facility The facility to add to the repository
      */
-    public void addFacility(Facility facility) {
+    public CompletableFuture<String> addFacility(Facility facility) {
         User user = currentUserLiveData.getValue();
+
         if (user != null) {
             facility.setOrganizerId(user.getUserId());
+            CompletableFuture<String> future = facilityRepository.addFacility(facility);
 
-            facilityRepository.addFacility(facility).thenAccept(documentId -> {
+            future.thenAccept(documentId -> {
                 Log.i(TAG, "Added facility with name: " + facility.getFacilityName());
             }).exceptionally(throwable -> {
                 Log.e(TAG, "Failed to add facility", throwable);
                 return null;
             });
+            return future;
         }
+        return null;
     }
 
     /**
@@ -206,16 +225,16 @@ public class ProfileViewModel extends ViewModel {
     /**
      * Updates the currently selected Facility to the repository (from getSelectedFacility())
      */
-    public void updateSelectedFacility(Facility facility) {
-        facilityRepository.updateFacility(facility);
+    public CompletableFuture<Void> updateSelectedFacility(Facility facility) {
+        return facilityRepository.updateFacility(facility);
     }
 
     /**
      * Removes the currently selected Facility from the repository (from getSelectedFacility())
      */
-    public void removeSelectedFacility() {
+    public CompletableFuture<Void> removeSelectedFacility() {
         Facility facility = getSelectedFacility();
-        facilityRepository.removeFacility(facility);
+        return facilityRepository.removeFacility(facility);
     }
 
     /**

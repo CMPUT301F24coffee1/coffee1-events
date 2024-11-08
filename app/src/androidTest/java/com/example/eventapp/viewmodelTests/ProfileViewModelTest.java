@@ -11,7 +11,6 @@ import com.example.eventapp.repositories.FacilityRepository;
 import com.example.eventapp.repositories.UserRepository;
 import com.example.eventapp.utils.FirestoreEmulator;
 import com.example.eventapp.viewmodels.ProfileViewModel;
-import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.*;
 
@@ -19,9 +18,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class ProfileViewModelTest {
 
     @Rule
@@ -61,21 +64,18 @@ public class ProfileViewModelTest {
     public void testAddFacility_success() throws ExecutionException, InterruptedException {
         Facility facility = new Facility("Test Facility");
 
-        Task<String> addFacilityTask = profileViewModel.addFacility(facility);
-        assertNotNull(addFacilityTask);
-        String documentId = Tasks.await(addFacilityTask);
-        assertNotNull(documentId);
-        assertEquals(documentId, facility.getDocumentId());
+        CompletableFuture<String> addFacilityFuture = profileViewModel.addFacility(facility);
+        assertNotNull(addFacilityFuture);
+        String documentId = addFacilityFuture.get();
+        assertNotNull("Document ID should not be null", documentId);
+        assertEquals("Document ID should match facility's document ID", documentId, facility.getDocumentId());
 
-        Task<DocumentSnapshot> getFacilityTask = firestoreEmulator.collection("facilities")
-                .document(documentId)
-                .get();
-        Tasks.await(getFacilityTask);
+        DocumentReference docRef = firestoreEmulator.collection("facilities").document(documentId);
+        DocumentSnapshot snapshot = Tasks.await(docRef.get());
+        assertTrue("Facility should exist in Firestore", snapshot.exists());
 
-        assertTrue(getFacilityTask.getResult().exists());
-
-        Facility addedFacility = getFacilityTask.getResult().toObject(Facility.class);
-        assertNotNull(addedFacility);
+        Facility addedFacility = snapshot.toObject(Facility.class);
+        assertNotNull("Facility object should not be null", addedFacility);
         assertEquals("Test Facility", addedFacility.getFacilityName());
     }
 
@@ -83,23 +83,21 @@ public class ProfileViewModelTest {
     public void testUpdateSelectedFacility_success() throws ExecutionException, InterruptedException {
         Facility facility = new Facility("Test Facility");
 
-        Task<String> addFacilityTask = profileViewModel.addFacility(facility);
-        String documentId = Tasks.await(addFacilityTask);
+        CompletableFuture<String> addFacilityFuture = profileViewModel.addFacility(facility);
+        String documentId = addFacilityFuture.get();
         facility.setDocumentId(documentId);
 
         profileViewModel.setSelectedFacility(facility);
-
         facility.setFacilityName("Updated Facility");
-        Task<Void> updateFacilityTask = profileViewModel.updateSelectedFacility(facility);
-        Tasks.await(updateFacilityTask);
 
-        Task<DocumentSnapshot> getFacilityTask = firestoreEmulator.collection("facilities")
-                .document(documentId)
-                .get();
-        Tasks.await(getFacilityTask);
+        CompletableFuture<Void> updateFacilityFuture = profileViewModel.updateSelectedFacility(facility);
+        updateFacilityFuture.get();
 
-        Facility updatedFacility = getFacilityTask.getResult().toObject(Facility.class);
-        assertNotNull(updatedFacility);
+        DocumentReference docRef = firestoreEmulator.collection("facilities").document(documentId);
+        DocumentSnapshot snapshot = Tasks.await(docRef.get());
+        Facility updatedFacility = snapshot.toObject(Facility.class);
+
+        assertNotNull("Updated facility should not be null", updatedFacility);
         assertEquals("Updated Facility", updatedFacility.getFacilityName());
     }
 
@@ -107,35 +105,39 @@ public class ProfileViewModelTest {
     public void testRemoveSelectedFacility_success() throws ExecutionException, InterruptedException {
         Facility facility = new Facility("Test Facility");
 
-        Task<String> addFacilityTask = profileViewModel.addFacility(facility);
-        String documentId = Tasks.await(addFacilityTask);
+        CompletableFuture<String> addFacilityFuture = profileViewModel.addFacility(facility);
+        String documentId = addFacilityFuture.get();
         facility.setDocumentId(documentId);
 
         profileViewModel.setSelectedFacility(facility);
+        CompletableFuture<Void> removeFacilityFuture = profileViewModel.removeSelectedFacility();
+        removeFacilityFuture.get();
 
-        Task<Void> removeFacilityTask = profileViewModel.removeSelectedFacility();
-        Tasks.await(removeFacilityTask);
-
-        Task<DocumentSnapshot> getFacilityTask = firestoreEmulator.collection("facilities")
-                .document(documentId)
-                .get();
-        Tasks.await(getFacilityTask);
-        assertFalse("Facility should be removed", getFacilityTask.getResult().exists());
+        DocumentReference docRef = firestoreEmulator.collection("facilities").document(documentId);
+        DocumentSnapshot snapshot = Tasks.await(docRef.get());
+        assertFalse("Facility should no longer exist in Firestore", snapshot.exists());
     }
 
     @Test
     public void testUpdateUser_success() throws ExecutionException, InterruptedException {
-        Task<Void> updateUserTask = profileViewModel.updateUser("Updated Name", "test@example.com", "1234567890", true, true, "");
-        Tasks.await(updateUserTask);
+        CompletableFuture<Void> updateUserFuture = profileViewModel.updateUser(
+                "Updated Name",
+                "test@example.com",
+                "1234567890",
+                true,
+                true,
+                ""
+        );
+        updateUserFuture.get();
 
-        Task<DocumentSnapshot> getUserTask = firestoreEmulator.collection("users")
-                .document("testUserId")
-                .get();
-        Tasks.await(getUserTask);
+        DocumentReference userRef = firestoreEmulator.collection("users").document("testUserId");
+        DocumentSnapshot snapshot = Tasks.await(userRef.get());
+        User updatedUser = snapshot.toObject(User.class);
 
-        User updatedUser = getUserTask.getResult().toObject(User.class);
-        assertNotNull(updatedUser);
+        assertNotNull("Updated user should not be null", updatedUser);
         assertEquals("Updated Name", updatedUser.getName());
+        assertEquals("test@example.com", updatedUser.getEmail());
+        assertEquals("1234567890", updatedUser.getPhoneNumber());
     }
 }
 

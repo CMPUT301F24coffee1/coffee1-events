@@ -97,12 +97,9 @@ public class UserRepository {
     }
 
     public CompletableFuture<Void> removeUser(String userId) {
+        if (userId == null) { throw new NullPointerException("userId cannot be null - set deviceId"); }
         CompletableFuture<Void> future = new CompletableFuture<>();
 
-        if (userId == null) {
-            future.completeExceptionally(new NullPointerException("userId cannot be null - set deviceId"));
-            return future;
-        }
         if (userId.equals(currentUserId)) {
             future.completeExceptionally(new InvalidParameterException("cannot remove current logged in user"));
             return future;

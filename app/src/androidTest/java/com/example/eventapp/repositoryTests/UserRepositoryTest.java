@@ -60,12 +60,12 @@ public class UserRepositoryTest {
         userRepository.removeUser(user).get();
     }
 
-    @Test(expected = ExecutionException.class)
+    @Test(expected = NullPointerException.class)
     public void testSaveUser_nullUser() throws ExecutionException, InterruptedException {
         userRepository.saveUser(null).get();
     }
 
-    @Test(expected = ExecutionException.class)
+    @Test(expected = NullPointerException.class)
     public void testSaveUser_nullUserId() throws ExecutionException, InterruptedException {
         User user = new User();
         user.setName("Test User");
@@ -88,12 +88,12 @@ public class UserRepositoryTest {
         assertNull(savedUser);
     }
 
-    @Test(expected = ExecutionException.class)
+    @Test(expected = NullPointerException.class)
     public void testRemoveUser_nullUser() throws ExecutionException, InterruptedException {
         userRepository.removeUser((User) null).get();
     }
 
-    @Test(expected = ExecutionException.class)
+    @Test(expected = NullPointerException.class)
     public void testRemoveUserById_nullUserId() throws ExecutionException, InterruptedException {
         userRepository.removeUser((String) null).get();
     }
