@@ -18,12 +18,24 @@ import java.util.UUID;
 
 public class PhotoManager {
 
-    // Interface for callback to handle upload success and failure
+
+    /**
+     * Interface for a callback to handle upload success and failure.
+     * Used to provide feedback on the status of the photo upload process.
+     */
     public interface UploadCallback {
         void onUploadSuccess(String downloadUrl); // Called when upload is successful
         void onUploadFailure(Exception e);        // Called when upload fails
     }
 
+    /**
+     * Compresses and uploads photo to firebase on a unique path given a photo Uri.
+     * On success, it calls the callback with the download URL of the uploaded image.
+     * @param context  The application context.
+     * @param photoUri The URI of the photo to be uploaded.
+     * @param quality  The quality level for compression (0-100).
+     * @param callback The callback interface to handle success or failure of the upload.
+     */
     // Method to compress and upload the image
     public static void uploadPhotoToFirebase(Context context, Uri photoUri, int quality, String pathPrefix, String id, String title, UploadCallback callback) {
         String imagePath = pathPrefix + "/" + id + "/" + title + ".jpg";
@@ -53,7 +65,15 @@ public class PhotoManager {
         uploadPhotoToFirebase(context, photoUri, quality, path, uniqueImageId, title, callback);
     }
 
-    // Compress the image from Uri
+    /**
+     * Compresses an image from the given URI to a JPEG format byte array.
+     * The compression quality can be adjusted to control the image size.
+     *
+     * @param context  The application context.
+     * @param imageUri The URI of the image to compress.
+     * @param quality  The quality level for compression (0-100).
+     * @return A byte array containing the compressed image data, or null if compression fails.
+     */
     private static byte[] compressImage(Context context, Uri imageUri, int quality) {
         try {
             InputStream inputStream = context.getContentResolver().openInputStream(imageUri);
