@@ -15,6 +15,7 @@ import com.example.eventapp.repositories.SignupRepository;
 import com.example.eventapp.repositories.UserRepository;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 
 public class EventsViewModel extends ViewModel {
@@ -143,6 +144,10 @@ public class EventsViewModel extends ViewModel {
         }
         // check if correct organizer
         return currentUser.isOrganizer() && currentUser.getUserId().equals(event.getOrganizerId());
+    }
+
+    public CompletableFuture<Event> getEventByQrCodeHash(String qrCodeHash){
+        return eventRepository.getEventByQrCodeHash(qrCodeHash);
     }
 
     public LiveData<String> getText() {
