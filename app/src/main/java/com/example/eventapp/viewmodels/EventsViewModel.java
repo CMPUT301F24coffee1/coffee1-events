@@ -125,6 +125,16 @@ public class EventsViewModel extends ViewModel {
     }
 
     /**
+     * Retrieves LiveData containing a list of signups for a specific event.
+     *
+     * @param eventId The ID of the event.
+     * @return LiveData of a list of signups for the event.
+     */
+    public LiveData<List<Signup>> getSignupsOfEvent(String eventId) {
+        return signupRepository.getSignupsOfEventLiveData(eventId);
+    }
+
+    /**
      * Adds a new event and assigns the current user as the organizer.
      *
      * @param event The event to add.
