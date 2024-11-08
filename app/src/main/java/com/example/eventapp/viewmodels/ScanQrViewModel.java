@@ -22,12 +22,18 @@ public class ScanQrViewModel extends ViewModel {
 
     /**
      * Default constructor for ScanQrViewModel.
-     * Initializes the view model and sets a default text label.
      */
     public ScanQrViewModel() {
+        this(EventRepository.getInstance());
+    }
+
+    /**
+     * Constructor used for DI in tests.
+     */
+    public ScanQrViewModel(EventRepository eventRepository) {
         mText = new MutableLiveData<>();
         mText.setValue("Scan QR Code");
-        eventRepository = EventRepository.getInstance();
+        this.eventRepository = eventRepository;
     }
 
     /**
