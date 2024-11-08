@@ -31,7 +31,6 @@ import java.util.Locale;
 public class ProfileInfoFragment extends BottomSheetDialogFragment {
 
     private ProfileInfoPopupBinding binding;
-    private ProfileViewModel profileViewModel;
 
     /**
      * Creates and populates the profile info fragment, populating it with the selected profile
@@ -52,8 +51,7 @@ public class ProfileInfoFragment extends BottomSheetDialogFragment {
         binding = ProfileInfoPopupBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        profileViewModel =
-                new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
+        ProfileViewModel profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
         profileViewModel.getUser().observe(getViewLifecycleOwner(), this::updateUserInfo);
         return root;
