@@ -76,6 +76,7 @@ public class EventsViewModel extends ViewModel {
                 if (task.isSuccessful()) {
                     Log.i(TAG, "Added event with name: " + event.getEventName());
                     event.setQrCodeHash(task.getResult().getId() + "--display");
+                    updateEvent(event);
                 } else {
                     Log.e(TAG, "Failed to add event", task.getException());
                 }
