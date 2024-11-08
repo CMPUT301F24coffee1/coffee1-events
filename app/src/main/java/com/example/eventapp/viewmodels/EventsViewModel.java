@@ -75,6 +75,7 @@ public class EventsViewModel extends ViewModel {
             eventRepository.addEvent(event).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     Log.i(TAG, "Added event with name: " + event.getEventName());
+                    event.setQrCodeHash(task.getResult().getId() + "--display");
                 } else {
                     Log.e(TAG, "Failed to add event", task.getException());
                 }

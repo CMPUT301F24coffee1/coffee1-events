@@ -17,6 +17,10 @@ import com.example.eventapp.models.Event;
 import com.example.eventapp.viewmodels.EventsViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+/**
+ * This is the fragment that displays the information of the event corresponding to the qr code
+ * that was scanned.
+ */
 public class ScannedEventFragment extends BottomSheetDialogFragment {
 
     private EventsViewModel eventsViewModel;
@@ -27,6 +31,19 @@ public class ScannedEventFragment extends BottomSheetDialogFragment {
         this.event = event;
     }
 
+    /**
+     * Sets the text to the correct values, sets onclick listeners for the buttons.
+     *
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
@@ -85,14 +102,30 @@ public class ScannedEventFragment extends BottomSheetDialogFragment {
         return view;
     }
 
+    /**
+     * Add user to waitlist of event
+     *
+     * @param event
+     */
     private void joinEventWaitlist(Event event){
         eventsViewModel.registerToEvent(event);
     }
 
+    /**
+     * Remove user from waitlist of event
+     *
+     * @param event
+     */
     private void leaveEventWaitlist(Event event){
         eventsViewModel.unregisterFromEvent(event);
     }
 
+    /**
+     * Check if the user is already on the waitlist for an event.
+     *
+     * @param event
+     * @return boolean: true if user is already on the waitlist, false if not
+     */
     private boolean isAlreadyOnWaitlist(Event event){
         return eventsViewModel.isSignedUp(event);
     }

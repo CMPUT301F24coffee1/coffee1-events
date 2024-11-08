@@ -1,7 +1,6 @@
 package com.example.eventapp.ui.scanqr;
 
 import static android.content.ContentValues.TAG;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,16 +14,11 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.eventapp.databinding.FragmentScanQrBinding;
-import com.example.eventapp.models.Event;
 import com.example.eventapp.ui.events.ScannedEventFragment;
 import com.example.eventapp.viewmodels.EventsViewModel;
 import com.example.eventapp.viewmodels.ScanQrViewModel;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.function.BiConsumer;
 
 public class ScanQrFragment extends Fragment {
 
@@ -37,12 +31,13 @@ public class ScanQrFragment extends Fragment {
     private final ActivityResultLauncher<ScanOptions> scanLauncher =
             registerForActivityResult(new ScanContract(), result -> {
                 if (result.getContents() != null) {
+
                     String scannedData = result.getContents();
                     scanQrViewModel.setText(scannedData); // Update ViewModel with scanned data
                     // Display the scanned result in the TextView
-                    binding.textScanQr.setText("Scanned: " + result.getContents());
-
-                    eventsViewModel.getEventByQrCodeHash(result.getContents())
+                    String qrData = result.getContents().split("--")[0];
+                    binding.textScanQr.setText("Scanned: " + qrData);
+                    eventsViewModel.getEventByQrCodeHash(qrData)
                         .thenAccept(scannedEvent -> {
                             Log.d(TAG, result.getContents());
                             Log.d(TAG, String.valueOf(scannedEvent));
@@ -71,8 +66,6 @@ public class ScanQrFragment extends Fragment {
 
         return root;
     }
-
-
 
     private void initiateQrScan() {
         ScanOptions options = new ScanOptions();
