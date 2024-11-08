@@ -17,11 +17,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class PhotoManager {
-/**
- * Utility class for uploading photos to Firebase Storage.
- * This class includes methods for compressing an image and uploading it to Firebase.
- */
-public class PhotoUploader {
+
 
     /**
      * Interface for a callback to handle upload success and failure.
@@ -40,9 +36,6 @@ public class PhotoUploader {
      * @param quality  The quality level for compression (0-100).
      * @param callback The callback interface to handle success or failure of the upload.
      */
-    public static void uploadPhotoToFirebase(Context context, Uri photoUri, int quality, UploadCallback callback) {
-        String uniqueImageId = UUID.randomUUID().toString();
-        String imagePath = "events/" + uniqueImageId + "/poster.jpg";
     // Method to compress and upload the image
     public static void uploadPhotoToFirebase(Context context, Uri photoUri, int quality, String pathPrefix, String id, String title, UploadCallback callback) {
         String imagePath = pathPrefix + "/" + id + "/" + title + ".jpg";
@@ -72,7 +65,6 @@ public class PhotoUploader {
         uploadPhotoToFirebase(context, photoUri, quality, path, uniqueImageId, title, callback);
     }
 
-    // Compress the image from Uri
     /**
      * Compresses an image from the given URI to a JPEG format byte array.
      * The compression quality can be adjusted to control the image size.

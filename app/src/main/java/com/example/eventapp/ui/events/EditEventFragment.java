@@ -17,7 +17,7 @@ import androidx.activity.result.ActivityResultLauncher;
 
 import com.bumptech.glide.Glide;
 import com.example.eventapp.photos.PhotoPicker;
-import com.example.eventapp.photos.PhotoUploader;
+import com.example.eventapp.photos.PhotoManager;
 import com.example.eventapp.models.Event;
 import com.example.eventapp.R;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -26,12 +26,13 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class EditEventFragment extends BottomSheetDialogFragment implements DatePickerFragment.SetDateListener {
 
     private Event event;
     private String posterUriString;
-    private String oldPosterUriString;
+    private Uri oldPosterUri;
     private Uri selectedPhotoUri;
     private ImageView posterImageView;
     private ArrayList<Long> timestamps;
@@ -52,7 +53,7 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
     public EditEventFragment(Event event, EditEventListener listener) {
         this.event = event;
         this.editEventListener = listener;
-        this.oldPosterUriString = event.getPosterUriString();
+        this.oldPosterUri = event.getPosterUri();
     }
 
     /**
@@ -129,6 +130,7 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
         // Set listeners
         selectPosterButton.setOnClickListener(v -> PhotoPicker.openPhotoPicker(photoPickerLauncher));
 
+
         // Save button
         saveEventButton.setOnClickListener(v -> {
             String newName = eventName.getText().toString();
@@ -158,21 +160,13 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
 
             // Handle new poster upload if selected
             if (selectedPhotoUri != null) {
-                PhotoUploader.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, new PhotoUploader.UploadCallback() {
+                PhotoManager.UploadCallback uploadCallback = new PhotoManager.UploadCallback()
+                {
                     @Override
-                    public void onUploadSuccess(String downloadUrl) {
+                    public void onUploadSuccess (String downloadUrl){
                         event.setPosterUriString(downloadUrl);
 
-                        // Delete the old poster from Firebase Storage if it exists
-                        if (oldPosterUriString != null && !oldPosterUriString.isEmpty()) {
-                            FirebaseStorage storage = FirebaseStorage.getInstance();
-                            StorageReference oldPosterRef = storage.getReferenceFromUrl(oldPosterUriString);
-                            oldPosterRef.delete().addOnSuccessListener(aVoid -> {
-                                Log.d("EditEventFragment", "Old poster successfully deleted from Firebase.");
-                            }).addOnFailureListener(e -> {
-                                Log.e("EditEventFragment", "Failed to delete old poster.", e);
-                            });
-                        }
+
                         editEventListener.saveEditedEvent(event);
                     }
 
@@ -180,7 +174,14 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
                     public void onUploadFailure(Exception e) {
                         Toast.makeText(getContext(), "Failed to upload photo", Toast.LENGTH_SHORT).show();
                     }
-                });
+                };
+
+                if (oldPosterUri == null) {
+                    PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "events", "poster", uploadCallback);
+                } else {
+                    final String id = Objects.requireNonNull(oldPosterUri.getLastPathSegment()).split("/")[1];
+                    PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "events", "poster", id, uploadCallback);
+                }
             } else {
                 editEventListener.saveEditedEvent(event);
             }
