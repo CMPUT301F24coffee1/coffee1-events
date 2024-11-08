@@ -5,6 +5,8 @@ import static android.content.ContentValues.TAG;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -51,6 +53,7 @@ public class ProfileEditFragment extends Fragment {
     private Uri oldPhotoUri;
     private String photoUriString = "";
     private boolean removingPhoto = false;
+    private String userId;
 
     private enum Confirmed { YES, NAME, EMAIL, PHONE, ORGANIZER }
 
@@ -187,6 +190,7 @@ public class ProfileEditFragment extends Fragment {
         final ImageView photo = binding.profileEditPhoto;
         final CardView photoCard = binding.profileEditPhotoCard;
         final FloatingActionButton removePhoto = binding.profileEditRemovePhoto;
+        final EditText nameField = binding.profileEditNameInput;
 
         PhotoPicker.PhotoPickerCallback pickerCallback = photoUri -> {
             // Save the URI for later use after validation
@@ -200,10 +204,23 @@ public class ProfileEditFragment extends Fragment {
 
         photoCard.setOnClickListener(v -> PhotoPicker.openPhotoPicker(photoPickerLauncher));
 
+        nameField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (selectedPhotoUri == null) {
+                    photo.setImageBitmap(PhotoManager.generateDefaultProfilePicture(nameField.getText().toString(), userId));
+                }
+            }
+        });
+
         removePhoto.setOnClickListener(v -> {
             removingPhoto = true;
             removePhoto.setVisibility(View.GONE);
-            photo.setImageResource(R.drawable.ic_dashboard_profile_24dp);
+            photo.setImageBitmap(PhotoManager.generateDefaultProfilePicture(nameField.getText().toString(), userId));
             selectedPhotoUri = null;
         });
     }
@@ -213,6 +230,8 @@ public class ProfileEditFragment extends Fragment {
      * @param user The user pulled from the View Model
      */
     private void updateUserInfo(User user) {
+        userId = user.getUserId();
+
         final EditText nameField = binding.profileEditNameInput;
         final EditText emailField = binding.profileEditEmailInput;
         final EditText phoneField = binding.profileEditPhoneInput;
@@ -234,7 +253,7 @@ public class ProfileEditFragment extends Fragment {
                     .into(photo);
         } else {
             removePhoto.setVisibility(View.GONE);
-            photo.setImageResource(R.drawable.ic_dashboard_profile_24dp);
+            photo.setImageBitmap(PhotoManager.generateDefaultProfilePicture(nameField.getText().toString(), userId));
         }
     }
 
