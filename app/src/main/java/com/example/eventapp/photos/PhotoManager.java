@@ -149,7 +149,7 @@ public class PhotoManager {
     private String getInitials(String name) {
         String[] words = name.split(" ");
         if (words.length < 2) return name.substring(0,1).toUpperCase();
-        return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+        return (words[0].substring(0,1) + words[1].substring(0, 1)).toUpperCase();
     }
 
     /**
