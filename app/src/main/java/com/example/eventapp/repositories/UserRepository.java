@@ -171,6 +171,12 @@ public class UserRepository {
         return runQueryLiveData("getAllUsersLiveData", userCollection);
     }
 
+    public LiveData<User> getUserLiveData(String userId) {
+        MutableLiveData<User> userLiveData = new MutableLiveData<>();
+        setUserLiveData(userLiveData, userId);
+        return userLiveData;
+    }
+
     private LiveData<List<User>> runQueryLiveData(String methodName, Query query) {
         MutableLiveData<List<User>> liveData = new MutableLiveData<>();
 
