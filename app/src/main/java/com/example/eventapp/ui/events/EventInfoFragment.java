@@ -38,8 +38,9 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         void editEventInfo(Event event);
     }
 
-    interface joinEventWaitlistListener{
+    interface waitlistListener{
         void joinEventWaitlist(Event event);
+        void leaveEventWaitlist(Event event);
     }
 
     /**
@@ -85,12 +86,27 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
             eventEntrantsCount.setText("No Entrant Limit");
         }
 
+
+        //if user is an entrant or an admin
+        // add check to see if already registered to determine the click behaviour
+        // join waitlist
         waitlistButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 eventsFragment.joinEventWaitlist(event);
             }
         });
+
+        // leave waitlist
+        waitlistButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                eventsFragment.leaveEventWaitlist(event);
+            }
+        });
+
+        // if user is an organizer and not an admin
+        waitlistButton.setVisibility(View.GONE);
 
         // Initializes the edit event fragment with the given event
         editEventButton.setOnClickListener(new View.OnClickListener() {
