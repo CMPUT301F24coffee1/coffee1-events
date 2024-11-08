@@ -1,11 +1,9 @@
 package com.example.eventapp.ui.profiles;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.PhoneNumberUtils;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -15,32 +13,30 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.view.MenuProvider;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
-import com.example.eventapp.databinding.FragmentProfileBinding;
+import com.example.eventapp.databinding.ProfileInfoPopupBinding;
 import com.example.eventapp.models.User;
 import com.example.eventapp.services.photos.PhotoManager;
 import com.example.eventapp.viewmodels.ProfileViewModel;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Locale;
 
-public class ProfileFragment extends Fragment {
+public class ProfileInfoFragment extends BottomSheetDialogFragment {
 
-    private FragmentProfileBinding binding;
+    private ProfileInfoPopupBinding binding;
 
     /**
-     * Behaviour to run when the View is created, in this case,
-     * creating the View Model, linking it, and using the View Model
-     * to fill out user information for the profile
-     * Also populates the menu with an edit button
+     * Creates and populates the profile info fragment, populating it with the selected profile
+     * information from the ViewModel
      * @param inflater The LayoutInflater object that can be used to inflate
-     * any views in the fragment.
+     * any views in the fragment,
      * @param container If non-null, this is the parent view that the fragment's
      * UI should be attached to.  The fragment should not add the view itself,
      * but this can be used to generate the LayoutParams of the view.
@@ -52,34 +48,17 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        // Inflate the menu with the profile button set (in this case, the edit button)
-        requireActivity().addMenuProvider(new MenuProvider() {
-            @Override
-            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-                menuInflater.inflate(R.menu.top_nav_menu_profile, menu);
-                menu.findItem(R.id.navigation_profile).setVisible(false); // Hide old menu
-            }
-
-            @Override
-            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
-                // Return false, since no behaviour needs to be modified here
-                // This Override is required when making a new MenuProvider
-                return false;
-            }
-        }, getViewLifecycleOwner());
-
-        binding = FragmentProfileBinding.inflate(inflater, container, false);
+        binding = ProfileInfoPopupBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        ProfileViewModel profileViewModel =
-                new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
+        ProfileViewModel profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
         profileViewModel.getUser().observe(getViewLifecycleOwner(), this::updateUserInfo);
         return root;
     }
 
     /**
-     * Sets the listener for the button to manage fragments
+     * Sets the listener for the button to edit fragment
      * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
      * @param savedInstanceState If non-null, this fragment is being re-constructed
      * from a previous saved state as given here.
@@ -87,9 +66,19 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         NavController navController = NavHostFragment.findNavController(this);
 
-        Button fragmentButton = view.findViewById(R.id.profile_manage_facilities);
+        Button fragmentButton = view.findViewById(R.id.profile_info_manage_facilities);
 
-        fragmentButton.setOnClickListener((v) -> navController.navigate(R.id.navigation_facilities));
+        fragmentButton.setOnClickListener((v) -> {
+            requireActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+            navController.navigate(R.id.navigation_facilities);
+        });
+
+        FloatingActionButton editButton = view.findViewById(R.id.profile_edit_button);
+
+        editButton.setOnClickListener((v) -> {
+            requireActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+            navController.navigate(R.id.navigation_profile_edit);
+        });
     }
 
     /**
@@ -97,20 +86,23 @@ public class ProfileFragment extends Fragment {
      * @param user The user pulled from the View Model
      */
     private void updateUserInfo(User user) {
-        final TextView nameField = binding.profileName;
-        final TextView emailField = binding.profileEmail;
-        final TextView phoneField = binding.profilePhone;
-        final ConstraintLayout manageFacilitiesContainer = binding.profileManageFacilitiesContainer;
-        final ImageView photo = binding.profilePhoto;
+        final TextView nameField = binding.profileInfoName;
+        final TextView emailField = binding.profileInfoEmail;
+        final TextView phoneField = binding.profileInfoPhone;
+        final TextView idField = binding.profileInfoId;
+        final ConstraintLayout manageFacilitiesContainer = binding.profileInfoManageFacilitiesContainer;
+        final ImageView photo = binding.profileInfoPhoto;
 
         nameField.setText(user.getName());
         emailField.setText(user.getEmail());
         // Below only parses correct phone numbers
         phoneField.setText(PhoneNumberUtils.formatNumber(user.getPhoneNumber(), Locale.getDefault().getCountry()));
+        idField.setText(user.getUserId());
         manageFacilitiesContainer.setVisibility(user.isOrganizer() ? View.VISIBLE : View.GONE);
+        Uri photoUri = user.getPhotoUri();
         if (user.hasPhoto()) {
             Glide.with(requireContext())
-                    .load(user.getPhotoUri())
+                    .load(photoUri)
                     .into(photo);
         } else {
             photo.setImageBitmap(PhotoManager.generateDefaultProfilePicture(nameField.getText().toString(), user.getUserId()));
@@ -125,4 +117,5 @@ public class ProfileFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
 }

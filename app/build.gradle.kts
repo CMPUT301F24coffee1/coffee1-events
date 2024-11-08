@@ -51,12 +51,14 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.zxing.android.embedded)
     implementation(libs.firebase.storage)
-    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation(libs.glide)
     implementation(libs.firebase.database)
     testImplementation(libs.junit)
-    testImplementation("org.robolectric:robolectric:4.13")
+    testImplementation(libs.core.testing)
+    testImplementation(libs.robolectric)
 
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-
+    androidTestImplementation(libs.core.testing)
+    androidTestImplementation(libs.mockito.android)
 }

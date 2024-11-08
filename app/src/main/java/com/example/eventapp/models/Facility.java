@@ -2,9 +2,10 @@ package com.example.eventapp.models;
 
 import android.net.Uri;
 
+import com.example.eventapp.interfaces.HasDocumentId;
 import com.google.firebase.firestore.Exclude;
 
-public class Facility {
+public class Facility implements HasDocumentId {
     @Exclude
     private String documentId;
     private String organizerId;
@@ -30,6 +31,7 @@ public class Facility {
         return documentId;
     }
 
+    @Override
     public void setDocumentId(String documentId) {
         this.documentId = documentId;
     }

@@ -31,8 +31,8 @@ import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.databinding.FragmentFacilityEditBinding;
 import com.example.eventapp.models.Facility;
-import com.example.eventapp.photos.PhotoPicker;
-import com.example.eventapp.photos.PhotoManager;
+import com.example.eventapp.services.photos.PhotoPicker;
+import com.example.eventapp.services.photos.PhotoManager;
 import com.example.eventapp.viewmodels.ProfileViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -53,7 +53,7 @@ public class FacilityEditFragment extends Fragment {
     /**
      * Behaviour to run when the View is created, in this case,
      * creating the View Model, linking it, and using the View Model
-     * to fill out user information for the profile
+     * to fill out user information for the facility
      * Also populates the menu with a confirm button, and specifies that the data should be
      * sent to the View Model on confirmation
      * @param inflater The LayoutInflater object that can be used to inflate
@@ -249,8 +249,7 @@ public class FacilityEditFragment extends Fragment {
     }
 
     /**
-     * Makes sure to clear the binding, and, if confirm button was pressed,
-     * update the User in the View Model with the new information
+     * Clears the binding
      */
     @Override
     public void onDestroyView() {

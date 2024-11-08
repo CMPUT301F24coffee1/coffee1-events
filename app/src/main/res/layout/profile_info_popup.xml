@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/facility_info_container"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/profile_info_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -19,13 +20,13 @@
     </androidx.cardview.widget.CardView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/facility_edit_button"
+        android:id="@+id/profile_edit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
         android:clickable="true"
-        android:contentDescription="@string/edit_facility_desc"
+        android:contentDescription="@string/edit_profile_desc"
         android:focusable="true"
         android:src="@drawable/ic_edit_pencil_24dp"
         app:backgroundTint="@color/material_dynamic_primary50"
@@ -34,11 +35,12 @@
         app:tint="@color/white" />
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/profile_info_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/facility_container"
+            android:id="@+id/profile_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="40dp"
@@ -46,7 +48,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/facility_top_card"
+                android:id="@+id/profile_info_top_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/material_dynamic_neutral30"
@@ -57,12 +59,12 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/facility_top_container"
+                    android:id="@+id/profile_info_top_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
                     <androidx.cardview.widget.CardView
-                        android:id="@+id/facility_photo_card"
+                        android:id="@+id/profile_info_photo_card"
                         android:layout_width="0dp"
                         android:layout_height="80dp"
                         app:cardBackgroundColor="#00FFFFFF"
@@ -72,25 +74,25 @@
                         app:layout_constraintTop_toTopOf="parent">
 
                         <ImageView
-                            android:id="@+id/facility_photo"
+                            android:id="@+id/profile_info_photo"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:contentDescription="@string/profile_image"
                             android:scaleType="centerCrop"
-                            android:src="@drawable/ic_facility_24dp" />
+                            android:src="@drawable/ic_dashboard_profile_24dp" />
                     </androidx.cardview.widget.CardView>
 
                     <TextView
-                        android:id="@+id/facility_name"
+                        android:id="@+id/profile_info_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:hint="@string/facility"
+                        android:hint="@string/name"
                         android:textAlignment="center"
                         android:textColor="@android:color/primary_text_dark"
                         android:textSize="24sp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/facility_photo_card"
+                        app:layout_constraintStart_toEndOf="@+id/profile_info_photo_card"
                         app:layout_constraintTop_toTopOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -98,7 +100,7 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/facility_bottom_card"
+                android:id="@+id/profile_info_bottom_card"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -107,29 +109,84 @@
                 app:contentPadding="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/facility_top_card">
+                app:layout_constraintTop_toBottomOf="@+id/profile_info_top_card">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/facility_bottom_container"
+                    android:id="@+id/profile_info_bottom_container"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
                     <TextView
-                        android:id="@+id/facility_desc"
+                        android:id="@+id/profile_info_email"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:hint="@string/description"
+                        android:hint="@string/no_email"
                         android:textAlignment="center"
                         android:textColor="@android:color/primary_text_dark"
-                        android:textSize="16sp"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toTopOf="@+id/profile_info_phone"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/profile_info_phone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:hint="@string/no_phone_number"
+                        android:textAlignment="center"
+                        android:textColor="@android:color/primary_text_dark"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toTopOf="@+id/profile_info_id"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/profile_info_email" />
+
+                    <TextView
+                        android:id="@+id/profile_info_id"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/no_user_id"
+                        android:textAlignment="center"
+                        android:textColor="@android:color/primary_text_dark"
+                        android:textSize="12sp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.5"
-                        app:layout_constraintStart_toStartOf="parent" />
-
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/profile_info_phone" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.cardview.widget.CardView>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/profile_info_manage_facilities_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_info_bottom_card">
+
+                <Button
+                    android:id="@+id/profile_info_manage_facilities"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:backgroundTint="@color/material_dynamic_primary50"
+                    android:checkable="false"
+                    android:text="@string/manage_facilities"
+                    android:textColor="@android:color/primary_text_dark"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
