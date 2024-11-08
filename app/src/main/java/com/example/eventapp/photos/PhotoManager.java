@@ -5,6 +5,9 @@ import static android.content.ContentValues.TAG;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.util.Log;
 
@@ -107,5 +110,56 @@ public class PhotoManager {
             Log.w(TAG, "photoUri is null, cannot delete photo from firebase");
         }
 
+    }
+
+    /**
+     * Generates a default profile picture (for people who do not upload a custom one)
+     * @param userName the name of the user whose profile picture is to be generated
+     * @param userId the ID of the user whose profile picture is to be generated
+     * @return a bitmap containing the generated profile picture
+     */
+    public Bitmap generateDefaultProfilePicture(String userName, String userId) {
+
+        String nameAndIdHash = userName + userId;
+        String initials = getInitials(userName);
+        int color = getColorFromName(nameAndIdHash);
+
+
+        Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+
+        Paint paint = new Paint();
+        paint.setColor(color);
+        paint.setStyle(Paint.Style.FILL);
+        canvas.drawCircle(100, 100, 100, paint);
+
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(60);
+        paint.setTextAlign(Paint.Align.CENTER);
+        canvas.drawText(initials, 100, 120, paint);
+
+        return bitmap;
+    }
+
+    /**
+     * Retrieves the initials of an input name
+     * @param name the name for the initials to be parsed from
+     * @return a string containing just the initials of the input name
+     */
+    private String getInitials(String name) {
+        String[] words = name.split(" ");
+        if (words.length < 2) return name.substring(0,1).toUpperCase();
+        return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+    }
+
+    /**
+     * Generates a hash code for an input name and returns a colour depending on the hash
+     * @param name the name to generate a hash from
+     * @return the colour corresponding to the hash of the name
+     */
+    private int getColorFromName(String name) {
+        int hash = name.hashCode();
+        int[] colors = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.CYAN, Color.MAGENTA};
+        return colors[Math.abs(hash) % colors.length];
     }
 }
