@@ -138,7 +138,8 @@
                             android:autofillHints="name"
                             android:ems="10"
                             android:hint="@string/name"
-                            android:inputType="text" />
+                            android:inputType="text"
+                            android:textColor="?attr/textColor" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -161,7 +162,8 @@
                             android:autofillHints="emailAddress"
                             android:ems="10"
                             android:hint="@string/email_address"
-                            android:inputType="textEmailAddress" />
+                            android:inputType="textEmailAddress"
+                            android:textColor="?attr/textColor" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -181,7 +183,8 @@
                             android:autofillHints="phone"
                             android:ems="10"
                             android:hint="@string/phone_number"
-                            android:inputType="phone" />
+                            android:inputType="phone"
+                            android:textColor="?attr/textColor" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -189,6 +192,7 @@
                         android:id="@+id/profile_edit_notifications"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:buttonTint="?attr/textColorDark"
                         android:text="@string/opt_out_of_notifications"
                         android:textColor="@color/design_default_color_background"
                         app:layout_constraintBottom_toTopOf="@+id/profile_edit_is_organizer"
@@ -200,6 +204,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:buttonTint="?attr/textColorDark"
                         android:text="@string/organizer_account"
                         android:textColor="@color/design_default_color_background"
                         app:layout_constraintBottom_toBottomOf="parent"

@@ -134,7 +134,8 @@
                             android:ems="10"
                             android:hint="@string/facility_name"
                             android:importantForAutofill="no"
-                            android:inputType="text" />
+                            android:inputType="text"
+                            android:textColor="?attr/textColor" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -157,7 +158,8 @@
                             android:gravity="start|top"
                             android:hint="@string/description"
                             android:importantForAutofill="no"
-                            android:inputType="textMultiLine" />
+                            android:inputType="textMultiLine"
+                            android:textColor="?attr/textColor" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>

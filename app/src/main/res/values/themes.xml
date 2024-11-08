@@ -16,6 +16,7 @@
         <item name="textColorDark">@color/material_dynamic_neutral80</item>
         <item name="android:textColorHint">?attr/textColorDark</item>
         <item name="textInputStyle">@style/editTextTheme</item>
+        <item name="editTextStyle">@style/editTextStyle</item>
         <!-- Button Colours -->
         <item name="materialButtonStyle">@style/buttonTheme</item>
         <item name="floatingActionButtonStyle">@style/fabTheme</item>
@@ -48,6 +49,9 @@
         <item name="boxStrokeColor">?attr/textColorDark</item>
         <item name="helperTextTextColor">@color/negative_colour</item>
         <item name="android:textColorHint">?attr/textColorDark</item>
+    </style>
+    <style name="editTextStyle" parent="Widget.AppCompat.EditText">
+        <item name="android:textColor">?attr/textColor</item>
     </style>
 
     <style name="toolbarStyle" parent="Widget.AppCompat.ActionBar">
