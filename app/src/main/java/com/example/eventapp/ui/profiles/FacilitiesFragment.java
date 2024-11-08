@@ -33,6 +33,19 @@ public class FacilitiesFragment extends Fragment implements
     private ArrayList<Facility> facilities;
     private FacilitiesAdapter facilitiesAdapter;
 
+    /**
+     * When the view is created, inflates the menu with the facilities set, and then initializes
+     * the binding to the fragment
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return The root of the fragment binding
+     */
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
@@ -60,11 +73,17 @@ public class FacilitiesFragment extends Fragment implements
             }
         }, getViewLifecycleOwner());
 
-        com.example.eventapp.databinding.FragmentFacilitiesBinding binding = FragmentFacilitiesBinding.inflate(inflater, container, false);
+        FragmentFacilitiesBinding binding = FragmentFacilitiesBinding.inflate(inflater, container, false);
 
         return binding.getRoot();
     }
 
+    /**
+     * When the view is created, populates the facility list RecyclerView
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         // set up RecyclerView for facilities
         RecyclerView facilitiesList = view.findViewById(R.id.facilities_list);
@@ -76,6 +95,10 @@ public class FacilitiesFragment extends Fragment implements
         profileViewModel.getFacilities().observe(getViewLifecycleOwner(), this::updateFacilitiesList);
     }
 
+    /**
+     * Updates the facilities list in the fragment when it is changed in the database
+     * @param newFacilities The new list of facilities from the database
+     */
     @SuppressLint("NotifyDataSetChanged")
     private void updateFacilitiesList(List<Facility> newFacilities) {
         facilities.clear();
@@ -84,11 +107,19 @@ public class FacilitiesFragment extends Fragment implements
         facilitiesAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * Shows information about the facility on click
+     * @param facility The facility to get information on
+     */
     @Override
     public void onFacilityClick(Facility facility) {
         showFacilityInfoPopup(facility);
     }
 
+    /**
+     * Creates the fragment that shows facility information, and then updates the viewModel to select the fragment
+     * @param facility The fragment to be shown and selected
+     */
     private void showFacilityInfoPopup(Facility facility) {
         FacilityInfoFragment facilityInfoFragment = new FacilityInfoFragment();
         profileViewModel.setSelectedFacility(facility);

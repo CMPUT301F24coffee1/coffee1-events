@@ -19,10 +19,16 @@ public class FacilitiesAdapter extends RecyclerView.Adapter<FacilitiesAdapter.Vi
     private final ArrayList<Facility> facilityList;
     private final FacilitiesAdapter.OnFacilityClickListener onFacilityClickListener;
 
+    /**
+     * Sets the function onFacilityClick to run when the on facility click listener activates
+     */
     public interface OnFacilityClickListener {
         void onFacilityClick(Facility facility);
     }
 
+    /**
+     * Initializes the views to be managed by the Adapter
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder{
         private final TextView facilityName;
         private final TextView facilityDesc;
@@ -46,11 +52,24 @@ public class FacilitiesAdapter extends RecyclerView.Adapter<FacilitiesAdapter.Vi
         public ImageView getPhotoView() { return facilityPhoto; }
     }
 
+    /**
+     * Initializes the FacilitiesAdapter
+     * @param facilities Array List of all facilities to be managed
+     * @param onFacilityClickListener onClickListener that runs everytime a facility is tapped in the list
+     */
     public FacilitiesAdapter(ArrayList<Facility> facilities, FacilitiesAdapter.OnFacilityClickListener onFacilityClickListener) {
         facilityList = facilities;
         this.onFacilityClickListener = onFacilityClickListener;
     }
 
+    /**
+     * Inflates the view using the facility card layout
+     * @param viewGroup The ViewGroup into which the new View will be added after it is bound to
+     *               an adapter position.
+     * @param viewType The view type of the new View.
+     *
+     * @return The ViewHolder
+     */
     @NonNull
     @Override
     public FacilitiesAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType){
@@ -58,6 +77,12 @@ public class FacilitiesAdapter extends RecyclerView.Adapter<FacilitiesAdapter.Vi
         return new FacilitiesAdapter.ViewHolder(view);
     }
 
+    /**
+     * When ViewHolder is bound, sets the on click listener, and also updates the photos from the database
+     * @param viewHolder The ViewHolder which should be updated to represent the contents of the
+     *        item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
     @Override
     public void onBindViewHolder(FacilitiesAdapter.ViewHolder viewHolder, final int position) {
         Facility facility = facilityList.get(position);
@@ -75,6 +100,10 @@ public class FacilitiesAdapter extends RecyclerView.Adapter<FacilitiesAdapter.Vi
         }
     }
 
+    /**
+     * Gets the size of the entire list of facilities
+     * @return The list of facilities
+     */
     @Override
     public int getItemCount() {
         return facilityList.size();

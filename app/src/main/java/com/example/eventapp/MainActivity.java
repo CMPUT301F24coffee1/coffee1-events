@@ -14,6 +14,7 @@ import android.Manifest;
 
 import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.UserRepository;
+import com.example.eventapp.viewmodels.ProfileViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
@@ -22,6 +23,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -76,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications)
+                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_admin_profiles)
                 .build();
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -101,6 +104,14 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 // If not, we should see the nav view
                 navView.setVisibility(View.VISIBLE);
+            }
+        });
+
+        LiveData<User> currentUserLiveData = UserRepository.getInstance().getCurrentUserLiveData();
+
+        currentUserLiveData.observeForever(user -> {
+            if (user != null) {
+                navView.getMenu().findItem(R.id.navigation_admin_profiles).setVisible(user.isAdmin());
             }
         });
 
@@ -131,6 +142,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         // Manual navigation is necessary for the top nav bar
         if (item.getItemId() == R.id.navigation_profile) {
+            ProfileViewModel profileViewModel =
+                    new ViewModelProvider(this).get(ProfileViewModel.class);
+            profileViewModel.setSelectedUser(Objects.requireNonNull(profileViewModel.getActualUser().getValue()));
             navController.navigate(R.id.navigation_profile);
         } else if (item.getItemId() == R.id.navigation_profile_edit) {
             navController.navigate(R.id.navigation_profile_edit);
@@ -167,15 +181,12 @@ public class MainActivity extends AppCompatActivity {
         User user = new User(randomizedName);
         user.setUserId(userId);
 
-        userRepository.saveUser(user)
-            .addOnCompleteListener(saveUserTask -> {
-                if (saveUserTask.isSuccessful()) {
-                    Log.i(TAG, "Successfully created organizer with ID: " + user.getUserId());
-                    userRepository.setCurrentUser(user);
-                } else {
-                    Log.e(TAG, "Failed to create organizer with ID: " + user.getUserId());
-                }
-            });
+        userRepository.saveUser(user).thenAccept(discard -> {
+            userRepository.setCurrentUser(user);
+        }).exceptionally(throwable -> {
+            Log.e(TAG, "Failed to create organizer with ID: " + user.getUserId());
+            return null;
+        });
     }
 
     /**

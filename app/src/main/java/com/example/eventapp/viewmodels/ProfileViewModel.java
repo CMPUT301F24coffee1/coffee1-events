@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
@@ -14,20 +15,17 @@ import com.example.eventapp.models.User;
 import com.example.eventapp.photos.PhotoManager;
 import com.example.eventapp.repositories.FacilityRepository;
 import com.example.eventapp.repositories.UserRepository;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskCompletionSource;
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.DocumentReference;
 
 import java.util.List;
-import java.util.Objects;
 
 public class ProfileViewModel extends ViewModel {
 
-    private final LiveData<User> currentUserLiveData;
+    private LiveData<User> currentUserLiveData;
+    private final LiveData<User> actualUserLiveData;
     private final UserRepository userRepository;
     private final FacilityRepository facilityRepository;
     private final MediatorLiveData<List<Facility>> facilitiesLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<List<User>> usersLiveData = new MediatorLiveData<>();
     private Facility selectedFacility;
     private LiveData<List<Facility>> currentFacilitiesSource;
 
@@ -37,27 +35,43 @@ public class ProfileViewModel extends ViewModel {
      * primarily operates with, and sets a forever observer on it
      */
     public ProfileViewModel() {
-        this(UserRepository.getInstance(), FacilityRepository.getInstance(), null);
+        userRepository = UserRepository.getInstance();
+        facilityRepository = FacilityRepository.getInstance();
+        actualUserLiveData = userRepository.getCurrentUserLiveData();
+        currentUserLiveData = actualUserLiveData;
+        usersLiveData.addSource(userRepository.getAllUsersLiveData(), usersLiveData::setValue);
+
+        // load organized and signed-up events when current user data is available
+        currentUserLiveData.observeForever(user -> {
+            if (user != null) {
+                 loadFacilities(user.getUserId());
+            }
+        });
     }
 
     /**
      * Initializes ProfileViewModel, but allows you to pre-specify the repositories for testing purposes
      */
-    public ProfileViewModel(UserRepository userRepository, FacilityRepository facilityRepository, LiveData<User> injectedUserLiveData) {
+    public ProfileViewModel(@NonNull UserRepository userRepository, FacilityRepository facilityRepository) {
         this.userRepository = userRepository;
         this.facilityRepository = facilityRepository;
+        actualUserLiveData = userRepository.getCurrentUserLiveData();
+        currentUserLiveData = actualUserLiveData;
+        usersLiveData.addSource(userRepository.getAllUsersLiveData(), usersLiveData::setValue);
 
-        if (injectedUserLiveData != null) {
-            currentUserLiveData = injectedUserLiveData;
-        } else {
-            currentUserLiveData = userRepository.getCurrentUserLiveData();
-        }
-
+        // load facilities when user data is available
         currentUserLiveData.observeForever(user -> {
             if (user != null) {
                 loadFacilities(user.getUserId());
             }
         });
+    }
+
+    /**
+     * Deletes the currently selected User
+     */
+    public void deleteSelectedUser() {
+        userRepository.removeUser(currentUserLiveData.getValue());
     }
 
     /**
@@ -77,6 +91,31 @@ public class ProfileViewModel extends ViewModel {
     }
 
     /**
+     * Gets the live data of the list of profiles
+     * @return Live data of the list of profiles
+     */
+    public LiveData<List<User>> getUsers() {
+        return usersLiveData;
+    }
+
+    /**
+     * Sets the currently selected user
+     * @param user User that is now being selected
+     */
+    public void setSelectedUser(User user) {
+        currentUserLiveData = userRepository.getUserLiveData(user.getUserId());
+        loadFacilities(user.getUserId()); // Load the new facilities from the selected user
+    }
+
+    /**
+     * Returns the actual user the device is logged in as
+     * @return The user the device is logged in as
+     */
+    public LiveData<User> getActualUser() {
+        return actualUserLiveData;
+    }
+
+    /**
      * Updates a user in the user repository with new information
      * @param name The new name of the user
      * @param email The new email of the user
@@ -85,7 +124,7 @@ public class ProfileViewModel extends ViewModel {
      * @param isOrganizer Whether or not the user is an organizer
      * @param photoUriString The Uri string of the newly updated photo
      */
-    public Task<Void> updateUser(String name, String email, String phone, boolean optNotifs, boolean isOrganizer, String photoUriString) {
+    public void updateUser(String name, String email, String phone, boolean optNotifs, boolean isOrganizer, String photoUriString) {
         User user = currentUserLiveData.getValue();
         if (user != null) {
             user.setName(name);
@@ -95,17 +134,13 @@ public class ProfileViewModel extends ViewModel {
             user.setOrganizer(isOrganizer);
             user.setPhotoUriString(photoUriString);
 
-            Task<Void> updateUserTask = userRepository.saveUser(user);
-            updateUserTask.addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Log.i(TAG, "Updated user with name: " + user.getName());
-                } else {
-                    Log.e(TAG, "Failed to update user: " + user.getName(), task.getException());
-                }
+            userRepository.saveUser(user).thenAccept(discard -> {
+                Log.i(TAG, "Updated user with name: " + user.getName());
+            }).exceptionally(throwable -> {
+                Log.e(TAG, "Failed to update user: " + user.getName(), throwable);
+                return null;
             });
-            return updateUserTask;
         }
-        return null;
     }
 
     /**
@@ -124,28 +159,18 @@ public class ProfileViewModel extends ViewModel {
      * Adds a facility to the repository, which then updates the database
      * @param facility The facility to add to the repository
      */
-    public Task<String> addFacility(Facility facility) {
+    public void addFacility(Facility facility) {
         User user = currentUserLiveData.getValue();
         if (user != null) {
             facility.setOrganizerId(user.getUserId());
 
-            Task<DocumentReference> addFacilityTask = facilityRepository.addFacility(facility);
-            TaskCompletionSource<String> documentIdTask = new TaskCompletionSource<>();
-
-            addFacilityTask.addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    String documentId = task.getResult().getId();
-                    facility.setDocumentId(documentId);
-                    documentIdTask.setResult(documentId);
-                    Log.i(TAG, "Added facility with name: " + facility.getFacilityName());
-                } else {
-                    documentIdTask.setException(Objects.requireNonNull(task.getException()));
-                    Log.e(TAG, "Failed to add facility", task.getException());
-                }
+            facilityRepository.addFacility(facility).thenAccept(documentId -> {
+                Log.i(TAG, "Added facility with name: " + facility.getFacilityName());
+            }).exceptionally(throwable -> {
+                Log.e(TAG, "Failed to add facility", throwable);
+                return null;
             });
-            return documentIdTask.getTask();
         }
-        return null;
     }
 
     /**
@@ -181,37 +206,16 @@ public class ProfileViewModel extends ViewModel {
     /**
      * Updates the currently selected Facility to the repository (from getSelectedFacility())
      */
-    public Task<Void> updateSelectedFacility(Facility facility) {
-        Task<Void> updateFacilityTask = facilityRepository.updateFacility(facility);
-
-        updateFacilityTask.addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Log.i(TAG, "Updated facility with name: " + facility.getFacilityName());
-            } else {
-                Log.e(TAG, "Failed to update facility", task.getException());
-            }
-        });
-        return updateFacilityTask;
+    public void updateSelectedFacility(Facility facility) {
+        facilityRepository.updateFacility(facility);
     }
 
     /**
      * Removes the currently selected Facility from the repository (from getSelectedFacility())
      */
-    public Task<Void> removeSelectedFacility() {
+    public void removeSelectedFacility() {
         Facility facility = getSelectedFacility();
-        if (facility != null) {
-            Task<Void> removeFacilityTask = facilityRepository.removeFacility(facility);
-
-            removeFacilityTask.addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Log.i(TAG, "Removed facility with name: " + facility.getFacilityName());
-                } else {
-                    Log.e(TAG, "Failed to remove facility", task.getException());
-                }
-            });
-            return removeFacilityTask;
-        }
-        return null;
+        facilityRepository.removeFacility(facility);
     }
 
     /**
@@ -223,12 +227,12 @@ public class ProfileViewModel extends ViewModel {
             Uri photoUri = user.getPhotoUri();
             PhotoManager.deletePhotoFromFirebase(photoUri);
             user.setPhotoUriString("");
-            userRepository.saveUser(user).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Log.i(TAG, "Successfully removed photo from user: " + user.getName());
-                } else {
-                    Log.e(TAG, "Failed to remove photo from user: " + user.getName(), task.getException());
-                }
+
+            userRepository.saveUser(user).thenAccept(discard -> {
+                Log.i(TAG, "Successfully removed photo from user: " + user.getName());
+            }).exceptionally(throwable -> {
+                Log.e(TAG, "Failed to remove photo from user: " + user.getName(), throwable);
+                return null;
             });
         }
     }

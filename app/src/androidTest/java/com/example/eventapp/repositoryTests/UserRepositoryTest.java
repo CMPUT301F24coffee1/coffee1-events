@@ -1,16 +1,12 @@
 package com.example.eventapp.repositoryTests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import com.example.eventapp.repositories.UserRepository;
 import com.example.eventapp.models.User;
 import com.example.eventapp.utils.FirestoreEmulator;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 
 import org.junit.After;
 import org.junit.Before;
@@ -20,6 +16,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class UserRepositoryTest {
@@ -46,10 +43,7 @@ public class UserRepositoryTest {
         user.setOrganizer(false);
         user.setAdmin(false);
 
-        Task<Void> saveUserTask = userRepository.saveUser(user);
-        Tasks.await(saveUserTask);
-
-        assertTrue(saveUserTask.isSuccessful());
+        userRepository.saveUser(user).get();
 
         // Verify user saved correctly
         CompletableFuture<User> getUserFuture = userRepository.getUser("testUserId");
@@ -63,20 +57,19 @@ public class UserRepositoryTest {
         assertEquals(user.isAdmin(), savedUser.isAdmin());
 
         // Cleanup
-        Tasks.await(userRepository.removeUser(user));
+        userRepository.removeUser(user).get();
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testSaveUser_nullUser() {
-        userRepository.saveUser(null);
+    @Test(expected = ExecutionException.class)
+    public void testSaveUser_nullUser() throws ExecutionException, InterruptedException {
+        userRepository.saveUser(null).get();
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testSaveUser_nullUserId() {
+    @Test(expected = ExecutionException.class)
+    public void testSaveUser_nullUserId() throws ExecutionException, InterruptedException {
         User user = new User();
         user.setName("Test User");
-
-        userRepository.saveUser(user);
+        userRepository.saveUser(user).get();
     }
 
     @Test
@@ -85,15 +78,9 @@ public class UserRepositoryTest {
         user.setUserId("testUserId");
         user.setName("Test User");
 
-        // Save user first
-        Task<Void> saveUserTask = userRepository.saveUser(user);
-        Tasks.await(saveUserTask);
-        assertTrue(saveUserTask.isSuccessful());
+        userRepository.saveUser(user).get();
 
-        // Remove user
-        Task<Void> removeUserTask = userRepository.removeUser(user);
-        Tasks.await(removeUserTask);
-        assertTrue(removeUserTask.isSuccessful());
+        userRepository.removeUser(user).get();
 
         // Verify removal
         CompletableFuture<User> getUserFuture = userRepository.getUser("testUserId");
@@ -101,14 +88,14 @@ public class UserRepositoryTest {
         assertNull(savedUser);
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testRemoveUser_nullUser() {
-        userRepository.removeUser((User) null);
+    @Test(expected = ExecutionException.class)
+    public void testRemoveUser_nullUser() throws ExecutionException, InterruptedException {
+        userRepository.removeUser((User) null).get();
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testRemoveUserById_nullUserId() {
-        userRepository.removeUser((String) null);
+    @Test(expected = ExecutionException.class)
+    public void testRemoveUserById_nullUserId() throws ExecutionException, InterruptedException {
+        userRepository.removeUser((String) null).get();
     }
 
     @Test
@@ -121,9 +108,7 @@ public class UserRepositoryTest {
         user.setName("Test User");
         user.setEmail("testuser@example.com");
 
-        Task<Void> saveUserTask = userRepository.saveUser(user);
-        Tasks.await(saveUserTask);
-        assertTrue(saveUserTask.isSuccessful());
+        userRepository.saveUser(user).get();
 
         // Get user
         CompletableFuture<User> getUserFuture = userRepository.getUser(userId);
@@ -134,7 +119,7 @@ public class UserRepositoryTest {
         assertEquals(user.getEmail(), retrievedUser.getEmail());
 
         // Cleanup
-        Tasks.await(userRepository.removeUser(user));
+        userRepository.removeUser(user).get();
     }
 
     @Test
@@ -146,7 +131,7 @@ public class UserRepositoryTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testGetUser_nullUserId() throws ExecutionException, InterruptedException {
+    public void testGetUser_nullUserId() {
         userRepository.getUser(null);
     }
 }
