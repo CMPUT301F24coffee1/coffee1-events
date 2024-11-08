@@ -1,6 +1,9 @@
 package com.example.eventapp.ui.scanqr;
 
+import static android.content.ContentValues.TAG;
+
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +21,10 @@ import com.example.eventapp.viewmodels.EventsViewModel;
 import com.example.eventapp.viewmodels.ScanQrViewModel;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
+
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.BiConsumer;
 
 public class ScanQrFragment extends Fragment {
 
@@ -36,14 +42,17 @@ public class ScanQrFragment extends Fragment {
                     // Display the scanned result in the TextView
                     binding.textScanQr.setText("Scanned: " + result.getContents());
 
-                    try {
-                        Event scannedEvent = eventsViewModel.getEventByQrCodeHash(result.getContents()).get();
-                        currentScannedEventFragment = new ScannedEventFragment(scannedEvent);
-                        currentScannedEventFragment.show(getActivity().getSupportFragmentManager(), "scanned_event_info");
-
-                    } catch (ExecutionException | InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+                    eventsViewModel.getEventByQrCodeHash(result.getContents())
+                        .thenAccept(scannedEvent -> {
+                            Log.d(TAG, result.getContents());
+                            Log.d(TAG, String.valueOf(scannedEvent));
+                            currentScannedEventFragment = new ScannedEventFragment(scannedEvent);
+                            currentScannedEventFragment.show(requireActivity().getSupportFragmentManager(), "scanned_event_info");
+                        })
+                        .exceptionally(throwable -> {
+                            Log.e(TAG, "Failed to scan event with id: " + result.getContents(), throwable);
+                            return null;
+                        });
 
                 } else { // Else toast "Scan cancelled"
                     Toast.makeText(getContext(), "Scan Cancelled", Toast.LENGTH_SHORT).show();
