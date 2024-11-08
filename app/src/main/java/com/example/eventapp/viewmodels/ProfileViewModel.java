@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.eventapp.models.Facility;
 import com.example.eventapp.models.User;
-import com.example.eventapp.photos.PhotoManager;
+import com.example.eventapp.services.photos.PhotoManager;
 import com.example.eventapp.repositories.FacilityRepository;
 import com.example.eventapp.repositories.UserRepository;
 

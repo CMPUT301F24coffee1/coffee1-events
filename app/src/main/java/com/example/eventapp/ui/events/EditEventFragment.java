@@ -3,7 +3,6 @@ package com.example.eventapp.ui.events;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,14 +16,12 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
-import com.example.eventapp.photos.PhotoPicker;
-import com.example.eventapp.photos.PhotoManager;
+import com.example.eventapp.services.photos.PhotoPicker;
+import com.example.eventapp.services.photos.PhotoManager;
 import com.example.eventapp.models.Event;
 import com.example.eventapp.R;
 import com.example.eventapp.viewmodels.EventsViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
