@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.eventapp.models.Facility;
 import com.example.eventapp.models.User;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
@@ -12,8 +13,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -161,5 +165,38 @@ public class UserRepository {
                 liveData.setValue(user);
             }
         });
+    }
+
+    public LiveData<List<User>> getAllUsersLiveData() {
+        return runQueryLiveData("getAllUsersLiveData", userCollection);
+    }
+
+    public LiveData<User> getUserLiveData(String userId) {
+        MutableLiveData<User> userLiveData = new MutableLiveData<>();
+        setUserLiveData(userLiveData, userId);
+        return userLiveData;
+    }
+
+    private LiveData<List<User>> runQueryLiveData(String methodName, Query query) {
+        MutableLiveData<List<User>> liveData = new MutableLiveData<>();
+
+        query.addSnapshotListener((querySnapshot, e) -> {
+            if (e != null) {
+                Log.e(TAG, "runQueryLiveData: " + methodName + ": listen failed", e);
+                liveData.setValue(new ArrayList<>());
+                return;
+            }
+
+            if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                List<User> users = querySnapshot.toObjects(User.class);
+
+                Log.d(TAG, "runQueryLiveData: " + methodName + ": success");
+                liveData.setValue(users);
+            } else {
+                Log.d(TAG, "runQueryLiveData: " + methodName + ": no documents found");
+                liveData.setValue(new ArrayList<>());
+            }
+        });
+        return liveData;
     }
 }

@@ -18,7 +18,7 @@
         tools:layout="@layout/fragment_scan_qr" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
+        android:id="@+id/navigation_admin_profiles"
         android:name="com.example.eventapp.ui.profiles.AdminProfilesFragment"
         android:label="@string/title_profiles"
         tools:layout="@layout/fragment_admin_profiles" />

@@ -42,7 +42,7 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/profile_bottom_card"
+                android:id="@+id/profile_info_bottom_card"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
@@ -121,6 +121,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:backgroundTint="@color/material_dynamic_primary50"
+                    android:checkable="false"
                     android:text="@string/manage_facilities"
                     android:textColor="@android:color/primary_text_dark"
                     app:layout_constraintBottom_toBottomOf="parent"
