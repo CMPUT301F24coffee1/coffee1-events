@@ -151,6 +151,10 @@ public class EventRepository {
         return runQueryLiveData("getEventsOfFacilityLiveData", query);
     }
 
+    public LiveData<List<Event>> getAllExistingEventsLiveData() {
+        return runQueryLiveData("getAllEventsLiveData", eventCollection);
+    }
+
     private LiveData<List<Event>> runQueryLiveData(String methodName, Query query) {
         MutableLiveData<List<Event>> liveData = new MutableLiveData<>();
 
