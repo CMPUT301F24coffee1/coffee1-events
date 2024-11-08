@@ -13,13 +13,8 @@ import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.EventRepository;
 import com.example.eventapp.repositories.SignupRepository;
 import com.example.eventapp.repositories.UserRepository;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskCompletionSource;
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.DocumentReference;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -137,7 +132,7 @@ public class EventsViewModel extends ViewModel {
         return updateEventFuture;
     }
 
-    public Task<DocumentReference> registerToEvent(Event event) {
+    public CompletableFuture<String> registerToEvent(Event event) {
         User currentUser = currentUserLiveData.getValue();
         if (currentUser != null) {
             return signupRepository.addSignup(new Signup(currentUser.getUserId(), event.getDocumentId()));

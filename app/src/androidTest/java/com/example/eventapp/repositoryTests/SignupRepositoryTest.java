@@ -4,14 +4,10 @@ package com.example.eventapp.repositoryTests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import com.example.eventapp.models.Signup;
 import com.example.eventapp.repositories.SignupRepository;
 import com.example.eventapp.utils.FirestoreEmulator;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.DocumentReference;
 
 import org.junit.After;
 import org.junit.Before;
@@ -41,36 +37,24 @@ public class SignupRepositoryTest {
     public void testAddSignup_success() throws ExecutionException, InterruptedException {
         Signup signup = new Signup("testUserId", "testEventId");
 
-        Task<DocumentReference> addSignupTask = signupRepository.addSignup(signup);
-        Tasks.await(addSignupTask);
-        DocumentReference docRef = addSignupTask.getResult();
+        String documentId = signupRepository.addSignup(signup).get();
+        assertNotNull(documentId);
 
-        assertTrue(addSignupTask.isSuccessful());
-        assertNotNull(docRef);
-        assertNotNull(docRef.getId());
+        assertNotNull(signupRepository.getSignup("testUserId", "testEventId").get());
 
         // Cleanup
-        Tasks.await(docRef.delete());
+        signupRepository.removeSignup(signup).get();
     }
 
     @Test
     public void testUpdateSignup_success() throws ExecutionException, InterruptedException {
         Signup signup = new Signup("testUserId", "testEventId");
 
-        Task<DocumentReference> addSignupTask = signupRepository.addSignup(signup);
-        Tasks.await(addSignupTask);
-        assertTrue(addSignupTask.isSuccessful());
-
-        DocumentReference docRef = addSignupTask.getResult();
-        assertNotNull(docRef);
-        assertNotNull(docRef.getId());
-
-        signup.setDocumentId(docRef.getId());
+        String documentId = signupRepository.addSignup(signup).get();
+        signup.setDocumentId(documentId);
         signup.setEventId("newEventId");
 
-        Task<Void> updateSignupTask = signupRepository.updateSignup(signup);
-        Tasks.await(updateSignupTask);
-        assertTrue(updateSignupTask.isSuccessful());
+        signupRepository.updateSignup(signup).get();
 
         CompletableFuture<Signup> getSignupFuture = signupRepository.getSignup("testUserId", "newEventId");
         Signup updatedSignup = getSignupFuture.get();
@@ -78,21 +62,14 @@ public class SignupRepositoryTest {
         assertEquals("newEventId", updatedSignup.getEventId());
 
         // Cleanup
-        Tasks.await(docRef.delete());
+        signupRepository.removeSignup(updatedSignup).get();
     }
 
     @Test
     public void testRemoveSignup_success() throws ExecutionException, InterruptedException {
         Signup signup = new Signup("testUserId", "testEventId");
-        Task<DocumentReference> addSignupTask = signupRepository.addSignup(signup);
-        Tasks.await(addSignupTask);
-        assertTrue(addSignupTask.isSuccessful());
-
-        DocumentReference docRef = addSignupTask.getResult();
-        assertNotNull(docRef);
-        assertNotNull(docRef.getId());
-
-        signup.setDocumentId(docRef.getId());
+        String documentId = signupRepository.addSignup(signup).get();
+        signup.setDocumentId(documentId);
 
         CompletableFuture<Void> removeSignupFuture = signupRepository.removeSignup(signup);
         removeSignupFuture.get();
@@ -106,15 +83,8 @@ public class SignupRepositoryTest {
     @Test
     public void testGetSignup_existingSignup() throws ExecutionException, InterruptedException {
         Signup signup = new Signup("testUserId", "testEventId");
-        Task<DocumentReference> addSignupTask = signupRepository.addSignup(signup);
-        Tasks.await(addSignupTask);
-        assertTrue(addSignupTask.isSuccessful());
-
-        DocumentReference docRef = addSignupTask.getResult();
-        assertNotNull(docRef);
-        assertNotNull(docRef.getId());
-
-        signup.setDocumentId(docRef.getId());
+        String documentId = signupRepository.addSignup(signup).get();
+        signup.setDocumentId(documentId);
 
         CompletableFuture<Signup> getSignupFuture = signupRepository.getSignup("testUserId", "testEventId");
         Signup retrievedSignup = getSignupFuture.get();
@@ -123,7 +93,7 @@ public class SignupRepositoryTest {
         assertEquals("testEventId", retrievedSignup.getEventId());
 
         // Cleanup
-        Tasks.await(docRef.delete());
+        signupRepository.removeSignup(retrievedSignup).get();
     }
 
     @Test

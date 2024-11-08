@@ -1,6 +1,5 @@
 package com.example.eventapp.viewmodelTests;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -156,7 +155,7 @@ public class EventsViewModelTest {
         eventsViewModel.addEvent(event).get();
         assertNotNull(event.getDocumentId());
 
-        Tasks.await(eventsViewModel.registerToEvent(event));
+        eventsViewModel.registerToEvent(event).get();
 
         Task<QuerySnapshot> getSignupTask = firestoreEmulator.collection("signups")
                 .whereEqualTo("userId", "testUserId")
@@ -176,7 +175,7 @@ public class EventsViewModelTest {
         eventsViewModel.addEvent(event).get();
         assertNotNull(event.getDocumentId());
 
-        Tasks.await(eventsViewModel.registerToEvent(event));
+        eventsViewModel.registerToEvent(event).get();
 
         eventsViewModel.unregisterFromEvent(event).get();
 
