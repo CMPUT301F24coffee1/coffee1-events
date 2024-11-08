@@ -111,12 +111,11 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         });
 
         // Initializes the edit event fragment with the given event
-        editEventButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                eventsFragment.showEditEventPopup(event);
-            }
-        });
+        if(eventsViewModel.canEdit(event)){
+            editEventButton.setOnClickListener(view12 -> eventsFragment.showEditEventPopup(event));
+            editEventButton.setVisibility(View.VISIBLE);
+        }
+
         return view;
     }
 

@@ -136,6 +136,15 @@ public class EventsViewModel extends ViewModel {
         return false;
     }
 
+    public boolean canEdit(Event event){
+        User currentUser = currentUserLiveData.getValue();
+        if(currentUser.isAdmin()){
+            return true;
+        }
+        // check if correct organizer
+        return currentUser.isOrganizer() && currentUser.getUserId().equals(event.getOrganizerId());
+    }
+
     public LiveData<String> getText() {
         return mText;
     }
