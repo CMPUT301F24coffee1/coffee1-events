@@ -13,6 +13,7 @@ public class Event {
     private String eventName;
     private String posterUriString;
     private String eventDescription;
+    private String qrCodeHash;
     private boolean geolocationRequired;
     private int maxEntrants; //-1 for no max
     private long startDate;
@@ -95,6 +96,14 @@ public class Event {
 
     public String getPosterUriString() {
         return posterUriString;
+    }
+
+    public String getQrCodeHash() {
+        return qrCodeHash;
+    }
+
+    public void setQrCodeHash(String newHash) {
+        this.qrCodeHash = newHash;
     }
 
     public void setPosterUriString(String posterUriString) {this.posterUriString = posterUriString;}
