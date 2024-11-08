@@ -154,7 +154,8 @@ public class EventsViewModel extends ViewModel {
             return false;
         }
         for (int i = 0; i < eventsList.size(); i++){
-            if(eventsList.get(i).getQrCodeHash().equals(event.getQrCodeHash())){
+            String hash = eventsList.get(i).getQrCodeHash();
+            if( hash != null && hash.equals(event.getQrCodeHash()) ){
                 return true;
             }
         }
@@ -176,9 +177,6 @@ public class EventsViewModel extends ViewModel {
                 (currentUser.isOrganizer() && currentUser.getUserId().equals(event.getOrganizerId()));
     }
 
-    public CompletableFuture<Event> getEventByQrCodeHash(String qrCodeHash){
-        return eventRepository.getEventByQrCodeHash(qrCodeHash);
-    }
 
     public LiveData<String> getText() {
         return mText;
