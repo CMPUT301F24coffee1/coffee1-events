@@ -97,6 +97,34 @@ public class EventRepository {
                 }
             });
     }
+    
+    public CompletableFuture<Event> getEventByQrCodeHash(String qrCodeHash) {
+        CompletableFuture<Event> future = new CompletableFuture<>();
+    
+        eventCollection
+                .whereEqualTo("qrCodeHash", qrCodeHash)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                        DocumentSnapshot document = querySnapshot.getDocuments().get(0);
+                        Event event = document.toObject(Event.class);
+                        if (event != null) {
+                            event.setDocumentId(document.getId());
+                        }
+                        future.complete(event);
+                    } else {
+                        Log.w(TAG, "getEventByQrCodeHash: no event found");
+                        future.complete(null);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "getEventByQrCodeHash: failed to retrieve event", e);
+                    future.completeExceptionally(e);
+                });
+    
+        return future;
+    }
 
     public LiveData<List<Event>> getSignedUpEventsOfUserLiveData(String userId) {
         MutableLiveData<List<Event>> signedUpEventsLiveData = new MutableLiveData<>();
