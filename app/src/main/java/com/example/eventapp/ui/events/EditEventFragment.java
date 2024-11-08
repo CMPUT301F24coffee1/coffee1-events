@@ -43,6 +43,7 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
      */
     interface EditEventListener {
         void saveEditedEvent(Event event);
+        void deleteEvent(Event event);
     }
 
     /**
@@ -95,6 +96,7 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
         Button eventDurationButton = view.findViewById(R.id.popup_edit_event_duration_button);
         Button eventRegistrationDeadlineButton = view.findViewById(R.id.popup_edit_event_registration_deadline_button);
         Button selectPosterButton = view.findViewById(R.id.popup_edit_event_add_poster);
+        Button deleteEventButton = view.findViewById(R.id.popup_edit_event_delete_event_button);
         posterImageView = view.findViewById(R.id.popup_edit_event_image);
 
         // Initialize with current event data
@@ -130,6 +132,13 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
         // Set listeners
         selectPosterButton.setOnClickListener(v -> PhotoPicker.openPhotoPicker(photoPickerLauncher));
 
+        // delete button
+        deleteEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editEventListener.deleteEvent(event);
+            }
+        });
 
         // Save button
         saveEventButton.setOnClickListener(v -> {
