@@ -35,6 +35,16 @@ public class ScanQrFragment extends Fragment {
                     scanQrViewModel.setText(scannedData); // Update ViewModel with scanned data
                     // Display the scanned result in the TextView
                     binding.textScanQr.setText("Scanned: " + result.getContents());
+
+                    try {
+                        Event scannedEvent = eventsViewModel.getEventByQrCodeHash(result.getContents()).get();
+                        currentScannedEventFragment = new ScannedEventFragment(scannedEvent);
+                        currentScannedEventFragment.show(getActivity().getSupportFragmentManager(), "scanned_event_info");
+
+                    } catch (ExecutionException | InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
                 } else { // Else toast "Scan cancelled"
                     Toast.makeText(getContext(), "Scan Cancelled", Toast.LENGTH_SHORT).show();
                 }
