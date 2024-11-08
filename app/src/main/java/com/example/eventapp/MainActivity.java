@@ -5,6 +5,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 import android.Manifest;
 
@@ -12,6 +16,7 @@ import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.UserRepository;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.annotation.NonNull;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.RequiresApi;
@@ -25,10 +30,15 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.eventapp.databinding.ActivityMainBinding;
 import com.google.firebase.FirebaseApp;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
     private final String TAG = "MainActivity";
+    NavController navController;
+    Menu navMenu;
 
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
@@ -67,9 +77,68 @@ public class MainActivity extends AppCompatActivity {
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications)
                 .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+        navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+
+        // List of destinations that shouldn't show the nav view
+        List<Integer> noNavView = Arrays.asList(R.id.navigation_profile,
+                R.id.navigation_profile_edit,
+                R.id.navigation_facilities,
+                R.id.navigation_facility_edit,
+                R.id.navigation_facility_add);
+
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            if (destination.getId() == R.id.navigation_profile_edit) {
+                // Replace back button with cancel button
+                Objects.requireNonNull(getSupportActionBar()).setHomeAsUpIndicator(R.drawable.ic_cancel_cross_24dp);
+            }
+
+            if (noNavView.contains(destination.getId())) {
+                // If a profile view is visible, the nav view should not be
+                navView.setVisibility(View.GONE);
+            } else {
+                // If not, we should see the nav view
+                navView.setVisibility(View.VISIBLE);
+            }
+        });
+
+    }
+
+    /**
+     * Overrides the onCreateOptionsMenu to allow for a second menu to exist in
+     * addition to the bottom menu. This menu will add buttons on the top,
+     * in this case, the profile button
+     * @param menu The menu itself that is being manipulated
+     * @return The return is unchanged
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        boolean return_val = super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.top_nav_menu, menu);
+        navMenu = menu;
+        return return_val;
+    }
+
+    /**
+     * Overrides the onOptionsItemSelected, which only affects the top nav menu
+     * @param item The selected item in the top nav menu
+     * @return The return is unchanged
+     */
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        // Manual navigation is necessary for the top nav bar
+        if (item.getItemId() == R.id.navigation_profile) {
+            navController.navigate(R.id.navigation_profile);
+        } else if (item.getItemId() == R.id.navigation_profile_edit) {
+            navController.navigate(R.id.navigation_profile_edit);
+        } else if (item.getItemId() == android.R.id.home) {
+            // Back button
+            navController.popBackStack();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void createOrLoadCurrentUser(String userId) {

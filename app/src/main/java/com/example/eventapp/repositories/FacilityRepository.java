@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.eventapp.models.Facility;
+import com.example.eventapp.photos.PhotoManager;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -76,6 +77,9 @@ public class FacilityRepository {
     public Task<Void> removeFacility(Facility facility) {
         String documentId = facility.getDocumentId();
         if (documentId == null) throw new NullPointerException("documentId is null - never set documentId");
+        if (facility.hasPhoto()) {
+            PhotoManager.deletePhotoFromFirebase(facility.getPhotoUri());
+        }
 
         return facilityCollection.document(documentId).delete()
                 .addOnCompleteListener(task -> {

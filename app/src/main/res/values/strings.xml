@@ -3,6 +3,27 @@
     <string name="title_events">Events</string>
     <string name="title_scanqr">Scan QR</string>
     <string name="title_profiles">Profiles</string>
+    <string name="title_profile">Profile</string>
+    <string name="title_profile_edit">Edit Profile</string>
+    <string name="title_profile_confirm">Confirm Profile Changes</string>
+    <string name="title_profile_cancel">Cancel Profile Edit</string>
+    <string name="profile_image">Profile Image</string>
+    <string name="name">Name</string>
+    <string name="email_address">Email Address</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="no_email">No Email</string>
+    <string name="no_phone_number">No Phone Number</string>
+    <string name="organizer_account">Organizer Account</string>
+    <string name="opt_out_of_notifications">Opt out of Notifications</string>
+    <string name="name_cannot_be_empty">Name cannot be empty</string>
+    <string name="email_format_incorrect">Email format incorrect</string>
+    <string name="phone_format_incorrect">Phone Number format incorrect</string>
+    <string name="error_verifying_profile">Error verifying profile</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm_delete_facilities">Warning: you have multiple facilities attached to this profile. If you confirm, all facilities and events attached to them will be deleted.</string>
+    <string name="profile_update_cancelled">Profile update cancelled</string>
+    <string name="has_facilities">You cannot remove your organizer status while you still have facilities</string>
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus auctor velit diam, eu
         venenatis neque consequat at. Etiam laoreet convallis consectetur. Donec quis arcu magna.
@@ -10,4 +31,26 @@
         finibus. Donec odio est, porta nec hendrerit nec, efficitur et velit. Sed vehicula faucibus odio,
         ut porttitor leo aliquam mollis. Aliquam tristique mauris at commodo lacinia.
     </string>
+    <string name="manage_facilities">Manage Facilities</string>
+    <string name="title_facilities">Facilities</string>
+    <string name="title_facility_add">Add Facility</string>
+    <string name="facility_profile_picture">Facility Profile Picture</string>
+    <string name="facility">Facility</string>
+    <string name="description">Description</string>
+    <string name="facility_image">Facility Image</string>
+    <string name="title_facility_edit">Edit Facility</string>
+    <string name="edit_facility_desc">Edits the current Facility</string>
+    <string name="title_facility_confirm">Confirm Facility Changes</string>
+    <string name="facility_name">Facility Name</string>
+    <string name="facility_name_cannot_be_empty">Facility Name cannot be empty</string>
+    <string name="delete_facility">Delete Facility</string>
+    <string name="confirm_delete_facility">Deleting this facility will delete all events that belong to this facility.\n\nAre you sure you want to delete this facility?</string>
+    <string name="warning">WARNING</string>
+    <string name="title_facility_confirm_add">Add Facility</string>
+    <string name="modify_profile_photo">Modify profile photo</string>
+    <string name="photo_upload_failed">Photo upload failed. Please try again.</string>
+    <string name="remove_photo">Remove photo</string>
+    <string name="facility_creation_failed">Facility creation failed, please try again</string>
+    <string name="facility_update_failed">Failed to update facility, please try again</string>
+    <string name="user_update_failed">Failed to update profile, please try again</string>
 </resources>

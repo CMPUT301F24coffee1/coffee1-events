@@ -20,7 +20,7 @@ import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
 import com.example.eventapp.photos.PhotoPicker;
-import com.example.eventapp.photos.PhotoUploader;
+import com.example.eventapp.photos.PhotoManager;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.util.ArrayList;
@@ -146,7 +146,7 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
                     }
                 } else {
                     // Upload photo to Firebase storage and only create the event after a successful upload
-                    PhotoUploader.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, new PhotoUploader.UploadCallback() {
+                    PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "events", "poster", new PhotoManager.UploadCallback() {
                         @Override
                         public void onUploadSuccess(String downloadUrl) {
                             posterUriString = downloadUrl;
