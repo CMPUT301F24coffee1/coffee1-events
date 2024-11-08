@@ -13,8 +13,14 @@ import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.EventRepository;
 import com.example.eventapp.repositories.SignupRepository;
 import com.example.eventapp.repositories.UserRepository;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.DocumentReference;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 
 public class EventsViewModel extends ViewModel {
@@ -30,14 +36,31 @@ public class EventsViewModel extends ViewModel {
     private final MediatorLiveData<List<Event>> signedUpEventsLiveData = new MediatorLiveData<>();
 
     public EventsViewModel() {
+        this(
+                EventRepository.getInstance(),
+                SignupRepository.getInstance(),
+                UserRepository.getInstance(),
+                null
+        );
+    }
+
+    public EventsViewModel(
+            EventRepository eventRepository,
+            SignupRepository signupRepository,
+            UserRepository userRepository,
+            LiveData<User> injectedUserLiveData) {
         mText = new MutableLiveData<>();
         mText.setValue("Events");
 
-        eventRepository = EventRepository.getInstance();
-        signupRepository = SignupRepository.getInstance();
+        this.eventRepository = eventRepository;
+        this.signupRepository = signupRepository;
 
-        UserRepository userRepository = UserRepository.getInstance();
-        currentUserLiveData = userRepository.getCurrentUserLiveData();
+        // dependency injection for tests
+        if (injectedUserLiveData != null) {
+            currentUserLiveData = injectedUserLiveData;
+        } else {
+            currentUserLiveData = userRepository.getCurrentUserLiveData();
+        }
 
         // load organized and signed-up events when current user data is available
         currentUserLiveData.observeForever(user -> {
@@ -66,53 +89,70 @@ public class EventsViewModel extends ViewModel {
         signedUpEventsLiveData.addSource(signedUpEvents, signedUpEventsLiveData::setValue);
     }
 
-    public void addEvent(Event event) {
+    public Task<String> addEvent(Event event) {
         User currentUser = currentUserLiveData.getValue();
         if (currentUser != null) {
             event.setOrganizerId(currentUser.getUserId());
 
-            eventRepository.addEvent(event).addOnCompleteListener(task -> {
+            Task<DocumentReference> addEventTask = eventRepository.addEvent(event);
+            TaskCompletionSource<String> documentIdTask = new TaskCompletionSource<>();
+
+            addEventTask.addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
+                    String documentId = task.getResult().getId();
+                    event.setDocumentId(documentId);
+                    documentIdTask.setResult(documentId);
                     Log.i(TAG, "Added event with name: " + event.getEventName());
                 } else {
+                    documentIdTask.setException(Objects.requireNonNull(task.getException()));
                     Log.e(TAG, "Failed to add event", task.getException());
                 }
             });
+            return documentIdTask.getTask();
         }
+        return null;
     }
 
-    public void removeEvent(Event event) {
-        eventRepository.removeEvent(event).addOnCompleteListener(task -> {
+    public Task<Void> removeEvent(Event event) {
+        Task<Void> removeEventTask = eventRepository.removeEvent(event);
+
+        removeEventTask.addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Log.i(TAG, "Removed event with name: " + event.getEventName());
             } else {
                 Log.e(TAG, "Failed to remove event", task.getException());
             }
         });
+        return removeEventTask;
     }
 
-    public void updateEvent(Event updatedEvent) {
-        eventRepository.updateEvent(updatedEvent).addOnCompleteListener(task -> {
+    public Task<Void> updateEvent(Event updatedEvent) {
+        Task<Void> updateEventTask = eventRepository.updateEvent(updatedEvent);
+
+        updateEventTask.addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Log.i(TAG, "Updated event with name: " + updatedEvent.getEventName());
             } else {
                 Log.e(TAG, "Failed to update event", task.getException());
             }
         });
+        return updateEventTask;
     }
 
-    public void unregisterFromEvent(Event event) {
+    public Task<DocumentReference> registerToEvent(Event event) {
         User currentUser = currentUserLiveData.getValue();
         if (currentUser != null) {
-            signupRepository.removeSignup(currentUser.getUserId(), event.getDocumentId());
+            return signupRepository.addSignup(new Signup(currentUser.getUserId(), event.getDocumentId()));
         }
+        return null;
     }
 
-    public void registerToEvent(Event event) {
+    public CompletableFuture<Void> unregisterFromEvent(Event event) {
         User currentUser = currentUserLiveData.getValue();
         if (currentUser != null) {
-            signupRepository.addSignup(new Signup(currentUser.getUserId(), event.getDocumentId()));
+            return signupRepository.removeSignup(currentUser.getUserId(), event.getDocumentId());
         }
+        return null;
     }
 
     public boolean isSignedUp(Event event){
@@ -120,13 +160,14 @@ public class EventsViewModel extends ViewModel {
         if(eventsList == null){
             return false;
         }
-        for (int i = 0; i < eventsList.size(); i++){
-            if(eventsList.get(i).getDocumentId() == event.getDocumentId()){
+        for (Event e : eventsList){
+            if(e.getDocumentId().equals(event.getDocumentId())){
                 return true;
             }
         }
         return false;
     }
+
     public LiveData<String> getText() {
         return mText;
     }
