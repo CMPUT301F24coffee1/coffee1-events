@@ -14,8 +14,13 @@ import com.example.eventapp.models.User;
 import com.example.eventapp.photos.PhotoManager;
 import com.example.eventapp.repositories.FacilityRepository;
 import com.example.eventapp.repositories.UserRepository;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.DocumentReference;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ProfileViewModel extends ViewModel {
 
@@ -32,27 +37,22 @@ public class ProfileViewModel extends ViewModel {
      * primarily operates with, and sets a forever observer on it
      */
     public ProfileViewModel() {
-        userRepository = UserRepository.getInstance();
-        facilityRepository = FacilityRepository.getInstance();
-        currentUserLiveData = userRepository.getCurrentUserLiveData();
-
-        // load organized and signed-up events when current user data is available
-        currentUserLiveData.observeForever(user -> {
-            if (user != null) {
-                 loadFacilities(user.getUserId());
-            }
-        });
+        this(UserRepository.getInstance(), FacilityRepository.getInstance(), null);
     }
 
     /**
      * Initializes ProfileViewModel, but allows you to pre-specify the repositories for testing purposes
      */
-    public ProfileViewModel(UserRepository userRepository, FacilityRepository facilityRepository) {
+    public ProfileViewModel(UserRepository userRepository, FacilityRepository facilityRepository, LiveData<User> injectedUserLiveData) {
         this.userRepository = userRepository;
         this.facilityRepository = facilityRepository;
-        currentUserLiveData = userRepository.getCurrentUserLiveData();
 
-        // load organized and signed-up events when current user data is available
+        if (injectedUserLiveData != null) {
+            currentUserLiveData = injectedUserLiveData;
+        } else {
+            currentUserLiveData = userRepository.getCurrentUserLiveData();
+        }
+
         currentUserLiveData.observeForever(user -> {
             if (user != null) {
                 loadFacilities(user.getUserId());
@@ -85,7 +85,7 @@ public class ProfileViewModel extends ViewModel {
      * @param isOrganizer Whether or not the user is an organizer
      * @param photoUriString The Uri string of the newly updated photo
      */
-    public void updateUser(String name, String email, String phone, boolean optNotifs, boolean isOrganizer, String photoUriString) {
+    public Task<Void> updateUser(String name, String email, String phone, boolean optNotifs, boolean isOrganizer, String photoUriString) {
         User user = currentUserLiveData.getValue();
         if (user != null) {
             user.setName(name);
@@ -94,14 +94,18 @@ public class ProfileViewModel extends ViewModel {
             user.setNotificationOptOut(optNotifs);
             user.setOrganizer(isOrganizer);
             user.setPhotoUriString(photoUriString);
-            userRepository.saveUser(user).addOnCompleteListener(task -> {
+
+            Task<Void> updateUserTask = userRepository.saveUser(user);
+            updateUserTask.addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     Log.i(TAG, "Updated user with name: " + user.getName());
                 } else {
                     Log.e(TAG, "Failed to update user: " + user.getName(), task.getException());
                 }
             });
+            return updateUserTask;
         }
+        return null;
     }
 
     /**
@@ -120,19 +124,28 @@ public class ProfileViewModel extends ViewModel {
      * Adds a facility to the repository, which then updates the database
      * @param facility The facility to add to the repository
      */
-    public void addFacility(Facility facility) {
+    public Task<String> addFacility(Facility facility) {
         User user = currentUserLiveData.getValue();
         if (user != null) {
             facility.setOrganizerId(user.getUserId());
 
-            facilityRepository.addFacility(facility).addOnCompleteListener(task -> {
+            Task<DocumentReference> addFacilityTask = facilityRepository.addFacility(facility);
+            TaskCompletionSource<String> documentIdTask = new TaskCompletionSource<>();
+
+            addFacilityTask.addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
+                    String documentId = task.getResult().getId();
+                    facility.setDocumentId(documentId);
+                    documentIdTask.setResult(documentId);
                     Log.i(TAG, "Added facility with name: " + facility.getFacilityName());
                 } else {
+                    documentIdTask.setException(Objects.requireNonNull(task.getException()));
                     Log.e(TAG, "Failed to add facility", task.getException());
                 }
             });
+            return documentIdTask.getTask();
         }
+        return null;
     }
 
     /**
@@ -168,16 +181,37 @@ public class ProfileViewModel extends ViewModel {
     /**
      * Updates the currently selected Facility to the repository (from getSelectedFacility())
      */
-    public void updateSelectedFacility(Facility facility) {
-        facilityRepository.updateFacility(facility);
+    public Task<Void> updateSelectedFacility(Facility facility) {
+        Task<Void> updateFacilityTask = facilityRepository.updateFacility(facility);
+
+        updateFacilityTask.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Log.i(TAG, "Updated facility with name: " + facility.getFacilityName());
+            } else {
+                Log.e(TAG, "Failed to update facility", task.getException());
+            }
+        });
+        return updateFacilityTask;
     }
 
     /**
      * Removes the currently selected Facility from the repository (from getSelectedFacility())
      */
-    public void removeSelectedFacility() {
+    public Task<Void> removeSelectedFacility() {
         Facility facility = getSelectedFacility();
-        facilityRepository.removeFacility(facility);
+        if (facility != null) {
+            Task<Void> removeFacilityTask = facilityRepository.removeFacility(facility);
+
+            removeFacilityTask.addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Log.i(TAG, "Removed facility with name: " + facility.getFacilityName());
+                } else {
+                    Log.e(TAG, "Failed to remove facility", task.getException());
+                }
+            });
+            return removeFacilityTask;
+        }
+        return null;
     }
 
     /**
@@ -208,5 +242,4 @@ public class ProfileViewModel extends ViewModel {
         selectedFacility.setPhotoUriString("");
         facilityRepository.updateFacility(selectedFacility);
     }
-
 }
