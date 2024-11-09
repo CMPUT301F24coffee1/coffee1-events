@@ -1,0 +1,13 @@
+com.example.eventapp
+com.example.eventapp.interfaces
+com.example.eventapp.models
+com.example.eventapp.repositories
+com.example.eventapp.repositoryTests
+com.example.eventapp.services
+com.example.eventapp.services.photos
+com.example.eventapp.ui.events
+com.example.eventapp.ui.profiles
+com.example.eventapp.ui.scanqr
+com.example.eventapp.utils
+com.example.eventapp.viewmodels
+com.example.eventapp.viewmodelTests
