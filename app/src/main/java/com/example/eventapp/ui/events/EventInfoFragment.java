@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
@@ -125,6 +127,7 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
                 @Override
                 public void onClick(View view) {
                     Log.d("EventInfoFragment", "clicked on eventEntrantsCount");
+                    navigateToEventEntrantsScreen();
                 }
             });
         }
@@ -173,6 +176,12 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
             currentWaitlistButtonState = 0;
             waitlistButton.setText(R.string.join_waitlist);
         }
+    }
+
+    private void navigateToEventEntrantsScreen(){
+        NavController navController = NavHostFragment.findNavController(this);
+        navController.navigate(R.id.navigation_view_entrants);
+        requireActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
     }
 
     private void joinEventWaitlist(Event event){
