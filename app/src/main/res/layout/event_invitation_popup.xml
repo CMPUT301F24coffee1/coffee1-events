@@ -19,14 +19,26 @@
             android:layout_width="250dp"
             android:layout_height="wrap_content">
 
+            <TextView
+                android:id="@+id/tvEventSelectedMessage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="You have been selected to join this event!"
+                android:textSize="14sp"
+                android:textColor="@android:color/primary_text_dark"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
             <!-- Event Image -->
             <ImageView
                 android:id="@+id/ivEventImage"
                 android:layout_width="match_parent"
                 android:layout_height="120dp"
-                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="8dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvEventSelectedMessage"
                 app:srcCompat="@drawable/ic_add_photo_alternate_24dp" />
 
             <!-- Event Title -->
@@ -56,12 +68,12 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvEventTitle" />
 
-            <!-- Event Details -->
+            <!-- Event Description -->
             <TextView
-                android:id="@+id/tvEventDetails"
+                android:id="@+id/tvEventDescription"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="You have been selected to join this event!"
+                android:text="@string/lorem_ipsum"
                 android:textSize="14sp"
                 android:textColor="@android:color/primary_text_dark"
                 android:layout_marginTop="8dp"
@@ -79,7 +91,7 @@
                 android:textColor="@android:color/white"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/btnDecline"
-                app:layout_constraintTop_toBottomOf="@+id/tvEventDetails"
+                app:layout_constraintTop_toBottomOf="@+id/tvEventDescription"
                 app:layout_constraintBottom_toBottomOf="parent" />
 
             <Button
@@ -92,7 +104,7 @@
                 android:textColor="@android:color/primary_text_dark"
                 app:layout_constraintStart_toEndOf="@+id/btnAccept"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvEventDetails"
+                app:layout_constraintTop_toBottomOf="@+id/tvEventDescription"
                 app:layout_constraintBottom_toBottomOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
