@@ -9,10 +9,12 @@ import com.example.eventapp.models.User;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -272,5 +274,42 @@ public class UserRepository {
         MutableLiveData<User> userLiveData = new MutableLiveData<>();
         setUserLiveData(userLiveData, userId);
         return userLiveData;
+    }
+
+    /**
+     * Retrieves a LiveData list of users by their IDs.
+     *
+     * @param userIds The list of user IDs to retrieve.
+     * @return LiveData containing a list of users matching the given IDs.
+     */
+    public LiveData<List<User>> getUsersByIdsLiveData(List<String> userIds) {
+        MutableLiveData<List<User>> usersLiveData = new MutableLiveData<>();
+
+        if (userIds == null || userIds.isEmpty()) {
+            Log.d(TAG, "getUsersByIdsLiveData: No user IDs provided");
+            usersLiveData.setValue(new ArrayList<>());
+            return usersLiveData;
+        }
+
+        userCollection.whereIn(FieldPath.documentId(), userIds).addSnapshotListener((userQuerySnapshot, e) -> {
+            if (e != null) {
+                Log.e(TAG, "getUsersByIdsLiveData: Failed to listen for users", e);
+                usersLiveData.setValue(new ArrayList<>());
+                return;
+            }
+
+            if (userQuerySnapshot != null && !userQuerySnapshot.isEmpty()) {
+                List<User> users = userQuerySnapshot.toObjects(User.class);
+                for (int i = 0; i < users.size(); i++) {
+                    users.get(i).setUserId(userQuerySnapshot.getDocuments().get(i).getId());
+                }
+                usersLiveData.setValue(users);
+                Log.d(TAG, "getUsersByIdsLiveData: Retrieved " + users.size() + " users");
+            } else {
+                Log.d(TAG, "getUsersByIdsLiveData: No users found");
+                usersLiveData.setValue(new ArrayList<>());
+            }
+        });
+        return usersLiveData;
     }
 }
