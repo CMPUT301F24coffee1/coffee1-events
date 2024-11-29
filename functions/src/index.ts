@@ -1,15 +1,112 @@
+import { onTaskDispatched } from 'firebase-functions/v2/tasks';
+import { getFunctions } from 'firebase-admin/functions';
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import * as logger from 'firebase-functions/logger';
 import {
   onDocumentUpdated,
   onDocumentDeleted,
+  onDocumentCreated,
 } from 'firebase-functions/v2/firestore';
 import { User } from './types/user';
 import { deleteDocumentsByQuery } from './utils';
+import { AppEvent } from './types/app_event';
+import { runLottery } from './lottery';
 
 initializeApp();
 const db = getFirestore();
+
+// TODO: you can press a button to run the lottery.
+
+/**
+ * Task Queue Function: Processes the lottery for a given event.
+ */
+export const processLottery = onTaskDispatched(
+  {
+    retryConfig: {
+      maxAttempts: 5,
+      minBackoffSeconds: 60,
+    },
+    rateLimits: {
+      maxConcurrentDispatches: 3,
+    },
+  },
+  async (req) => {
+    const eventId = req.data.eventId;
+
+    if (!eventId) {
+      logger.error('No eventId provided for lottery processing');
+      throw new Error('Missing eventId');
+    }
+    logger.info(`Processing lottery for event: ${eventId}`);
+
+    try {
+      const snapshot = await db.collection('events').doc(eventId).get();
+
+      if (!snapshot.exists) {
+        logger.error(`Event with ID ${eventId} does not exist.`);
+        return;
+      }
+      const eventData = snapshot.data() as AppEvent;
+
+      if (!eventData) {
+        logger.error(`Event data is null for ID ${eventId}`);
+        return;
+      }
+      // TODO: Perform validity check (whether the lottery has already been ran)
+
+      await runLottery(eventId, eventData);
+
+      logger.debug(`Lottery processed successfully for event: ${eventId}`);
+    } catch (error) {
+      logger.error(`Error processing lottery for event ${eventId}:`, error);
+      throw error;
+    }
+  }
+);
+
+/**
+ * When an event is created
+ * Enroll it into the lottery system.
+ */
+export const handleEventCreated = onDocumentCreated(
+  'events/{eventId}',
+  async (event) => {
+    const snapshot = event.data;
+
+    if (!snapshot) {
+      logger.warn('handleEventCreated: No data found');
+      return;
+    }
+    const eventId = event.params.eventId;
+
+    const data = snapshot.data() as AppEvent;
+    const deadlineTimestamp = data.deadline;
+
+    logger.debug(`Enrolling event with id ${eventId} into the lottery system`);
+
+    const queue = getFunctions().taskQueue('processLottery');
+
+    try {
+      await queue.enqueue(
+        { eventId },
+        {
+          scheduleDelaySeconds: Math.max(
+            0,
+            Math.floor(deadlineTimestamp / 1000) - Math.floor(Date.now() / 1000)
+          ),
+        }
+      );
+
+      logger.info(`Lottery task scheduled for event: ${eventId}`);
+    } catch (error) {
+      logger.error(
+        `Failed to schedule lottery task for event ${eventId}:`,
+        error
+      );
+    }
+  }
+);
 
 /**
  * When a user removes their organizer status
@@ -21,7 +118,7 @@ export const handleOrganizerStatusChange = onDocumentUpdated(
     const snapshot = event.data;
 
     if (!snapshot) {
-      logger.warn('No data associated with the event');
+      logger.warn('handleOrganizerStatusChange: No data found');
       return;
     }
     const dataBefore = snapshot.before.data() as User;
