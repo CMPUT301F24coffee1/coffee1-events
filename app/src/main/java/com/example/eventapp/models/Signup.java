@@ -14,7 +14,12 @@ public class Signup implements HasDocumentId {
     private String userId;
     private String eventId;
     private long signupTimestamp;
-    private boolean isCancelled;
+
+    private boolean isCancelled = false;
+    private boolean isWaitlisted = false;
+    // Chosen means that a user is selected, but has not accepted the invitation yet
+    private boolean isChosen = false;
+    private boolean isEnrolled = false;
 
     public Signup() {
         // default constructor for firebase
@@ -120,5 +125,59 @@ public class Signup implements HasDocumentId {
      */
     public void setCancelled(boolean cancelled) {
         isCancelled = cancelled;
+    }
+
+    /**
+     * Checks if the signed up user has been waitlisted.
+     *
+     * @return true if waitlisted, otherwise false
+     */
+    public boolean isWaitlisted() {
+        return isWaitlisted;
+    }
+
+    /**
+     * Sets if the signed up user has been waitlisted.
+     *
+     * @param waitlisted true if waitlisted, otherwise false
+     */
+    public void setWaitlisted(boolean waitlisted) {
+        isWaitlisted = waitlisted;
+    }
+
+    /**
+     * Checks if the signed up user has been chosen for the event.
+     *
+     * @return true if chosen, otherwise false
+     */
+    public boolean isChosen() {
+        return isChosen;
+    }
+
+    /**
+     * Sets if the signed up user has been chosen for the event.
+     *
+     * @param chosen true if chosen, otherwise false
+     */
+    public void setChosen(boolean chosen) {
+        isChosen = chosen;
+    }
+
+    /**
+     * Checks if the signed up user has been enrolled into the event.
+     *
+     * @return true if enrolled, otherwise false
+     */
+    public boolean isEnrolled() {
+        return isEnrolled;
+    }
+
+    /**
+     * Sets if the signed up user has been enrolled into the event.
+     *
+     * @param enrolled true if enrolled, otherwise false
+     */
+    public void setEnrolled(boolean enrolled) {
+        isEnrolled = enrolled;
     }
 }
