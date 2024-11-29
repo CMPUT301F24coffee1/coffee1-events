@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.eventapp.R;
 import com.example.eventapp.models.User;
+import com.example.eventapp.repositories.UserRepository;
 
 import java.util.ArrayList;
 
@@ -37,6 +38,8 @@ public class ViewEntrantsFragment extends Fragment {
         entrants.add(new User("abc", "def"));
         entrants.add(new User("abc", "def"));
         entrants.add(new User("abc", "def"));
+        User actualUser = UserRepository.getInstance().getCurrentUserLiveData().getValue();
+        entrants.add(actualUser);
 
         EntrantsAdapter entrantsAdapter = new EntrantsAdapter(entrants);
         entrantsList.setAdapter(entrantsAdapter);
