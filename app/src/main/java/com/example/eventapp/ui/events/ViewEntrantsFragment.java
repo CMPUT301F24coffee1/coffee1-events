@@ -40,6 +40,12 @@ public class ViewEntrantsFragment extends Fragment {
         entrants.add(new User("abc", "def"));
         User actualUser = UserRepository.getInstance().getCurrentUserLiveData().getValue();
         entrants.add(actualUser);
+        entrants.add(new User("abc", "def"));
+        entrants.add(new User("abc", "def"));
+        entrants.add(new User("abc", "def"));
+        entrants.add(new User("abc", "def"));
+        entrants.add(new User("abc", "def"));
+        entrants.add(new User("abc", "def"));
 
         EntrantsAdapter entrantsAdapter = new EntrantsAdapter(entrants);
         entrantsList.setAdapter(entrantsAdapter);
