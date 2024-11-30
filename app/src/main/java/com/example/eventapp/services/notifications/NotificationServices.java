@@ -31,19 +31,17 @@ public class NotificationServices {
 
     /**
      * Uploads a notification to a user's notifications subcollection.
-     * @param userId The ID of the user to whom the notification is being sent.
      * @param notification The Notification object to be uploaded.
      * @param onSuccess Callback triggered upon successful upload.
      * @param onFailure Callback triggered upon failure with an exception.
      */
     public void uploadNotification(
-            String userId,
             Notification notification,
             Runnable onSuccess,
             OnFailureCallback onFailure
     ) {
         db.collection("users")
-                .document(userId)
+                .document(notification.getUserId())
                 .collection("notifications")
                 .add(notification)
                 .addOnSuccessListener(documentReference -> {

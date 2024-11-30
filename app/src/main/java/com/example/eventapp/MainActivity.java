@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         NotificationsViewModel notificationsViewModel = new NotificationsViewModel();
         notificationServices = new NotificationServices();
 
-        //testUploadNotification();
+        testUploadNotification();
         //testDeleteNotification();
 
         if (androidId != null) {
@@ -270,15 +270,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void testUploadNotification() {
         Notification notification = new Notification(
-                "Test Title",
-                "This is a test notification message.",
-                "yZAbcFApEPz5kxl6kVBw",
-                "Invitation",
+                "ef5f56cd4eaae07b",
+                "Test Title 2",
+                "This is a to test the general notification.",
+                "General",
                 false
         );
 
         notificationServices.uploadNotification(
-                TEST_USER_ID,
                 notification,
                 () -> Log.d("MainActivity", "Notification uploaded successfully!"),
                 e -> Log.e("MainActivity", "Failed to upload notification", e)

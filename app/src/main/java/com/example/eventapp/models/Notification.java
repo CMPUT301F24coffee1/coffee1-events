@@ -2,6 +2,7 @@ package com.example.eventapp.models;
 
 public class Notification {
     private String id;
+    private String userId;
     private String title;
     private String message;
     private String event;
@@ -12,7 +13,8 @@ public class Notification {
     }
 
     // Constructor for invitation notification
-    public Notification(String title, String message, String event, String type, boolean read) {
+    public Notification(String userId, String title, String message, String event, String type, boolean read) {
+        this.userId = userId;
         this.title = title;
         this.message = message;
         this.event = event;
@@ -21,7 +23,8 @@ public class Notification {
     }
 
     // Constructor for general notification
-    public Notification(String title, String message, String type, boolean read) {
+    public Notification(String userId, String title, String message, String type, boolean read) {
+        this.userId = userId;
         this.title = title;
         this.message = message;
         this.type = type;
@@ -36,6 +39,10 @@ public class Notification {
     public void setId(String id) {
         this.id = id;
     }
+
+    public String getUserId() { return userId; }
+
+    public void setUserId(String userId) { this.userId = userId; }
 
     public String getTitle() {
         return title;
