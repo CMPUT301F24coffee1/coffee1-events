@@ -52,4 +52,10 @@
         android:name="com.example.eventapp.ui.profiles.FacilityAddFragment"
         android:label="@string/title_facility_add"
         tools:layout="@layout/fragment_facility_add" />
+
+    <fragment
+        android:id="@+id/navigation_view_entrants"
+        android:name="com.example.eventapp.ui.events.ViewEntrantsFragment"
+        android:label="View Event Entrants"
+        tools:layout="@layout/fragment_view_entrants" />
 </navigation>
