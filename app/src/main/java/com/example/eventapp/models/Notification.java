@@ -1,16 +1,31 @@
 package com.example.eventapp.models;
 
-import java.util.List;
-
 public class Notification {
     private String id;
-    private Event event;
+    private String title;
     private String message;
+    private String event;
     private String type;
-    private List<String> recipients;
-    private String status;
+    private Boolean read;
 
     public Notification() {
+    }
+
+    // Constructor for invitation notification
+    public Notification(String title, String message, String event, String type, boolean read) {
+        this.title = title;
+        this.message = message;
+        this.event = event;
+        this.type = type;
+        this.read = read;
+    }
+
+    // Constructor for general notification
+    public Notification(String title, String message, String type, boolean read) {
+        this.title = title;
+        this.message = message;
+        this.type = type;
+        this.read = read;
     }
 
     // Getters and Setters
@@ -22,13 +37,11 @@ public class Notification {
         this.id = id;
     }
 
-    public Event getTitle() {
-        return event;
+    public String getTitle() {
+        return title;
     }
 
-    public void setTitle(Event event) {
-        this.event = event;
-    }
+    public void setTitle(String title) { this.title = title; }
 
     public String getMessage() {
         return message;
@@ -38,6 +51,10 @@ public class Notification {
         this.message = message;
     }
 
+    public String getEvent() { return event; }
+
+    public void setEvent(String event) { this.event = event; }
+
     public String getType() {
         return type;
     }
@@ -46,19 +63,7 @@ public class Notification {
         this.type = type;
     }
 
-    public List<String> getRecipients() {
-        return recipients;
-    }
+    public Boolean getRead() { return read; }
 
-    public void setRecipients(List<String> recipients) {
-        this.recipients = recipients;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
+    public void setRead(Boolean read) { this.read = read; }
 }
