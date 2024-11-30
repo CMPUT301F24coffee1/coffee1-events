@@ -72,6 +72,7 @@ public class ProfileEditFragment extends Fragment {
     private boolean removingPhoto = false;
     private String userId;
     private boolean userHasPhoto = false;
+    private NavController navController;
 
     private enum Confirmed { YES, NAME, EMAIL, PHONE, ORGANIZER }
 
@@ -97,7 +98,7 @@ public class ProfileEditFragment extends Fragment {
         facilities = new ArrayList<>();
 
         // Inflate the menu with the profile edit button set
-        NavController navController = NavHostFragment.findNavController(this);
+        navController = NavHostFragment.findNavController(this);
 
         requireActivity().addMenuProvider(new MenuProvider() {
             @Override
@@ -111,74 +112,28 @@ public class ProfileEditFragment extends Fragment {
                 if (item.getItemId() == R.id.navigation_profile_confirm) {
                     // Here because we only want this behaviour to happen when hitting confirm,
                     // not the back button
-                    boolean isConfirmed = false;
                     Confirmed confirmable = confirmable();
-                    final String[] error = new String[1]; // Array for finality in lambda statement
                     switch (confirmable) {
                         case NAME:
-                            error[0] = getString(R.string.name_cannot_be_empty);
+                            confirmRoutine(false, getString(R.string.name_cannot_be_empty));
                             break;
                         case EMAIL:
-                            error[0] = getString(R.string.email_format_incorrect);
+                            confirmRoutine(false, getString(R.string.email_format_incorrect));
                             break;
                         case PHONE:
-                            error[0] = getString(R.string.phone_format_incorrect);
+                            confirmRoutine(false, getString(R.string.phone_format_incorrect));
                             break;
                         case ORGANIZER:
-                            // Possible delete all facilities functionality for later
-//                            new AlertDialog.Builder(getActivity()).setMessage(R.string.confirm_delete_facilities)
-//                            .setPositiveButton(R.string.confirm, (dialog, id) -> {
-//                                isConfirmed = true;
-//                            }).setNegativeButton(R.string.cancel, (dialog, id) -> {
-//                                error[0] = getString(R.string.profile_update_cancelled);
-//                            }).create();
-                            error[0] = getString(R.string.has_facilities);
+                            new AlertDialog.Builder(getActivity()).setMessage(R.string.confirm_delete_facilities)
+                            .setPositiveButton(R.string.confirm, (dialog, id) -> {
+                                confirmRoutine(true);
+                            }).setNegativeButton(R.string.cancel, (dialog, id) -> {
+                                confirmRoutine(false, getString(R.string.profile_update_cancelled));
+                            }).create().show();
                             break;
                         default:
-                            isConfirmed = true;
+                            confirmRoutine(true);
                             break;
-                    }
-                    if (isConfirmed) {
-                        if (selectedPhotoUri != null) {
-                            // Upload photo to Firebase storage and only confirm if the upload is successful
-                            PhotoManager.UploadCallback uploadCallback = new PhotoManager.UploadCallback() {
-                                @Override
-                                public void onUploadSuccess(String downloadUrl) {
-                                    photoUriString = downloadUrl;
-                                    Log.d("PhotoUploader", "Photo uploaded successfully: " + photoUriString);
-                                    updateUser();
-                                    navController.popBackStack();
-                                }
-
-                                @Override
-                                public void onUploadFailure(Exception e) {
-                                    Log.e("PhotoUploader", "Upload failed", e);
-                                    Toast.makeText(getContext(), getString(R.string.photo_upload_failed), Toast.LENGTH_SHORT).show();
-                                }
-                            };
-
-                            if (oldPhotoUri == null) {
-                                PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "profiles","photo", uploadCallback);
-                            } else {
-                                // Overwrite old photo
-                                final String id = Objects.requireNonNull(oldPhotoUri.getLastPathSegment()).split("/")[1];
-                                PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "profiles", id, "photo", uploadCallback);
-                            }
-                        } else {
-                            // If photo wasn't changed, nothing needs to be uploaded,
-                            // so we can just update the user as is
-                            if (oldPhotoUri != null) {
-                                if (removingPhoto) {
-                                    profileViewModel.removeUserPhoto();
-                                } else {
-                                    photoUriString = oldPhotoUri.toString();
-                                }
-                            }
-                            updateUser();
-                            navController.popBackStack();
-                        }
-                    } else {
-                        Toast.makeText(getContext(), error[0], Toast.LENGTH_SHORT).show();
                     }
                     return true;
                 }
@@ -247,7 +202,13 @@ public class ProfileEditFragment extends Fragment {
 
         deleteButton.setOnClickListener(v -> {
             if (hasFacilities()) {
-                Toast.makeText(getContext(), getString(R.string.error_cant_delete_profile), Toast.LENGTH_SHORT).show();
+                new AlertDialog.Builder(getActivity()).setMessage(R.string.confirm_delete_facilities)
+                        .setPositiveButton(R.string.confirm, (dialog, id) -> {
+                            profileViewModel.deleteSelectedUser();
+                            NavHostFragment.findNavController(this).popBackStack();
+                        }).setNegativeButton(R.string.cancel, (dialog, id) ->
+                                Toast.makeText(getContext(), getString(R.string.profile_delete_cancelled), Toast.LENGTH_SHORT).show()).create().show();
+
             } else {
                 new AlertDialog.Builder(getActivity()).setMessage(R.string.confirm_delete_profile)
                     .setPositiveButton(R.string.confirm, (dialog, id) -> {
@@ -343,6 +304,72 @@ public class ProfileEditFragment extends Fragment {
             return Confirmed.ORGANIZER;
 
         return Confirmed.YES;
+    }
+
+    /**
+     * Version of the Routine Confirmation that doesn't show an error message -- for cases where it
+     * did succeed, and therefore doesn't need an error message. Uploads the photo to the firebase and
+     * schedules the fragment to be killed if successful.
+     * @param confirmed boolean showing whether or not it was properly confirmed (erred/cancelled or not)
+     */
+    private void confirmRoutine(boolean confirmed) {
+        if (!confirmed) {
+            Toast.makeText(getContext(), R.string.error_unspecified, Toast.LENGTH_SHORT).show();
+        } else {
+            confirmRoutine(true, "");
+        }
+    }
+
+    /**
+     * Runs the routine for when the confirm button is pressed
+     * If confirmed, it updates the picture to the firebase and moves forwards towards killing the fragment
+     * Otherwise, it displays an error.
+     * @param confirmed boolean showing whether or not it was properly confirmed (errored/cancelled or not)
+     * @param errorMsg String showing what the error message is
+     */
+    private void confirmRoutine(boolean confirmed, String errorMsg) {
+        if (confirmed) {
+            if (selectedPhotoUri != null) {
+                // Upload photo to Firebase storage and only confirm if the upload is successful
+                PhotoManager.UploadCallback uploadCallback = new PhotoManager.UploadCallback() {
+                    @Override
+                    public void onUploadSuccess(String downloadUrl) {
+                        photoUriString = downloadUrl;
+                        Log.d("PhotoUploader", "Photo uploaded successfully: " + photoUriString);
+                        updateUser();
+                        navController.popBackStack();
+                    }
+
+                    @Override
+                    public void onUploadFailure(Exception e) {
+                        Log.e("PhotoUploader", "Upload failed", e);
+                        Toast.makeText(getContext(), getString(R.string.photo_upload_failed), Toast.LENGTH_SHORT).show();
+                    }
+                };
+
+                if (oldPhotoUri == null) {
+                    PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "profiles","photo", uploadCallback);
+                } else {
+                    // Overwrite old photo
+                    final String id = Objects.requireNonNull(oldPhotoUri.getLastPathSegment()).split("/")[1];
+                    PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "profiles", id, "photo", uploadCallback);
+                }
+            } else {
+                // If photo wasn't changed, nothing needs to be uploaded,
+                // so we can just update the user as is
+                if (oldPhotoUri != null) {
+                    if (removingPhoto) {
+                        profileViewModel.removeUserPhoto();
+                    } else {
+                        photoUriString = oldPhotoUri.toString();
+                    }
+                }
+                updateUser();
+                navController.popBackStack();
+            }
+        } else {
+            Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
