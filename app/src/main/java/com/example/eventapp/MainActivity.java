@@ -90,12 +90,14 @@ public class MainActivity extends AppCompatActivity {
         );
         createOrLoadCurrentUser(androidId);
 
+        // Initializing viewModel and repository to check the notifications
         NotificationsViewModel notificationsViewModel = new NotificationsViewModel();
         notificationRepository = NotificationRepository.getInstance();
 
-        testUploadNotification(androidId);
-        //testDeleteNotification();
+        // UNCOMMENT THIS LINE TO TEST NOTIFICATIONS
+        //testUploadNotification(androidId);
 
+        // Fetch and show all current users notifications
         if (androidId != null) {
             notificationRepository.fetchUnreadNotifications(androidId)
                     .thenAccept(notifications -> ShowNotifications.showInAppNotifications(MainActivity.this, notifications, notificationsViewModel))
@@ -254,28 +256,26 @@ public class MainActivity extends AppCompatActivity {
         return firstName + " " + lastName;
     }
 
+    // Code to test the upload notificatons (Will be deleted once Lottery is finished)
     private void testUploadNotification(String userId) {
-        Notification notification = new Notification(
+        Notification g_notification = new Notification(
                 userId,
-                "Test Title 3",
+                "Test General Title",
                 "This is a to test the general notification.",
                 "General"
         );
 
-        notificationRepository.uploadNotification(notification)
+        Notification i_notification = new Notification(
+                userId,
+                "Test Invite Title",
+                "This is a to test the invite notification.",
+                "Invite"
+        );
+
+        notificationRepository.uploadNotification(g_notification)
                 .thenAccept(s -> Log.d(TAG, "Notification uploaded successfully!"))
                 .exceptionally(throwable -> {
                     Log.e(TAG, "Failed to upload notification", throwable);
-                    return null;
-                });
-    }
-
-    private void testDeleteNotification() {
-        notificationRepository.deleteNotification(TEST_USER_ID, TEST_NOTIFICATION_ID)
-                .thenAccept(discard -> {
-                    Log.d(TAG, "Notification deleted successfully!");
-                }).exceptionally(throwable -> {
-                    Log.e(TAG, "Failed to delete notification", throwable);
                     return null;
                 });
     }

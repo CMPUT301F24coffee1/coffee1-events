@@ -20,9 +20,21 @@ import com.example.eventapp.viewmodels.NotificationsViewModel;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Class for showing the current users notifications
+ * Used whenever the user opens the app and has waiting notifications
+ */
 public class ShowNotifications {
     private static final String TAG = "ShowNotifications";
 
+    /**
+     * This is where the popups are made for each notification the user has.
+     * Displays both invitation and general notifications.
+     *
+     * @param context get the context from Main Activity
+     * @param notifications get the list of notifications that need to be displayed
+     * @param viewModel the view model to display the notifications
+     */
     public static void showInAppNotifications(Context context, List<Notification> notifications, NotificationsViewModel viewModel) {
         if (notifications.isEmpty()) {
             return;
