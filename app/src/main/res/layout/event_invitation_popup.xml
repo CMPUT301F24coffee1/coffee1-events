@@ -1,111 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/event_info_card"
+    <!-- Event Image -->
+    <ImageView
+        android:id="@+id/ivEventImage"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/ic_add_photo_alternate_24dp" />
+
+    <!-- Event Title -->
+    <TextView
+        android:id="@+id/tvEventTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="?attr/colorSurface"
-        app:cardCornerRadius="20dp"
-        app:contentPadding="30dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:text="Event Title"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/primary_text_dark"
+        android:layout_marginTop="8dp"/>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="250dp"
-            android:layout_height="wrap_content">
+    <!-- Event Date -->
+    <TextView
+        android:id="@+id/tvEventDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Event Date: Jan 1, 2024"
+        android:textSize="14sp"
+        android:textColor="@android:color/secondary_text_dark"
+        android:layout_marginTop="4dp"/>
 
-            <TextView
-                android:id="@+id/tvEventSelectedMessage"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="You have been selected to join this event!"
-                android:textSize="14sp"
-                android:textColor="@android:color/primary_text_dark"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+    <!-- Event Description -->
+    <TextView
+        android:id="@+id/tvEventDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Event Description goes here."
+        android:textSize="14sp"
+        android:textColor="@android:color/primary_text_dark"
+        android:layout_marginTop="8dp"/>
 
-            <!-- Event Image -->
-            <ImageView
-                android:id="@+id/ivEventImage"
-                android:layout_width="match_parent"
-                android:layout_height="120dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvEventSelectedMessage"
-                app:srcCompat="@drawable/ic_add_photo_alternate_24dp" />
+    <!-- Buttons: Accept and Decline -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
 
-            <!-- Event Title -->
-            <TextView
-                android:id="@+id/tvEventTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Event Title"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/primary_text_dark"
-                android:layout_marginTop="8dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/ivEventImage"/>
+        <Button
+            android:id="@+id/btnAccept"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Accept"
+            android:textColor="@android:color/white"
+            android:background="@color/material_dynamic_primary50"/>
 
-            <!-- Event Date -->
-            <TextView
-                android:id="@+id/tvEventDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Event Date: Jan 1, 2024"
-                android:textSize="14sp"
-                android:textColor="@android:color/secondary_text_dark"
-                android:layout_marginTop="4dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvEventTitle" />
-
-            <!-- Event Description -->
-            <TextView
-                android:id="@+id/tvEventDescription"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/lorem_ipsum"
-                android:textSize="14sp"
-                android:textColor="@android:color/primary_text_dark"
-                android:layout_marginTop="8dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvEventDate" />
-
-            <Button
-                android:id="@+id/btnAccept"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:backgroundTint="@color/material_dynamic_primary50"
-                android:text="Accept"
-                android:textColor="@android:color/white"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/btnDecline"
-                app:layout_constraintTop_toBottomOf="@+id/tvEventDescription"
-                app:layout_constraintBottom_toBottomOf="parent" />
-
-            <Button
-                android:id="@+id/btnDecline"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:backgroundTint="@color/material_dynamic_neutral_variant60"
-                android:text="Decline"
-                android:textColor="@android:color/primary_text_dark"
-                app:layout_constraintStart_toEndOf="@+id/btnAccept"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvEventDescription"
-                app:layout_constraintBottom_toBottomOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <Button
+            android:id="@+id/btnDecline"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Decline"
+            android:textColor="@android:color/primary_text_dark"
+            android:background="@color/material_dynamic_neutral_variant60"/>
+    </LinearLayout>
+</LinearLayout>

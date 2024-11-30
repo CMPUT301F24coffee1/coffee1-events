@@ -9,11 +9,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.Manifest;
 
+import com.example.eventapp.models.Event;
+import com.example.eventapp.models.Notification;
 import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.UserRepository;
+import com.example.eventapp.services.notifications.NotificationServices;
+import com.example.eventapp.services.notifications.ShowNotifications;
+import com.example.eventapp.viewmodels.NotificationsViewModel;
 import com.example.eventapp.viewmodels.ProfileViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -32,6 +39,8 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.eventapp.databinding.ActivityMainBinding;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Random;
 import java.util.Arrays;
@@ -43,6 +52,10 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
     NavController navController;
     Menu navMenu;
+
+    private static final String TEST_USER_ID = "ef5f56cd4eaae07b"; // Replace with a valid user ID
+    private static final String TEST_NOTIFICATION_ID = "notificationId123"; // Replace with a valid notification ID
+    private NotificationServices notificationServices;
 
     /**
      * Initializes the main activity and sets up Firebase, bindings, navigation, and permission handling.
@@ -81,6 +94,32 @@ public class MainActivity extends AppCompatActivity {
                 Settings.Secure.ANDROID_ID
         );
         createOrLoadCurrentUser(androidId);
+
+
+
+        NotificationsViewModel notificationsViewModel = new NotificationsViewModel();
+        notificationServices = new NotificationServices();
+
+        //testUploadNotification();
+        //testDeleteNotification();
+
+        if (androidId != null) {
+            notificationServices.fetchUnreadNotifications(androidId, new NotificationServices.OnFetchNotificationsCallback() {
+                @Override
+                public void onSuccess(QuerySnapshot notifications) {
+                    ShowNotifications.showInAppNotifications(MainActivity.this, notifications, notificationsViewModel);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Log.e(TAG, "Failed to fetch notifications: " + e.getMessage());
+                }
+            });
+        } else {
+            Log.e(TAG, "User ID is null. Unable to fetch notifications.");
+        }
+
+
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -227,5 +266,31 @@ public class MainActivity extends AppCompatActivity {
 
         // Return the full name
         return firstName + " " + lastName;
+    }
+
+    private void testUploadNotification() {
+        Notification notification = new Notification(
+                "Test Title",
+                "This is a test notification message.",
+                "yZAbcFApEPz5kxl6kVBw",
+                "Invitation",
+                false
+        );
+
+        notificationServices.uploadNotification(
+                TEST_USER_ID,
+                notification,
+                () -> Log.d("MainActivity", "Notification uploaded successfully!"),
+                e -> Log.e("MainActivity", "Failed to upload notification", e)
+        );
+    }
+
+    private void testDeleteNotification() {
+        notificationServices.deleteNotification(
+                TEST_USER_ID,
+                TEST_NOTIFICATION_ID,
+                () -> Log.d("MainActivity", "Notification deleted successfully!"),
+                e -> Log.e("MainActivity", "Failed to delete notification", e)
+        );
     }
 }

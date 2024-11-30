@@ -205,6 +205,40 @@ public class EventRepository {
     }
 
     /**
+     * Retrieves an event by its ID.
+     *
+     * @param eventId The ID of the event to retrieve.
+     * @return A CompletableFuture containing the event matching the ID, or null if not found.
+     */
+    public CompletableFuture<Event> getEventById(String eventId) {
+        Objects.requireNonNull(eventId, "Event ID cannot be null");
+        CompletableFuture<Event> future = new CompletableFuture<>();
+
+        // Reference to the specific event document
+        eventCollection.document(eventId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Convert the document to an Event object
+                        Event event = documentSnapshot.toObject(Event.class);
+                        if (event != null) {
+                            event.setDocumentId(documentSnapshot.getId()); // Store document ID if needed
+                        }
+                        future.complete(event); // Complete the future with the event
+                    } else {
+                        Log.w(TAG, "getEventById: no event found for ID: " + eventId);
+                        future.complete(null); // Complete with null if no document exists
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "getEventById: failed to retrieve event", e);
+                    future.completeExceptionally(e); // Handle failure
+                });
+
+        return future;
+    }
+
+    /**
      * Retrieves a LiveData list of events that a user has signed up for.
      *
      * @param userId The ID of the user.
