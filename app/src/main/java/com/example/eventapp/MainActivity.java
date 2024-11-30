@@ -259,8 +259,7 @@ public class MainActivity extends AppCompatActivity {
                 userId,
                 "Test Title 3",
                 "This is a to test the general notification.",
-                "General",
-                false
+                "General"
         );
 
         notificationRepository.uploadNotification(notification)

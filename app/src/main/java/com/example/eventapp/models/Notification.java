@@ -11,28 +11,25 @@ public class Notification {
     private String message;
     private String event;
     private String type;
-    private Boolean read;
 
     public Notification() {
     }
 
     // Constructor for invitation notification
-    public Notification(String userId, String title, String message, String event, String type, boolean read) {
+    public Notification(String userId, String title, String message, String event, String type) {
         this.userId = userId;
         this.title = title;
         this.message = message;
         this.event = event;
         this.type = type;
-        this.read = read;
     }
 
     // Constructor for general notification
-    public Notification(String userId, String title, String message, String type, boolean read) {
+    public Notification(String userId, String title, String message, String type) {
         this.userId = userId;
         this.title = title;
         this.message = message;
         this.type = type;
-        this.read = read;
     }
 
     public String getDocumentId() {
@@ -72,8 +69,4 @@ public class Notification {
     public void setType(String type) {
         this.type = type;
     }
-
-    public Boolean getRead() { return read; }
-
-    public void setRead(Boolean read) { this.read = read; }
 }
