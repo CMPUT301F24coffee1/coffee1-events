@@ -12,8 +12,12 @@ import android.view.View;
 import android.widget.Toast;
 import android.Manifest;
 
+import com.example.eventapp.models.Notification;
 import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.UserRepository;
+import com.example.eventapp.repositories.NotificationRepository;
+import com.example.eventapp.services.notifications.ShowNotifications;
+import com.example.eventapp.viewmodels.NotificationsViewModel;
 import com.example.eventapp.viewmodels.ProfileViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -43,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
     NavController navController;
     Menu navMenu;
+
+    private static final String TEST_USER_ID = "ef5f56cd4eaae07b"; // Replace with a valid user ID
+    private static final String TEST_NOTIFICATION_ID = "notificationId123"; // Replace with a valid notification ID
+    private NotificationRepository notificationRepository;
 
     /**
      * Initializes the main activity and sets up Firebase, bindings, navigation, and permission handling.
@@ -81,6 +89,25 @@ public class MainActivity extends AppCompatActivity {
                 Settings.Secure.ANDROID_ID
         );
         createOrLoadCurrentUser(androidId);
+
+        // Initializing viewModel and repository to check the notifications
+        NotificationsViewModel notificationsViewModel = new NotificationsViewModel();
+        notificationRepository = NotificationRepository.getInstance();
+
+        // UNCOMMENT THIS LINE TO TEST NOTIFICATIONS
+        //testUploadNotification(androidId);
+
+        // Fetch and show all current users notifications
+        if (androidId != null) {
+            notificationRepository.fetchUnreadNotifications(androidId)
+                    .thenAccept(notifications -> ShowNotifications.showInAppNotifications(MainActivity.this, notifications, notificationsViewModel))
+                    .exceptionally(throwable -> {
+                        Log.e(TAG, "Failed to fetch notifications:", throwable);
+                        return null;
+                    });
+        } else {
+            Log.e(TAG, "User ID is null. Unable to fetch notifications.");
+        }
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -227,5 +254,29 @@ public class MainActivity extends AppCompatActivity {
 
         // Return the full name
         return firstName + " " + lastName;
+    }
+
+    // Code to test the upload notificatons (Will be deleted once Lottery is finished)
+    private void testUploadNotification(String userId) {
+        Notification g_notification = new Notification(
+                userId,
+                "Test General Title",
+                "This is a to test the general notification.",
+                "General"
+        );
+
+        Notification i_notification = new Notification(
+                userId,
+                "Test Invite Title",
+                "This is a to test the invite notification.",
+                "Invite"
+        );
+
+        notificationRepository.uploadNotification(g_notification)
+                .thenAccept(s -> Log.d(TAG, "Notification uploaded successfully!"))
+                .exceptionally(throwable -> {
+                    Log.e(TAG, "Failed to upload notification", throwable);
+                    return null;
+                });
     }
 }
