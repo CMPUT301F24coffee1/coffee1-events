@@ -9,16 +9,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.Manifest;
 
-import com.example.eventapp.models.Event;
 import com.example.eventapp.models.Notification;
 import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.UserRepository;
-import com.example.eventapp.services.notifications.NotificationServices;
+import com.example.eventapp.repositories.NotificationRepository;
 import com.example.eventapp.services.notifications.ShowNotifications;
 import com.example.eventapp.viewmodels.NotificationsViewModel;
 import com.example.eventapp.viewmodels.ProfileViewModel;
@@ -39,8 +36,6 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.eventapp.databinding.ActivityMainBinding;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Random;
 import java.util.Arrays;
@@ -55,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TEST_USER_ID = "ef5f56cd4eaae07b"; // Replace with a valid user ID
     private static final String TEST_NOTIFICATION_ID = "notificationId123"; // Replace with a valid notification ID
-    private NotificationServices notificationServices;
+    private NotificationRepository notificationRepository;
 
     /**
      * Initializes the main activity and sets up Firebase, bindings, navigation, and permission handling.
@@ -95,31 +90,22 @@ public class MainActivity extends AppCompatActivity {
         );
         createOrLoadCurrentUser(androidId);
 
-
-
         NotificationsViewModel notificationsViewModel = new NotificationsViewModel();
-        notificationServices = new NotificationServices();
+        notificationRepository = NotificationRepository.getInstance();
 
-        testUploadNotification();
+        testUploadNotification(androidId);
         //testDeleteNotification();
 
         if (androidId != null) {
-            notificationServices.fetchUnreadNotifications(androidId, new NotificationServices.OnFetchNotificationsCallback() {
-                @Override
-                public void onSuccess(QuerySnapshot notifications) {
-                    ShowNotifications.showInAppNotifications(MainActivity.this, notifications, notificationsViewModel);
-                }
-
-                @Override
-                public void onFailure(Exception e) {
-                    Log.e(TAG, "Failed to fetch notifications: " + e.getMessage());
-                }
-            });
+            notificationRepository.fetchUnreadNotifications(androidId)
+                    .thenAccept(notifications -> ShowNotifications.showInAppNotifications(MainActivity.this, notifications, notificationsViewModel))
+                    .exceptionally(throwable -> {
+                        Log.e(TAG, "Failed to fetch notifications:", throwable);
+                        return null;
+                    });
         } else {
             Log.e(TAG, "User ID is null. Unable to fetch notifications.");
         }
-
-
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -268,28 +254,30 @@ public class MainActivity extends AppCompatActivity {
         return firstName + " " + lastName;
     }
 
-    private void testUploadNotification() {
+    private void testUploadNotification(String userId) {
         Notification notification = new Notification(
-                "ef5f56cd4eaae07b",
+                userId,
                 "Test Title 2",
                 "This is a to test the general notification.",
                 "General",
                 false
         );
 
-        notificationServices.uploadNotification(
-                notification,
-                () -> Log.d("MainActivity", "Notification uploaded successfully!"),
-                e -> Log.e("MainActivity", "Failed to upload notification", e)
-        );
+        notificationRepository.uploadNotification(notification)
+                .thenAccept(s -> Log.d(TAG, "Notification uploaded successfully!"))
+                .exceptionally(throwable -> {
+                    Log.e(TAG, "Failed to upload notification", throwable);
+                    return null;
+                });
     }
 
     private void testDeleteNotification() {
-        notificationServices.deleteNotification(
-                TEST_USER_ID,
-                TEST_NOTIFICATION_ID,
-                () -> Log.d("MainActivity", "Notification deleted successfully!"),
-                e -> Log.e("MainActivity", "Failed to delete notification", e)
-        );
+        notificationRepository.deleteNotification(TEST_USER_ID, TEST_NOTIFICATION_ID)
+                .thenAccept(discard -> {
+                    Log.d(TAG, "Notification deleted successfully!");
+                }).exceptionally(throwable -> {
+                    Log.e(TAG, "Failed to delete notification", throwable);
+                    return null;
+                });
     }
 }
