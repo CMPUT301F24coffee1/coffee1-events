@@ -2,9 +2,14 @@ package com.example.eventapp.repositories;
 
 import android.util.Log;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 
 import com.example.eventapp.models.Signup;
+import com.example.eventapp.models.User;
 import com.google.firebase.firestore.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -21,13 +26,16 @@ public class SignupRepository {
     private static final String TAG = "SignupRepository";
     private static SignupRepository instance;
     private final CollectionReference signupCollection;
+    private final UserRepository userRepository;
 
     private SignupRepository() {
         signupCollection = FirebaseFirestore.getInstance().collection("signups");
+        userRepository = UserRepository.getInstance();
     }
 
     private SignupRepository(FirebaseFirestore testInstance) {
         signupCollection = testInstance.collection("signups");
+        userRepository = UserRepository.getTestInstance(testInstance);
     }
 
     /**
@@ -218,6 +226,58 @@ public class SignupRepository {
                 }
             });
         return future;
+    }
+
+    /**
+     * Retrieves all users signed up for a specific event.
+     *
+     * @param eventId The ID of the event.
+     * @return LiveData containing a list of User instances signed up for the event.
+     */
+    public LiveData<List<User>> getSignedUpUsersLiveData(String eventId) {
+        return getSignedUpUsersByFilterLiveData(eventId, new SignupFilter());
+    }
+
+    /**
+     * Retrieves all users signed up for a specific event, filtered by a SignupFilter.
+     *
+     * @param eventId The ID of the event.
+     * @param filter instance of SignupFilter, outlining what to filter Signups by.
+     * @return LiveData containing a list of User instances signed up for the event.
+     */
+    public LiveData<List<User>> getSignedUpUsersByFilterLiveData(String eventId, SignupFilter filter) {
+        Query query = signupCollection.whereEqualTo("eventId", eventId);
+
+        if (filter.isCancelled != null) {
+            query = query.whereEqualTo("isCancelled", filter.isCancelled);
+        }
+        if (filter.isWaitlisted != null) {
+            query = query.whereEqualTo("isWaitlisted", filter.isWaitlisted);
+        }
+        if (filter.isChosen != null) {
+            query = query.whereEqualTo("isChosen", filter.isChosen);
+        }
+        if (filter.isEnrolled != null) {
+            query = query.whereEqualTo("isEnrolled", filter.isEnrolled);
+        }
+
+        LiveData<List<Signup>> signupLiveData = Common.runQueryLiveData(
+                "getSignedUpUsersByFilter", query, Signup.class, TAG);
+
+        return Transformations.switchMap(signupLiveData, signups -> {
+            if (signups == null || signups.isEmpty()) {
+                MutableLiveData<List<User>> emptyLiveData = new MutableLiveData<>();
+                emptyLiveData.setValue(new ArrayList<>());
+                return emptyLiveData;
+            }
+
+            List<String> userIds = new ArrayList<>();
+            for (Signup signup : signups) {
+                userIds.add(signup.getUserId());
+            }
+
+            return userRepository.getUsersByIdsLiveData(userIds);
+        });
     }
 
     /**
