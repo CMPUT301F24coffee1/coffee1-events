@@ -1,7 +1,11 @@
 package com.example.eventapp.models;
 
+import com.google.firebase.firestore.Exclude;
+
 public class Notification {
-    private String id;
+    @Exclude
+    private String documentId;
+
     private String userId;
     private String title;
     private String message;
@@ -31,13 +35,12 @@ public class Notification {
         this.read = read;
     }
 
-    // Getters and Setters
-    public String getId() {
-        return id;
+    public String getDocumentId() {
+        return documentId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setDocumentId(String id) {
+        this.documentId = id;
     }
 
     public String getUserId() { return userId; }
