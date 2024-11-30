@@ -257,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
     private void testUploadNotification(String userId) {
         Notification notification = new Notification(
                 userId,
-                "Test Title 2",
+                "Test Title 3",
                 "This is a to test the general notification.",
                 "General",
                 false

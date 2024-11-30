@@ -1,6 +1,7 @@
 package com.example.eventapp.services.notifications;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class ShowNotifications {
+    private static final String TAG = "ShowNotifications";
 
     public static void showInAppNotifications(Context context, List<Notification> notifications, NotificationsViewModel viewModel) {
         if (notifications.isEmpty()) {
@@ -54,8 +56,8 @@ public class ShowNotifications {
                         // Create the PopupWindow
                         PopupWindow popupWindow = new PopupWindow(
                                 popupView,
-                                ViewGroup.LayoutParams.WRAP_CONTENT,
-                                ViewGroup.LayoutParams.WRAP_CONTENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT,
                                 true
                         );
 
@@ -68,7 +70,10 @@ public class ShowNotifications {
                         // Handle Accept Button click
                         btnAccept.setOnClickListener(v -> {
                             // Handle the action for accepting the event
-                            // (You can add your own logic here)
+                            viewModel.UpdateSignupStatus(event.getDocumentId(), true);
+
+                            // Delete the notification
+                            viewModel.deleteNotification(notification);
 
                             // Close the popup
                             popupWindow.dismiss();
@@ -77,7 +82,10 @@ public class ShowNotifications {
                         // Handle Decline Button click
                         btnDecline.setOnClickListener(v -> {
                             // Handle the action for declining the event
-                            // (You can add your own logic here)
+                            viewModel.UpdateSignupStatus(event.getDocumentId(), false);
+
+                            // Delete the notification
+                            viewModel.deleteNotification(notification);
 
                             // Close the popup
                             popupWindow.dismiss();
@@ -100,10 +108,13 @@ public class ShowNotifications {
                 // Create the PopupWindow
                 PopupWindow popupWindow = new PopupWindow(
                         popupView,
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
                         true
                 );
+                // Make the PopupWindow non-cancelable
+                popupWindow.setOutsideTouchable(false);
+                popupWindow.setFocusable(true);
 
                 // Remove the default background
                 popupWindow.setBackgroundDrawable(null);
@@ -113,12 +124,12 @@ public class ShowNotifications {
 
                 // Handle Accept Button click
                 btnOkay.setOnClickListener(v -> {
-                    // Handle the action for accepting the event
-                    // (You can add your own logic here)
-
+                    viewModel.deleteNotification(notification);
                     // Close the popup
                     popupWindow.dismiss();
                 });
+            } else {
+                Log.w(TAG, "showNotification: the notification does not have a valid type, must be 'General' or 'Invitation'.");
             }
         }
     }
