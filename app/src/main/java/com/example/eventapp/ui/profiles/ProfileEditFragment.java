@@ -202,7 +202,13 @@ public class ProfileEditFragment extends Fragment {
 
         deleteButton.setOnClickListener(v -> {
             if (hasFacilities()) {
-                Toast.makeText(getContext(), getString(R.string.error_cant_delete_profile), Toast.LENGTH_SHORT).show();
+                new AlertDialog.Builder(getActivity()).setMessage(R.string.confirm_delete_facilities)
+                        .setPositiveButton(R.string.confirm, (dialog, id) -> {
+                            profileViewModel.deleteSelectedUser();
+                            NavHostFragment.findNavController(this).popBackStack();
+                        }).setNegativeButton(R.string.cancel, (dialog, id) ->
+                                Toast.makeText(getContext(), getString(R.string.profile_delete_cancelled), Toast.LENGTH_SHORT).show()).create().show();
+
             } else {
                 new AlertDialog.Builder(getActivity()).setMessage(R.string.confirm_delete_profile)
                     .setPositiveButton(R.string.confirm, (dialog, id) -> {
