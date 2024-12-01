@@ -65,6 +65,8 @@
                         android:id="@+id/facility_photo_card"
                         android:layout_width="0dp"
                         android:layout_height="80dp"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:foreground="?android:attr/selectableItemBackground"
                         app:cardBackgroundColor="#00FFFFFF"
                         app:cardCornerRadius="100dp"
                         app:layout_constraintDimensionRatio="w,1:1"

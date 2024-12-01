@@ -1,5 +1,6 @@
 package com.example.eventapp.repositories;
 
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -16,6 +17,7 @@ import com.google.firebase.firestore.ListenerRegistration;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -220,6 +222,40 @@ public class UserRepository {
         String userId = user.getUserId();
         if (userId == null) throw new NullPointerException("userId cannot be null - set deviceId");
         return userId;
+    }
+
+    /**
+     * Retrieves a user by its image uri.
+     *
+     * @param imageUri The Uri of the image to search for.
+     * @return A CompletableFuture containing the user matching the image Uri hash, or null if not found.
+     */
+    public CompletableFuture<User> getUserByImageUri(Uri imageUri) {
+        Objects.requireNonNull(imageUri);
+        CompletableFuture<User> future = new CompletableFuture<>();
+
+        userCollection
+                .whereEqualTo("photoUri", imageUri)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                        DocumentSnapshot document = querySnapshot.getDocuments().get(0);
+                        User user = document.toObject(User.class);
+                        if (user != null) {
+                            user.setUserId(document.getId());
+                        }
+                        future.complete(user);
+                    } else {
+                        Log.w(TAG, "getUserByUri: no user found with Image Uri: " + imageUri);
+                        future.complete(null);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "getUserByUri: failed to retrieve user with Image Uri: " + imageUri, e);
+                    future.completeExceptionally(e);
+                });
+        return future;
     }
 
     /**

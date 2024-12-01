@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -22,6 +23,8 @@ import com.example.eventapp.R;
 import com.example.eventapp.databinding.ProfileInfoPopupBinding;
 import com.example.eventapp.models.User;
 import com.example.eventapp.services.photos.PhotoManager;
+import com.example.eventapp.ui.images.ImageInfoFragment;
+import com.example.eventapp.viewmodels.ImagesViewModel;
 import com.example.eventapp.viewmodels.ProfileViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -101,6 +104,7 @@ public class ProfileInfoFragment extends BottomSheetDialogFragment {
         final TextView phoneField = binding.profileInfoPhone;
         final TextView idField = binding.profileInfoId;
         final ConstraintLayout manageFacilitiesContainer = binding.profileInfoManageFacilitiesContainer;
+        final CardView photoCard = binding.profileInfoPhotoCard;
         final ImageView photo = binding.profileInfoPhoto;
 
         nameField.setText(user.getName());
@@ -112,9 +116,20 @@ public class ProfileInfoFragment extends BottomSheetDialogFragment {
         Uri photoUri = user.getPhotoUri();
         if (user.hasPhoto()) {
             Glide.with(requireContext())
-                    .load(photoUri)
+                    .load(user.getPhotoUri())
                     .into(photo);
+            photoCard.setOnClickListener((v) -> {
+                if (v.isClickable()) {
+                    ImagesViewModel imagesViewModel = new ViewModelProvider(requireActivity()).get(ImagesViewModel.class);
+                    imagesViewModel.setSelectedImage(user.getPhotoUri());
+                    new ImageInfoFragment().show(requireActivity().getSupportFragmentManager(), "fragment_image_info");
+                }
+            });
+            photoCard.setClickable(true);
+            photoCard.setFocusable(true);
         } else {
+            photoCard.setClickable(false);
+            photoCard.setFocusable(false);
             photo.setImageBitmap(PhotoManager.generateDefaultProfilePicture(nameField.getText().toString(), user.getUserId()));
         }
     }

@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -17,6 +18,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Facility;
+import com.example.eventapp.ui.images.ImageInfoFragment;
+import com.example.eventapp.viewmodels.ImagesViewModel;
 import com.example.eventapp.viewmodels.ProfileViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -56,6 +59,7 @@ public class FacilityInfoFragment extends BottomSheetDialogFragment {
 
         TextView facilityName = view.findViewById(R.id.facility_name);
         TextView facilityDesc = view.findViewById(R.id.facility_desc);
+        CardView facilityPhotoCard = view.findViewById(R.id.facility_photo_card);
         ImageView facilityPhoto = view.findViewById(R.id.facility_photo);
 
         facilityName.setText(facility.getFacilityName());
@@ -65,7 +69,18 @@ public class FacilityInfoFragment extends BottomSheetDialogFragment {
             Glide.with(requireContext())
                     .load(facility.getPhotoUri())
                     .into(facilityPhoto);
+            facilityPhotoCard.setOnClickListener((v) -> {
+                if (v.isClickable()) {
+                    ImagesViewModel imagesViewModel = new ViewModelProvider(requireActivity()).get(ImagesViewModel.class);
+                    imagesViewModel.setSelectedImage(facility.getPhotoUri());
+                    new ImageInfoFragment().show(requireActivity().getSupportFragmentManager(), "fragment_image_info");
+                }
+            });
+            facilityPhotoCard.setClickable(true);
+            facilityPhotoCard.setFocusable(true);
         } else {
+            facilityPhotoCard.setClickable(false);
+            facilityPhotoCard.setFocusable(false);
             facilityPhoto.setImageResource(R.drawable.ic_facility_24dp);
         }
 
