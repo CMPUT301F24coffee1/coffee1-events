@@ -55,6 +55,15 @@ public class ViewEntrantsFragment extends Fragment {
         ImageButton filterOptionsButton = view.findViewById(R.id.fragment_view_entrants_filter_options_button);
         filterOptionsButton.setOnClickListener(v -> showFilterOptionsPopup());
 
+        // Manage QR Code Button
+        ImageButton manageQrCodeButton = view.findViewById(R.id.fragment_view_entrants_qr_code_button);
+        manageQrCodeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showManageQrCodeFragment();
+            }
+        });
+
         Event currentEvent = entrantsViewModel.getCurrentEventToQuery();
         if (currentEvent != null) {
             entrantsViewModel.setCurrentEventToQuery(currentEvent);
@@ -98,5 +107,10 @@ public class ViewEntrantsFragment extends Fragment {
         );
 
         entrantsViewModel.updateFilter(signupFilter);
+    }
+
+    private void showManageQrCodeFragment() {
+        ManageQRCodeFragment manageQRCodeFragment = new ManageQRCodeFragment(entrantsViewModel.getCurrentEventToQuery());
+        manageQRCodeFragment.show(requireActivity().getSupportFragmentManager(), "manage_qr_code");
     }
 }
