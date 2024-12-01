@@ -1,7 +1,6 @@
 package com.example.eventapp.ui.events;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,92 +15,88 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.eventapp.R;
+import com.example.eventapp.models.Event;
 import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.SignupFilter;
-import com.example.eventapp.repositories.UserRepository;
 import com.example.eventapp.viewmodels.EntrantsViewModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class ViewEntrantsFragment extends Fragment {
-
-    private RecyclerView entrantsList;
     private ArrayList<User> entrants;
-    private boolean[] filterOptions; // Cancelled, Waitlisted, Chosen, Enrolled
+    private EntrantsAdapter entrantsAdapter;
     private EntrantsViewModel entrantsViewModel;
 
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-        View view = inflater.inflate(R.layout.fragment_view_entrants, null);
-        return view;
+    // Cancelled, Waitlisted, Chosen, Enrolled:
+    private boolean[] filterOptions;
+
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_view_entrants, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Initialize ViewModel and data
         entrantsViewModel = new ViewModelProvider(requireActivity()).get(EntrantsViewModel.class);
-        Log.d("ViewEntrantsFragment", "created");
-        filterOptions = new boolean[]{true, true, true, true};
-        entrantsList = view.findViewById(R.id.fragment_view_entrants_entrant_list);
-        entrantsList.setLayoutManager(new LinearLayoutManager(getContext()));
+        filterOptions = new boolean[]{false, false, false, false};
         entrants = new ArrayList<>();
+        entrantsAdapter = new EntrantsAdapter(entrants);
 
-        ImageButton filterOptionsButton = view.findViewById(R.id.fragment_view_entrants_filter_options_button);
-
-        filterOptionsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showFilterOptionsPopup();
-            }
-        });
-
-        // for testing
-        entrants.add(new User("abc", "def"));
-        entrants.add(new User("abc", "def"));
-        entrants.add(new User("abc", "def"));
-        User actualUser = UserRepository.getInstance().getCurrentUserLiveData().getValue();
-        entrants.add(actualUser);
-        entrants.add(new User("abc", "def"));
-        entrants.add(new User("abc", "def"));
-        entrants.add(new User("abc", "def"));
-        entrants.add(new User("abc", "def"));
-        entrants.add(new User("abc", "def"));
-        entrants.add(new User("abc", "def"));
-
-        EntrantsAdapter entrantsAdapter = new EntrantsAdapter(entrants);
+        // Set up RecyclerView
+        RecyclerView entrantsList = view.findViewById(R.id.fragment_view_entrants_entrant_list);
+        entrantsList.setLayoutManager(new LinearLayoutManager(getContext()));
         entrantsList.setAdapter(entrantsAdapter);
+
+        // Handle filter button
+        ImageButton filterOptionsButton = view.findViewById(R.id.fragment_view_entrants_filter_options_button);
+        filterOptionsButton.setOnClickListener(v -> showFilterOptionsPopup());
+
+        Event currentEvent = entrantsViewModel.getCurrentEventToQuery();
+        if (currentEvent != null) {
+            entrantsViewModel.setCurrentEventToQuery(currentEvent);
+        } else {
+            Log.e("ViewEntrantsFragment", "Current event is null");
+        }
+
+        entrantsViewModel.getFilteredUsersLiveData().observe(getViewLifecycleOwner(), this::updateEntrantsList);
+        updateFilter();
     }
 
-    private void showFilterOptionsPopup(){
+    private void updateEntrantsList(List<User> newEntrants) {
+        entrants.clear();
+        entrants.addAll(newEntrants);
+        // TODO: calculating diff with DiffUtil
+        entrantsAdapter.notifyDataSetChanged();
+    }
 
+    private void showFilterOptionsPopup() {
         CharSequence[] options = {"Cancelled", "Waitlisted", "Chosen", "Enrolled"};
-
         boolean[] tempFilterOptions = Arrays.copyOf(filterOptions, filterOptions.length);
 
-        // referenced the Android developer docs
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Filter Options").setMultiChoiceItems(options, tempFilterOptions, new DialogInterface.OnMultiChoiceClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
-                Log.d("ViewEntrantsFragment", "Updating Value");
-            }
-        }).setPositiveButton("Apply", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id){
-                Log.d("ViewEntrantsFragment", "Updating filterOptions to:" + Arrays.toString(tempFilterOptions));
-                filterOptions = tempFilterOptions;
-                Log.d("ViewEntrantsFragment", "filterOptions is now: " + Arrays.toString(filterOptions));
-            }
-        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Log.d("ViewEntrantsFragment", "Discarding Changes");
-            }
-        }).show();
+        builder.setTitle("Filter Options")
+                .setMultiChoiceItems(options, tempFilterOptions, (dialogInterface, i, b) -> {})
+                .setPositiveButton("Apply", (dialog, id) -> {
+                    filterOptions = Arrays.copyOf(tempFilterOptions, tempFilterOptions.length);
+                    updateFilter();
+                })
+                .setNegativeButton("Cancel", (dialogInterface, i) -> {
+                })
+                .show();
     }
 
-    private void queryWithFilter(){
-        SignupFilter signupFilter = new SignupFilter(filterOptions[0], filterOptions[1], filterOptions[2], filterOptions[3]);
+    private void updateFilter() {
+        SignupFilter signupFilter = new SignupFilter(
+                filterOptions[0] ? true : null, // isCancelled
+                filterOptions[1] ? true : null, // isWaitlisted
+                filterOptions[2] ? true : null, // isChosen
+                filterOptions[3] ? true : null  // isEnrolled
+        );
 
-        // call update function in EntrantsViewModel
+        entrantsViewModel.updateFilter(signupFilter);
     }
 }
