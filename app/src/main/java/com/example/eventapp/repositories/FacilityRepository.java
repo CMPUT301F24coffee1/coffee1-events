@@ -148,9 +148,6 @@ public class FacilityRepository {
             return future;
         }
 
-        if (facility.hasPhoto()) {
-            PhotoManager.deletePhotoFromFirebase(facility.getPhotoUri());
-        }
         facilityCollection.document(documentId).delete()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

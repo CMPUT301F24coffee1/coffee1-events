@@ -75,7 +75,11 @@ public class ProfileViewModel extends ViewModel {
      * Deletes the currently selected User
      */
     public void deleteSelectedUser() {
-        userRepository.removeUser(currentUserLiveData.getValue());
+        User user = currentUserLiveData.getValue();
+        if (user.hasPhoto()) {
+            PhotoManager.deletePhotoFromFirebase(user.getPhotoUri());
+        }
+        userRepository.removeUser(user);
     }
 
     /**
@@ -228,6 +232,9 @@ public class ProfileViewModel extends ViewModel {
      */
     public CompletableFuture<Void> removeSelectedFacility() {
         Facility facility = getSelectedFacility();
+        if (facility.hasPhoto()) {
+            PhotoManager.deletePhotoFromFirebase(facility.getPhotoUri());
+        }
         return facilityRepository.removeFacility(facility);
     }
 
