@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
@@ -26,6 +27,8 @@ import com.example.eventapp.R;
 import com.example.eventapp.databinding.FragmentProfileBinding;
 import com.example.eventapp.models.User;
 import com.example.eventapp.services.photos.PhotoManager;
+import com.example.eventapp.ui.images.ImageInfoFragment;
+import com.example.eventapp.viewmodels.ImagesViewModel;
 import com.example.eventapp.viewmodels.ProfileViewModel;
 
 import java.util.Locale;
@@ -95,7 +98,7 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         NavController navController = NavHostFragment.findNavController(this);
 
-        Button fragmentButton = view.findViewById(R.id.profile_manage_facilities);
+        Button fragmentButton = binding.profileManageFacilities;
 
         fragmentButton.setOnClickListener((v) -> navController.navigate(R.id.navigation_facilities));
     }
@@ -109,6 +112,7 @@ public class ProfileFragment extends Fragment {
         final TextView emailField = binding.profileEmail;
         final TextView phoneField = binding.profilePhone;
         final ConstraintLayout manageFacilitiesContainer = binding.profileManageFacilitiesContainer;
+        final CardView photoCard = binding.profilePhotoCard;
         final ImageView photo = binding.profilePhoto;
 
         nameField.setText(user.getName());
@@ -120,7 +124,18 @@ public class ProfileFragment extends Fragment {
             Glide.with(requireContext())
                     .load(user.getPhotoUri())
                     .into(photo);
+            photoCard.setOnClickListener((v) -> {
+                if (v.isClickable()) {
+                    ImagesViewModel imagesViewModel = new ViewModelProvider(requireActivity()).get(ImagesViewModel.class);
+                    imagesViewModel.setSelectedImage(user.getPhotoUri());
+                    new ImageInfoFragment().show(requireActivity().getSupportFragmentManager(), "fragment_image_info");
+                }
+            });
+            photoCard.setClickable(true);
+            photoCard.setFocusable(true);
         } else {
+            photoCard.setClickable(false);
+            photoCard.setFocusable(false);
             photo.setImageBitmap(PhotoManager.generateDefaultProfilePicture(nameField.getText().toString(), user.getUserId()));
         }
     }

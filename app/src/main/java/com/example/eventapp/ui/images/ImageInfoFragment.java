@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
@@ -91,7 +92,9 @@ public class ImageInfoFragment extends DialogFragment {
 
         final FloatingActionButton closeButton = binding.imageInfoCloseButton;
         final ImageView image = binding.imageInfoImage;
+        final CardView typeCard = binding.imageInfoTypeCard;
         final TextView typeText = binding.imageInfoTypeText;
+        final CardView nameCard = binding.imageInfoNameCard;
         final TextView nameText = binding.imageInfoNameText;
         final Button deleteButton = binding.imageInfoDelete;
 
@@ -120,13 +123,19 @@ public class ImageInfoFragment extends DialogFragment {
                 .load(imageUri)
                 .into(image);
 
-        typeText.setText(imageType);
-        nameText.setText(name);
+        if (imagesViewModel.isObjectSelected()) {
+            typeCard.setVisibility(View.VISIBLE);
+            typeText.setText(imageType);
+            nameCard.setVisibility(View.VISIBLE);
+            nameText.setText(name);
 
-        deleteButton.setOnClickListener((v) -> {
-            imagesViewModel.removeSelectedImage();
-            requireActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
-        });
+            deleteButton.setVisibility(View.VISIBLE);
+            deleteButton.setOnClickListener((v) -> {
+                imagesViewModel.removeSelectedImage();
+                requireActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+            });
+        }
+
     }
 
     /**

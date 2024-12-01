@@ -36,6 +36,7 @@ public class ImagesViewModel extends ViewModel {
     private String selectedName;
     private Object selectedObject;
     private boolean imageRemoved;
+    private boolean isObjectSelected;
 
     /**
      * Initializes the Images View model by default, specifying the events, users, and facilities repositories,
@@ -90,6 +91,7 @@ public class ImagesViewModel extends ViewModel {
         this.selectedObject = null;
         this.selectedName = "";
         this.imageRemoved = false;
+        this.isObjectSelected = false;
     }
 
     /**
@@ -99,6 +101,10 @@ public class ImagesViewModel extends ViewModel {
      */
     public CompletableFuture<Boolean> setSelectedObject(Uri imageUri) {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
+
+        // Technically, it could be set to null through this,
+        // but the admin view should show the null object anyways
+        this.isObjectSelected = true;
 
         switch (Objects.requireNonNull(imageUri.getLastPathSegment()).split("/")[0]) {
             case "events":
@@ -230,6 +236,15 @@ public class ImagesViewModel extends ViewModel {
                 return null;
             });
         }
+    }
+
+    /**
+     * Gets whether or not the current selection has an object selected,
+     * that is, selected from the admin images view
+     * @return Boolean of whether or not the current selection has an object selected
+     */
+    public boolean isObjectSelected() {
+        return isObjectSelected;
     }
 
     /**
