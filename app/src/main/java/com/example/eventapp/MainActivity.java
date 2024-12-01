@@ -15,9 +15,8 @@ import android.Manifest;
 import com.example.eventapp.models.Notification;
 import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.UserRepository;
-import com.example.eventapp.repositories.NotificationRepository;
+import com.example.eventapp.services.notifications.NotificationService;
 import com.example.eventapp.services.notifications.ShowNotifications;
-import com.example.eventapp.viewmodels.NotificationsViewModel;
 import com.example.eventapp.viewmodels.ProfileViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -47,10 +46,6 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
     NavController navController;
     Menu navMenu;
-
-    private static final String TEST_USER_ID = "ef5f56cd4eaae07b"; // Replace with a valid user ID
-    private static final String TEST_NOTIFICATION_ID = "notificationId123"; // Replace with a valid notification ID
-    private NotificationRepository notificationRepository;
 
     /**
      * Initializes the main activity and sets up Firebase, bindings, navigation, and permission handling.
@@ -90,17 +85,15 @@ public class MainActivity extends AppCompatActivity {
         );
         createOrLoadCurrentUser(androidId);
 
-        // Initializing viewModel and repository to check the notifications
-        NotificationsViewModel notificationsViewModel = new NotificationsViewModel();
-        notificationRepository = NotificationRepository.getInstance();
-
         // UNCOMMENT THIS LINE TO TEST NOTIFICATIONS
-        //testUploadNotification(androidId);
+        // testUploadNotification(androidId);
+
+        NotificationService notificationService = NotificationService.getInstance();
 
         // Fetch and show all current users notifications
         if (androidId != null) {
-            notificationRepository.fetchUnreadNotifications(androidId)
-                    .thenAccept(notifications -> ShowNotifications.showInAppNotifications(MainActivity.this, notifications, notificationsViewModel))
+            notificationService.fetchUnreadNotifications(androidId)
+                    .thenAccept(notifications -> ShowNotifications.showInAppNotifications(MainActivity.this, notifications))
                     .exceptionally(throwable -> {
                         Log.e(TAG, "Failed to fetch notifications:", throwable);
                         return null;
@@ -273,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
                 "Invite"
         );
 
-        notificationRepository.uploadNotification(g_notification)
+        NotificationService.getInstance().uploadNotification(g_notification)
                 .thenAccept(s -> Log.d(TAG, "Notification uploaded successfully!"))
                 .exceptionally(throwable -> {
                     Log.e(TAG, "Failed to upload notification", throwable);
