@@ -1,6 +1,7 @@
 package com.example.eventapp.ui.images;
 
 import android.media.Image;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,11 +31,11 @@ import java.util.ArrayList;
  * </ul>
  */
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
-    private final ArrayList<String> imageUriStringList;
+    private final ArrayList<Uri> imageUriList;
     private final OnImageClickListener onImageClickListener;
 
     public interface OnImageClickListener {
-        void onImageClick(String image);
+        void onImageClick(Uri image);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
@@ -50,8 +51,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         }
     }
 
-    public ImageAdapter(ArrayList<String> imageUriStrings, OnImageClickListener onEventClickListener) {
-        imageUriStringList = imageUriStrings;
+    public ImageAdapter(ArrayList<Uri> imageUris, OnImageClickListener onEventClickListener) {
+        imageUriList = imageUris;
         this.onImageClickListener = onEventClickListener;
     }
 
@@ -64,16 +65,16 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-        String imageUriString = imageUriStringList.get(position);
+        Uri imageUri = imageUriList.get(position);
         Glide.with(viewHolder.itemView.getContext())
-                .load(imageUriString)
+                .load(imageUri)
                 .into(viewHolder.getImageView());
-        viewHolder.itemView.setOnClickListener(v -> onImageClickListener.onImageClick(imageUriString));
+        viewHolder.itemView.setOnClickListener(v -> onImageClickListener.onImageClick(imageUri));
     }
 
     @Override
     public int getItemCount() {
-        return imageUriStringList.size();
+        return imageUriList.size();
     }
 
 }

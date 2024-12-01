@@ -71,4 +71,9 @@
     <string name="error_unspecified">Profile update failed with unspecified error</string>
     <string name="title_images">Images</string>
     <string name="an_image_in_the_database">An image in the database</string>
+    <string name="delete">Delete</string>
+    <string name="close">Close</string>
+    <string name="selected_image">Selected Image</string>
+    <string name="delete_image">Delete Image</string>
+    <string name="type">Type</string>
 </resources>

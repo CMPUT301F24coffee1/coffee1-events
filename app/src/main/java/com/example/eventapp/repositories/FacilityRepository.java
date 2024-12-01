@@ -1,12 +1,13 @@
 package com.example.eventapp.repositories;
 
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
 import com.example.eventapp.models.Facility;
-import com.example.eventapp.services.photos.PhotoManager;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -160,6 +161,75 @@ public class FacilityRepository {
                 });
         return future;
     }
+
+    /**
+     * Retrieves a facility by its document ID
+     *
+     * @param facilityId The document ID of the facility
+     * @return A CompletableFuture containing the facility matching the id, or null if not found
+     */
+    public CompletableFuture<Facility> getFacilityById(String facilityId) {
+        Objects.requireNonNull(facilityId, "Facility ID cannot be null");
+        CompletableFuture<Facility> future = new CompletableFuture<>();
+
+        // Reference to the specific event document
+        facilityCollection.document(facilityId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Convert the document to an Event object
+                        Facility facility = documentSnapshot.toObject(Facility.class);
+                        if (facility != null) {
+                            facility.setDocumentId(documentSnapshot.getId()); // Store document ID if needed
+                        }
+                        future.complete(facility); // Complete the future with the event
+                    } else {
+                        Log.w(TAG, "getFacilityById: no facility found for ID: " + facilityId);
+                        future.complete(null); // Complete with null if no document exists
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "getFacilityById: failed to retrieve Facility", e);
+                    future.completeExceptionally(e); // Handle failure
+                });
+
+        return future;
+    }
+
+    /**
+     * Retrieves a facility by its document id.
+     *
+     * @param imageUri The id of the facility to search for.
+     * @return A CompletableFuture containing the facility matching the image Uri hash, or null if not found.
+     */
+    public CompletableFuture<Facility> getFacilityByImageUri(Uri imageUri) {
+        Objects.requireNonNull(imageUri);
+        CompletableFuture<Facility> future = new CompletableFuture<>();
+
+        facilityCollection
+                .whereEqualTo("photoUri", imageUri)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                        DocumentSnapshot document = querySnapshot.getDocuments().get(0);
+                        Facility facility = document.toObject(Facility.class);
+                        if (facility != null) {
+                            facility.setDocumentId(document.getId());
+                        }
+                        future.complete(facility);
+                    } else {
+                        Log.w(TAG, "getFacilityByUri: no facility found with Image Uri: " + imageUri);
+                        future.complete(null);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "getFacilityByUri: failed to retrieve facility with Image Uri: " + imageUri, e);
+                    future.completeExceptionally(e);
+                });
+        return future;
+    }
+
 
     /**
      * Retrieves a LiveData list of facilities organized by a specific user.
