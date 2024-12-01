@@ -11,12 +11,15 @@ import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.eventapp.R;
 import com.example.eventapp.models.User;
+import com.example.eventapp.repositories.SignupFilter;
 import com.example.eventapp.repositories.UserRepository;
+import com.example.eventapp.viewmodels.EntrantsViewModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +28,8 @@ public class ViewEntrantsFragment extends Fragment {
 
     private RecyclerView entrantsList;
     private ArrayList<User> entrants;
-    private boolean[] filterOptions;
+    private boolean[] filterOptions; // Cancelled, Waitlisted, Chosen, Enrolled
+    private EntrantsViewModel entrantsViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.fragment_view_entrants, null);
@@ -34,6 +38,7 @@ public class ViewEntrantsFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        entrantsViewModel = new ViewModelProvider(requireActivity()).get(EntrantsViewModel.class);
         Log.d("ViewEntrantsFragment", "created");
         filterOptions = new boolean[]{true, true, true, true};
         entrantsList = view.findViewById(R.id.fragment_view_entrants_entrant_list);
@@ -92,5 +97,11 @@ public class ViewEntrantsFragment extends Fragment {
                 Log.d("ViewEntrantsFragment", "Discarding Changes");
             }
         }).show();
+    }
+
+    private void queryWithFilter(){
+        SignupFilter signupFilter = new SignupFilter(filterOptions[0], filterOptions[1], filterOptions[2], filterOptions[3]);
+
+        // call update function in EntrantsViewModel
     }
 }
