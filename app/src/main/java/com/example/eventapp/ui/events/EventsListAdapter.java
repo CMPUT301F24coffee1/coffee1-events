@@ -10,11 +10,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.eventapp.R;
 
+/**
+ * EventListAdapter is an adapter that populates the actual list of events, given from the main
+ * {@link EventsFragment}. It is necessary to interface with the ViewPager, which splits the list of
+ * events into events you're participating in, or events you're organizing.
+ */
 public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.ViewHolder> {
 
     private final EventAdapter organizedEventsAdapter;
     private final EventAdapter signedUpEventsAdapter;
-    private int itemCount = 2;
+    private int itemCount;
 
     /**
      * Initializes the EventsListAdapter, which handles the views for both organized and signed up events
@@ -24,6 +29,7 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Vi
     public EventsListAdapter(EventAdapter organizedEventsAdapter, EventAdapter signedUpEventsAdapter) {
         this.organizedEventsAdapter = organizedEventsAdapter;
         this.signedUpEventsAdapter = signedUpEventsAdapter;
+        itemCount = 2;
     }
 
     /**

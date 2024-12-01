@@ -12,6 +12,12 @@
         android:title="@string/title_scanqr" />
 
     <item
+        android:id="@+id/navigation_admin_images"
+        android:icon="@drawable/ic_image_24dp"
+        android:title="@string/title_images"
+        android:visible="false" />
+
+    <item
         android:id="@+id/navigation_admin_profiles"
         android:icon="@drawable/ic_profiles_24dp"
         android:title="@string/title_profiles"
