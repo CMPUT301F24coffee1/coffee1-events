@@ -15,8 +15,8 @@ import android.Manifest;
 import com.example.eventapp.models.Notification;
 import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.UserRepository;
-import com.example.eventapp.services.notifications.NotificationService;
-import com.example.eventapp.services.notifications.ShowNotifications;
+import com.example.eventapp.services.NotificationService;
+import com.example.eventapp.ui.notifications.NotificationPopUp;
 import com.example.eventapp.viewmodels.ProfileViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         // Fetch and show all current users notifications
         if (androidId != null) {
             notificationService.fetchUnreadNotifications(androidId)
-                    .thenAccept(notifications -> ShowNotifications.showInAppNotifications(MainActivity.this, notifications))
+                    .thenAccept(notifications -> NotificationPopUp.showMultiple(MainActivity.this, notifications))
                     .exceptionally(throwable -> {
                         Log.e(TAG, "Failed to fetch notifications:", throwable);
                         return null;

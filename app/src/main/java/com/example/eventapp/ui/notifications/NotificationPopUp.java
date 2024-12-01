@@ -1,4 +1,4 @@
-package com.example.eventapp.services.notifications;
+package com.example.eventapp.ui.notifications;
 
 import android.content.Context;
 import android.util.Log;
@@ -18,6 +18,7 @@ import com.example.eventapp.R;
 import com.example.eventapp.models.Notification;
 import com.example.eventapp.repositories.EventRepository;
 import com.example.eventapp.services.FormatDate;
+import com.example.eventapp.services.NotificationService;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ import java.util.List;
  * Class for showing the current user's notifications.
  * Used whenever the user opens the app and has pending notifications.
  */
-public class ShowNotifications {
+public class NotificationPopUp {
 
     private static final String TAG = "ShowNotifications";
     private static NotificationService notificationService;
@@ -38,7 +39,7 @@ public class ShowNotifications {
      * @param context       The context from MainActivity.
      * @param notifications The list of notifications that need to be displayed.
      */
-    public static void showInAppNotifications(Context context, List<Notification> notifications) {
+    public static void showMultiple(Context context, List<Notification> notifications) {
         if (notifications.isEmpty()) {
             return;
         }

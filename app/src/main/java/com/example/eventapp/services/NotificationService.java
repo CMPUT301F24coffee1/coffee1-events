@@ -1,4 +1,4 @@
-package com.example.eventapp.services.notifications;
+package com.example.eventapp.services;
 
 import android.util.Log;
 
