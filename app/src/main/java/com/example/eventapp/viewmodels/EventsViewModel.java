@@ -8,9 +8,11 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.eventapp.models.Event;
+import com.example.eventapp.models.Facility;
 import com.example.eventapp.models.Signup;
 import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.EventRepository;
+import com.example.eventapp.repositories.FacilityRepository;
 import com.example.eventapp.repositories.SignupRepository;
 import com.example.eventapp.repositories.UserRepository;
 import com.example.eventapp.services.photos.PhotoManager;
@@ -34,20 +36,23 @@ public class EventsViewModel extends ViewModel {
 
     private final EventRepository eventRepository;
     private final SignupRepository signupRepository;
+    private final FacilityRepository facilityRepository;
     private final LiveData<User> currentUserLiveData;
 
     private final MediatorLiveData<List<Event>> organizedEventsLiveData = new MediatorLiveData<>();
     private final MediatorLiveData<List<Event>> signedUpEventsLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<List<Facility>> userFacilitiesLiveData = new MediatorLiveData<>();
 
     /**
      * Default constructor for EventsViewModel.
-     * Initializes the view model with default repositories for events, signups, and users.
+     * Initializes the view model with default repositories for events, signups, facilities, and users.
      */
     public EventsViewModel() {
         this(
                 EventRepository.getInstance(),
                 SignupRepository.getInstance(),
                 UserRepository.getInstance(),
+                FacilityRepository.getInstance(),
                 null
         );
     }
@@ -55,34 +60,38 @@ public class EventsViewModel extends ViewModel {
     /**
      * Parameterized constructor for EventsViewModel for dependency injection.
      *
-     * @param eventRepository The EventRepository instance.
-     * @param signupRepository The SignupRepository instance.
-     * @param userRepository The UserRepository instance.
+     * @param eventRepository    The EventRepository instance.
+     * @param signupRepository   The SignupRepository instance.
+     * @param userRepository     The UserRepository instance.
+     * @param facilityRepository The FacilityRepository instance.
      * @param injectedUserLiveData LiveData of the current user, allowing for test injection.
      */
     public EventsViewModel(
             EventRepository eventRepository,
             SignupRepository signupRepository,
             UserRepository userRepository,
+            FacilityRepository facilityRepository,
             LiveData<User> injectedUserLiveData) {
         mText = new MutableLiveData<>();
         mText.setValue("Events");
 
         this.eventRepository = eventRepository;
         this.signupRepository = signupRepository;
+        this.facilityRepository = facilityRepository;
 
-        // dependency injection for tests
+        // Dependency injection for tests
         if (injectedUserLiveData != null) {
             currentUserLiveData = injectedUserLiveData;
         } else {
             currentUserLiveData = userRepository.getCurrentUserLiveData();
         }
 
-        // load organized and signed-up events when current user data is available
+        // Load data when current user data is available
         currentUserLiveData.observeForever(user -> {
             if (user != null) {
                 loadOrganizedEvents(user.getUserId());
                 loadSignedUpEvents(user.getUserId());
+                loadUserFacilities(user.getUserId());
             }
         });
     }
@@ -106,6 +115,15 @@ public class EventsViewModel extends ViewModel {
     }
 
     /**
+     * Retrieves LiveData containing a list of facilities associated with the current user.
+     *
+     * @return LiveData of a list of user's facilities.
+     */
+    public LiveData<List<Facility>> getUserFacilities() {
+        return userFacilitiesLiveData;
+    }
+
+    /**
      * Loads events organized by the specified user and updates the corresponding LiveData.
      *
      * @param userId The ID of the user whose organized events are to be loaded.
@@ -123,6 +141,16 @@ public class EventsViewModel extends ViewModel {
     private void loadSignedUpEvents(String userId) {
         LiveData<List<Event>> signedUpEvents = eventRepository.getSignedUpEventsOfUserLiveData(userId);
         signedUpEventsLiveData.addSource(signedUpEvents, signedUpEventsLiveData::setValue);
+    }
+
+    /**
+     * Loads facilities associated with the specified user and updates the corresponding LiveData.
+     *
+     * @param userId The ID of the user whose facilities are to be loaded.
+     */
+    private void loadUserFacilities(String userId) {
+        LiveData<List<Facility>> userFacilities = facilityRepository.getFacilitiesOfOrganizerLiveData(userId);
+        userFacilitiesLiveData.addSource(userFacilities, userFacilitiesLiveData::setValue);
     }
 
     /**

@@ -81,11 +81,13 @@ public class EventRepository {
      * @param event The event to add.
      * @return A CompletableFuture containing the document ID of the newly added event.
      * @throws NullPointerException if the event or its organizerId is null.
+     * @throws IllegalArgumentException if the number of attendees is < 1.
      */
     public CompletableFuture<String> addEvent(Event event) {
         Objects.requireNonNull(event);
         String organizerId = event.getOrganizerId();
         String facilityId = event.getFacilityId();
+        int numberOfAttendees = event.getNumberOfAttendees();
         CompletableFuture<String> future = new CompletableFuture<>();
 
         if (organizerId == null) {
@@ -93,7 +95,12 @@ public class EventRepository {
             return future;
         }
         if (facilityId == null) {
-            Log.w(TAG, "addEvent: facilityId is null - event does not belong to any facility");
+            future.completeExceptionally(new NullPointerException("facilityId cannot be null"));
+            return future;
+        }
+        if (numberOfAttendees < 1) {
+            future.completeExceptionally(new IllegalArgumentException("numberOfAttendees cannot be < 1"));
+            return future;
         }
 
         eventCollection.add(event)
