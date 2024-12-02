@@ -1,21 +1,30 @@
 package com.example.eventapp.ui.events;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
 import com.example.eventapp.services.FormatDate;
+import com.example.eventapp.services.GetUserLocationService;
 import com.example.eventapp.viewmodels.EventsViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
@@ -25,12 +34,33 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
  */
 public class ScannedEventFragment extends BottomSheetDialogFragment {
 
+    private final String TAG = "ScannedEventFragment";
     private EventsViewModel eventsViewModel;
     private final Event event;
     private int currentWaitlistButtonState;
+    private Button waitlistButton;
+    private GetUserLocationService locationService;
+    private ActivityResultLauncher<String> locationPermissionLauncher;
 
     public ScannedEventFragment (Event event) {
         this.event = event;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Initialize the permission launcher
+        locationPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                isGranted -> {
+                    if (isGranted) {
+                        fetchLocationAndJoinWaitlist();
+                    } else {
+                        Toast.makeText(requireContext(), "Location permission denied.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
     }
 
     /**
@@ -52,7 +82,7 @@ public class ScannedEventFragment extends BottomSheetDialogFragment {
         eventsViewModel = new ViewModelProvider(requireActivity()).get(EventsViewModel.class);
         View view = inflater.inflate(R.layout.scanned_event_popup, null);
         TextView eventName = view.findViewById(R.id.popup_scanned_event_name_text);
-        Button waitlistButton = view.findViewById(R.id.popup_scanned_event_waitlist_button);
+        waitlistButton = view.findViewById(R.id.popup_scanned_event_waitlist_button);
         ImageView eventImage = view.findViewById(R.id.popup_scanned_event_poster_image);
         TextView eventDuration = view.findViewById(R.id.popup_scanned_event_duration_text);
         TextView eventRegistrationDeadline = view.findViewById(R.id.popup_scanned_event_registration_deadline_text);
@@ -89,19 +119,64 @@ public class ScannedEventFragment extends BottomSheetDialogFragment {
             waitlistButton.setText("Join Waitlist");
         }
 
+        // Set up waitlist button click listener
         waitlistButton.setOnClickListener(view1 -> {
             if(currentWaitlistButtonState == 1){ // leave waitlist
                 leaveEventWaitlist(event);
-                waitlistButton.setText("Join Waitlist");
+                waitlistButton.setText(R.string.join_waitlist);
                 currentWaitlistButtonState = 0;
-            }else{ // join waitlist
-                joinEventWaitlist(event);
-                waitlistButton.setText("Leave Waitlist");
-                currentWaitlistButtonState = 1;
+            } else { // join waitlist
+                if (event.isGeolocationRequired()) {
+                    checkAndRequestLocationPermission();
+                } else {
+                    joinEventWaitlist(event);
+                    waitlistButton.setText(R.string.leave_waitlist);
+                    currentWaitlistButtonState = 1;
+                }
             }
         });
 
         return view;
+    }
+
+    private void fetchLocationAndJoinWaitlist() {
+        locationService.fetchUserLocation(requireActivity(), new GetUserLocationService.LocationCallback() {
+            @Override
+            public void onLocationReceived(Location location) {
+                joinEventWaitlist(event, location.getLatitude(), location.getLongitude());
+                waitlistButton.setText(R.string.leave_waitlist);
+                currentWaitlistButtonState = 1;
+
+            }
+        });
+    }
+
+    private void checkAndRequestLocationPermission() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            // Permission already granted
+            fetchLocationAndJoinWaitlist();
+        } else if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+            // User previously denied permission
+            showPermissionRationale();
+        } else {
+            // First time asking for permission
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+    }
+
+    private void showPermissionRationale() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Location Permission Needed")
+                .setMessage("This event requires location permission to join.")
+                .setPositiveButton("Grant Permission", (dialog, which) -> {
+                    locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show();
+                })
+                .show();
     }
 
     /**
@@ -111,6 +186,15 @@ public class ScannedEventFragment extends BottomSheetDialogFragment {
      */
     private void joinEventWaitlist(Event event){
         eventsViewModel.registerToEvent(event);
+    }
+
+    /**
+     * Add user to waitlist of event
+     *
+     * @param event
+     */
+    private void joinEventWaitlist(Event event, double lat, double lon){
+        eventsViewModel.registerToEvent(event, lat, lon);
     }
 
     /**

@@ -1,5 +1,9 @@
 package com.example.eventapp.ui.events;
 
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,7 +12,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -19,6 +28,7 @@ import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
 import com.example.eventapp.models.Signup;
 import com.example.eventapp.services.FormatDate;
+import com.example.eventapp.services.GetUserLocationService;
 import com.example.eventapp.viewmodels.EventsViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -38,6 +48,10 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
     private final Event event;
     private final EventsFragment eventsFragment;
     private int currentWaitlistButtonState;
+    private Button waitlistButton;
+    private GetUserLocationService locationService;
+    private ActivityResultLauncher<String> locationPermissionLauncher;
+
 
     private static final String TAG = "EventInfoFragment";
 
@@ -59,6 +73,23 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         void editEventInfo(Event event);
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Initialize the permission launcher
+        locationPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                isGranted -> {
+                    if (isGranted) {
+                        fetchLocationAndJoinWaitlist();
+                    } else {
+                        Toast.makeText(requireContext(), "Location permission denied.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+    }
+
     /**
      * Inflates the view with event details, sets up join/leave waitlist button, and shows the edit button if permitted.
      *
@@ -74,7 +105,7 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
 
         TextView eventName = view.findViewById(R.id.popup_event_name_text);
         FloatingActionButton editEventButton = view.findViewById(R.id.popup_edit_event_info_button);
-        Button waitlistButton = view.findViewById(R.id.popup_event_waitlist_button);
+        waitlistButton = view.findViewById(R.id.popup_event_waitlist_button);
         ImageView eventImage = view.findViewById(R.id.popup_event_poster_image);
         TextView eventDuration = view.findViewById(R.id.popup_event_duration_text);
         TextView eventRegistrationDeadline = view.findViewById(R.id.popup_event_registration_deadline_text);
@@ -105,6 +136,9 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         observeEventSignups(eventEntrantsCount, waitlistButton);
         updateWaitlistButtonState(waitlistButton);
 
+        // Initialize location service
+        locationService = new GetUserLocationService(requireContext());
+
         // Set up waitlist button click listener
         waitlistButton.setOnClickListener(view1 -> {
             if(currentWaitlistButtonState == 1){ // leave waitlist
@@ -112,9 +146,13 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
                 waitlistButton.setText(R.string.join_waitlist);
                 currentWaitlistButtonState = 0;
             } else { // join waitlist
-                joinEventWaitlist(event);
-                waitlistButton.setText(R.string.leave_waitlist);
-                currentWaitlistButtonState = 1;
+                if (event.isGeolocationRequired()) {
+                    checkAndRequestLocationPermission();
+                } else {
+                    joinEventWaitlist(event);
+                    waitlistButton.setText(R.string.leave_waitlist);
+                    currentWaitlistButtonState = 1;
+                }
             }
         });
 
@@ -132,6 +170,46 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
             });
         }
         return view;
+    }
+
+    private void fetchLocationAndJoinWaitlist() {
+        locationService.fetchUserLocation(requireActivity(), new GetUserLocationService.LocationCallback() {
+            @Override
+            public void onLocationReceived(Location location) {
+                joinEventWaitlist(event, location.getLatitude(), location.getLongitude());
+                waitlistButton.setText(R.string.leave_waitlist);
+                currentWaitlistButtonState = 1;
+
+            }
+        });
+    }
+
+    private void checkAndRequestLocationPermission() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            // Permission already granted
+            fetchLocationAndJoinWaitlist();
+        } else if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+            // User previously denied permission
+            showPermissionRationale();
+        } else {
+            // First time asking for permission
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+    }
+
+    private void showPermissionRationale() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Location Permission Needed")
+                .setMessage("This event requires location permission to join.")
+                .setPositiveButton("Grant Permission", (dialog, which) -> {
+                    locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show();
+                })
+                .show();
     }
 
     private void observeEventSignups(TextView eventEntrantsCount, Button waitlistButton) {
@@ -186,6 +264,15 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
 
     private void joinEventWaitlist(Event event){
         eventsViewModel.registerToEvent(event);
+    }
+
+    /**
+     * Add user to waitlist of event
+     *
+     * @param event
+     */
+    private void joinEventWaitlist(Event event, double lat, double lon){
+        eventsViewModel.registerToEvent(event, lat, lon);
     }
 
     private void leaveEventWaitlist(Event event){

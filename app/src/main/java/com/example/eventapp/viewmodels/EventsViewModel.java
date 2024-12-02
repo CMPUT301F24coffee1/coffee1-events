@@ -248,6 +248,20 @@ public class EventsViewModel extends ViewModel {
     }
 
     /**
+     * Registers the current user for a specified event.
+     *
+     * @param event The event to register for.
+     * @return A CompletableFuture containing the document ID of the new signup.
+     */
+    public CompletableFuture<String> registerToEvent(Event event, double lat, double lon) {
+        User currentUser = currentUserLiveData.getValue();
+        if (currentUser != null) {
+            return signupRepository.addSignup(new Signup(currentUser.getUserId(), event.getDocumentId(), lat, lon));
+        }
+        return null;
+    }
+
+    /**
      * Unregisters the current user from a specified event.
      *
      * @param event The event to unregister from.
