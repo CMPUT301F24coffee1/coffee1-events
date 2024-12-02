@@ -42,9 +42,11 @@ jobs:
       run: ./gradlew test
       
     - name: Start Firebase Emulators
+      env:
+        PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
       run: |
         npm install -g firebase-tools
-        firebase emulators:start &
+        firebase emulators:start --project $PROJECT_ID &
 
     - name: Enable KVM (for Instrumented Tests)
       run: |
