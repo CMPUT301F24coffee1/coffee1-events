@@ -46,6 +46,11 @@ public class ScannedEventFragment extends BottomSheetDialogFragment {
         this.event = event;
     }
 
+    /**
+     * Initializes the location permission launcher when the view is created
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,6 +124,9 @@ public class ScannedEventFragment extends BottomSheetDialogFragment {
             waitlistButton.setText("Join Waitlist");
         }
 
+        // Initialize location service
+        locationService = new GetUserLocationService(requireContext());
+
         // Set up waitlist button click listener
         waitlistButton.setOnClickListener(view1 -> {
             if(currentWaitlistButtonState == 1){ // leave waitlist
@@ -139,6 +147,10 @@ public class ScannedEventFragment extends BottomSheetDialogFragment {
         return view;
     }
 
+    /**
+     * This method is called once we have location permissions
+     * and joins the user with their location to the event with a signup
+     */
     private void fetchLocationAndJoinWaitlist() {
         locationService.fetchUserLocation(requireActivity(), new GetUserLocationService.LocationCallback() {
             @Override
@@ -146,11 +158,15 @@ public class ScannedEventFragment extends BottomSheetDialogFragment {
                 joinEventWaitlist(event, location.getLatitude(), location.getLongitude());
                 waitlistButton.setText(R.string.leave_waitlist);
                 currentWaitlistButtonState = 1;
-
+                Toast.makeText(requireContext(), "This event uses your geolocation", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    /**
+     * Checks what stage of denial the user is in and asks for
+     * permission accordingly
+     */
     private void checkAndRequestLocationPermission() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -166,8 +182,13 @@ public class ScannedEventFragment extends BottomSheetDialogFragment {
         }
     }
 
+    /**
+     * Displays an alert stating the reason the user must allow location permissions
+     * The user cannot get into geolocation required events without giving
+     * location permissions
+     */
     private void showPermissionRationale() {
-        new AlertDialog.Builder(requireContext())
+        new AlertDialog.Builder(requireContext(), android.R.style.Theme_DeviceDefault_Dialog_Alert)
                 .setTitle("Location Permission Needed")
                 .setMessage("This event requires location permission to join.")
                 .setPositiveButton("Grant Permission", (dialog, which) -> {
@@ -180,37 +201,36 @@ public class ScannedEventFragment extends BottomSheetDialogFragment {
     }
 
     /**
-     * Add user to waitlist of event
+     * Add user to waitlist of event without location
      *
-     * @param event
+     * @param event event to which the user is getting added
      */
     private void joinEventWaitlist(Event event){
         eventsViewModel.registerToEvent(event);
     }
 
     /**
-     * Add user to waitlist of event
+     * Add user to waitlist of event with location
      *
-     * @param event
+     * @param event event to which the user is getting added
      */
     private void joinEventWaitlist(Event event, double lat, double lon){
         eventsViewModel.registerToEvent(event, lat, lon);
     }
 
     /**
-     * Remove user from waitlist of event
-     *
-     * @param event
+     * Unregisters the user from the waitlist
+     * Tells the view model to delete the signup
+     * @param event The event that the user is leaving
      */
     private void leaveEventWaitlist(Event event){
         eventsViewModel.unregisterFromEvent(event);
     }
 
     /**
-     * Check if the user is already on the waitlist for an event.
-     *
-     * @param event
-     * @return boolean: true if user is already on the waitlist, false if not
+     * Checks if the user is already on the waitlist for a given event
+     * @param event The event that needs to be checked
+     * @return Boolean value of whether they user is signed up for the event
      */
     private boolean isAlreadyOnWaitlist(Event event){
         return eventsViewModel.isSignedUp(event);

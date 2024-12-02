@@ -201,7 +201,6 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
                 waitlistButton.setText(R.string.leave_waitlist);
                 currentWaitlistButtonState = 1;
                 Toast.makeText(requireContext(), "This event uses your geolocation", Toast.LENGTH_SHORT).show();
-
             }
         });
     }
