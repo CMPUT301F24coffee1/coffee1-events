@@ -1,7 +1,5 @@
 package com.example.eventapp.models;
 
-import com.example.eventapp.models.Event;
-import android.net.Uri;
 import org.junit.Before;
 import org.junit.Test;
 import org.robolectric.RobolectricTestRunner;
@@ -41,11 +39,13 @@ public class EventTest {
         long endDate = 1672617600000L;   // Arbitrary timestamp
         long deadline = 1672520000000L;  // Arbitrary timestamp
 
-        Event event = new Event("Full Event", "uri://poster", "A full description", true, 100, startDate, endDate, deadline);
+        Event event = new Event("Full Event", "uri://poster", "A full description",
+                1,true, 100, startDate, endDate, deadline);
 
         assertEquals("Full Event", event.getEventName());
         assertEquals("uri://poster", event.getPosterUriString());
         assertEquals("A full description", event.getEventDescription());
+        assertEquals(1, event.getNumberOfAttendees());
         assertTrue(event.isGeolocationRequired());
         assertEquals(100, event.getMaxEntrants());
         assertEquals(startDate, event.getStartDate());

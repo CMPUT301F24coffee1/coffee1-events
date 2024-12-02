@@ -36,7 +36,7 @@ public class ShowNotifications {
      * @param viewModel the view model to display the notifications
      */
     public static void showInAppNotifications(Context context, List<Notification> notifications, NotificationsViewModel viewModel) {
-        if (notifications.isEmpty()) {
+        if (notifications == null || notifications.isEmpty()) {
             return;
         }
 
