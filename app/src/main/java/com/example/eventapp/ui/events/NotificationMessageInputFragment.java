@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,7 +31,7 @@ public class NotificationMessageInputFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState){
         EntrantsViewModel entrantsViewModel = new ViewModelProvider(requireActivity()).get(EntrantsViewModel.class);
         View view = getLayoutInflater().inflate(R.layout.fragment_notification_message_input, null);
-        TextInputEditText messageContent = view.findViewById(R.id.fragment_notification_message_input_edittext_input);
+        EditText messageContent = view.findViewById(R.id.fragment_notification_message_input_edittext_input);
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
         return builder.setView(view).setTitle("Input Notification Message").setNegativeButton("Cancel", null)
