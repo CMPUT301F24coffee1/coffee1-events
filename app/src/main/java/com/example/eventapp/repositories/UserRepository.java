@@ -291,6 +291,12 @@ public class UserRepository {
         });
     }
 
+    /**
+     * Updates the FCM (Firebase Cloud Messaging) token for the current user in Firestore.
+     *
+     * @param token The new FCM token to associate with the user.
+     * @return A CompletableFuture indicating the success or failure of the operation.
+     */
     public CompletableFuture<Void> updateUserFcmToken(String token) {
         User currentUser = currentUserLiveData.getValue();
         CompletableFuture<Void> future = new CompletableFuture<>();
@@ -301,11 +307,16 @@ public class UserRepository {
         }
 
         DocumentReference userRef = userCollection.document(currentUser.getUserId());
-        return CompletableFuture.runAsync(() -> {
-            userRef.update("fcmToken", token)
-                    .addOnSuccessListener(aVoid -> Log.d(TAG, "FCM token updated successfully"))
-                    .addOnFailureListener(e -> Log.e(TAG, "Failed to update FCM token", e));
-        });
+        userRef.update("fcmToken", token)
+                .addOnSuccessListener(discard -> {
+                    Log.d(TAG, "FCM token updated successfully");
+                    future.complete(null);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to update FCM token", e);
+                    future.completeExceptionally(e);
+                });
+        return future;
     }
 
     /**

@@ -21,6 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * ViewModel responsible for managing data and operations related to entrants for a specific event.
+ * It handles filtering entrants, managing QR code hashes, sending notifications, and drawing entrants for an event.
+ */
 public class EntrantsViewModel extends ViewModel {
     private static final String TAG = "EntrantsViewModel";
 
@@ -34,7 +38,10 @@ public class EntrantsViewModel extends ViewModel {
     private LiveData<List<UserSignupEntry>> currentUserSignupEntriesLiveData;
     private SignupFilter currentFilter;
 
-
+    /**
+     * Default constructor for EntrantsViewModel.
+     * Initializes repositories and Firebase Functions with singleton instances.
+     */
     public EntrantsViewModel(){
         this(
                 SignupRepository.getInstance(),
@@ -43,6 +50,14 @@ public class EntrantsViewModel extends ViewModel {
                 FirebaseFunctions.getInstance());
     }
 
+    /**
+     * Constructor for EntrantsViewModel with DI.
+     *
+     * @param signupRepository       The repository for managing signups.
+     * @param notificationRepository The repository for managing notifications.
+     * @param eventRepository        The repository for managing events.
+     * @param firebaseFunctions      Firebase Functions instance for calling cloud functions.
+     */
     public EntrantsViewModel(
             SignupRepository signupRepository,
             NotificationRepository notificationRepository,
@@ -54,6 +69,11 @@ public class EntrantsViewModel extends ViewModel {
         this.firebaseFunctions = firebaseFunctions;
     }
 
+    /**
+     * Gets the LiveData containing the filtered list of UserSignupEntry objects.
+     *
+     * @return LiveData containing the filtered list of entrants.
+     */
     public LiveData<List<UserSignupEntry>> getFilteredUserSignupEntriesLiveData() {
         return filteredUserSignupEntriesLiveData;
     }
@@ -104,6 +124,12 @@ public class EntrantsViewModel extends ViewModel {
         }
     }
 
+    /**
+     * Removes a signup entry for a specific user and event.
+     *
+     * @param userSignupEntry The signup entry to remove.
+     * @return A CompletableFuture indicating the success or failure of the removal.
+     */
     public CompletableFuture<Void> removeSignupEntry(UserSignupEntry userSignupEntry) {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
@@ -126,12 +152,22 @@ public class EntrantsViewModel extends ViewModel {
                 });
     }
 
+    /**
+     * Cancels the signups of the selected entrants.
+     *
+     * @param selectedEntrants The entrants to cancel.
+     */
     public void cancelEntrants(List<UserSignupEntry> selectedEntrants){
         for(UserSignupEntry userSignupEntry: selectedEntrants) {
             removeSignupEntry(userSignupEntry);
         }
     }
 
+    /**
+     * Gets the current event being queried.
+     *
+     * @return The current event being queried.
+     */
     public Event getCurrentEventToQuery() {
         return currentEventToQuery;
     }
