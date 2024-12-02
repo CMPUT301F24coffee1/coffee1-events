@@ -1,6 +1,10 @@
 package com.example.eventapp;
 
+import static com.example.eventapp.services.photos.PhotoManager.generateDefaultProfilePicture;
+
 import android.annotation.SuppressLint;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -12,6 +16,9 @@ import android.view.View;
 import android.widget.Toast;
 import android.Manifest;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.eventapp.models.Event;
 import com.example.eventapp.models.Notification;
 import com.example.eventapp.models.User;
@@ -51,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
     NavController navController;
     Menu navMenu;
+    LiveData<User> currentUserLiveData;
 
     /**
      * Initializes the main activity and sets up Firebase, bindings, navigation, and permission handling.
@@ -132,10 +140,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        LiveData<User> currentUserLiveData = UserRepository.getInstance().getCurrentUserLiveData();
+        currentUserLiveData = UserRepository.getInstance().getCurrentUserLiveData();
 
         currentUserLiveData.observeForever(user -> {
             if (user != null) {
+                displayProfilePicture(user, navMenu);
                 navView.getMenu().findItem(R.id.navigation_admin_profiles).setVisible(user.isAdmin());
                 navView.getMenu().findItem(R.id.navigation_admin_images).setVisible(user.isAdmin());
             }
@@ -155,6 +164,8 @@ public class MainActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.top_nav_menu, menu);
         navMenu = menu;
+        currentUserLiveData = UserRepository.getInstance().getCurrentUserLiveData();
+        displayProfilePicture(currentUserLiveData.getValue(), menu);
         return return_val;
     }
 
@@ -287,9 +298,7 @@ public class MainActivity extends AppCompatActivity {
                 .thenCompose(this::processNotifications)
                 .exceptionally(throwable -> {
                     Log.e(TAG, "Failed to fetch notifications:", throwable);
-                    runOnUiThread(() -> {
-                        Toast.makeText(this, "Error fetching notifications", Toast.LENGTH_LONG).show();
-                    });
+                    runOnUiThread(() -> Toast.makeText(this, "Error fetching notifications", Toast.LENGTH_LONG).show());
                     return null;
                 });
     }
@@ -336,9 +345,7 @@ public class MainActivity extends AppCompatActivity {
                     })
                     .exceptionally(throwable -> {
                         Log.e(TAG, "Failed to fetch event data for notification: " + notification.getEventId(), throwable);
-                        runOnUiThread(() -> {
-                            Toast.makeText(this, "Error loading event data", Toast.LENGTH_LONG).show();
-                        });
+                        runOnUiThread(() -> Toast.makeText(this, "Error loading event data", Toast.LENGTH_LONG).show());
                         return null;
                     });
         } else {
@@ -361,5 +368,36 @@ public class MainActivity extends AppCompatActivity {
             future.complete(null);
         });
         return future;
+    }
+
+    /**
+     * Displays the Profile Picture in the menu button
+     *
+     * @param user User to pull the profile picture from
+     * @param menu Menu to populate with a profile picture
+     */
+    private void displayProfilePicture(User user, Menu menu) {
+        if (user != null && menu != null) {
+            if (menu.findItem(R.id.navigation_profile) != null) {
+                if ((user.getPhotoUri() != null) && (!user.getPhotoUriString().isEmpty())) {
+                    Glide.with(this).asDrawable().load(user.getPhotoUri()).circleCrop().into(new CustomTarget<Drawable>() {
+                        @Override
+                        public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                            menu.findItem(R.id.navigation_profile).setIcon(resource);
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                        }
+                    });
+                } else {
+                    Drawable image = new BitmapDrawable(getResources(), generateDefaultProfilePicture(user.getName(), user.getUserId()));
+                    menu.findItem(R.id.navigation_profile).setIcon(image);
+                }
+            }
+
+        }
+
     }
 }
