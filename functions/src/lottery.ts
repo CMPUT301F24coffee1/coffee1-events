@@ -2,6 +2,7 @@ import { logger } from 'firebase-functions/v2';
 import { AppEvent } from './types/app_event';
 import { Signup } from './types/signup';
 import { AppNotification } from './types/app_notification';
+import { shuffleArray } from './utils';
 
 /**
  * Processes the lottery for a given event.
@@ -119,20 +120,6 @@ function selectSignups(
   const lostSignups = shuffledSignups.slice(slotsAvailable);
 
   return { selectedSignups, lostSignups };
-}
-
-/**
- * Shuffles an array using the Fisher-Yates algorithm.
- * @param {T[]} array Array to shuffle
- * @return {T[]} Shuffled array
- */
-function shuffleArray<T>(array: T[]): T[] {
-  const shuffled = array.slice();
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
 }
 
 /**
