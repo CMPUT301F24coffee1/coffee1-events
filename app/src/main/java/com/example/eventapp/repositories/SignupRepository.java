@@ -249,16 +249,16 @@ public class SignupRepository {
         Query query = signupCollection.whereEqualTo("eventId", eventId);
 
         if (filter.isCancelled != null) {
-            query = query.whereEqualTo("isCancelled", filter.isCancelled);
+            query = query.whereEqualTo("cancelled", filter.isCancelled);
         }
         if (filter.isWaitlisted != null) {
-            query = query.whereEqualTo("isWaitlisted", filter.isWaitlisted);
+            query = query.whereEqualTo("waitlisted", filter.isWaitlisted);
         }
         if (filter.isChosen != null) {
-            query = query.whereEqualTo("isChosen", filter.isChosen);
+            query = query.whereEqualTo("chosen", filter.isChosen);
         }
         if (filter.isEnrolled != null) {
-            query = query.whereEqualTo("isEnrolled", filter.isEnrolled);
+            query = query.whereEqualTo("enrolled", filter.isEnrolled);
         }
 
         LiveData<List<Signup>> signupLiveData = Common.runQueryLiveData(
@@ -275,7 +275,6 @@ public class SignupRepository {
             for (Signup signup : signups) {
                 userIds.add(signup.getUserId());
             }
-
             return userRepository.getUsersByIdsLiveData(userIds);
         });
     }

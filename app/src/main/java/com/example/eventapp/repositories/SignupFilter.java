@@ -13,4 +13,11 @@ public class SignupFilter {
     public Boolean isEnrolled = null;
 
     public SignupFilter() {}
+
+    public SignupFilter(Boolean isCancelled, Boolean isWaitlisted, Boolean isChosen, Boolean isEnrolled) {
+        this.isCancelled = isCancelled;
+        this.isWaitlisted = isWaitlisted;
+        this.isChosen = isChosen;
+        this.isEnrolled = isEnrolled;
+    }
 }
