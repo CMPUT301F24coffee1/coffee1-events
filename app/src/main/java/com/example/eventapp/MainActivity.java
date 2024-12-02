@@ -30,7 +30,6 @@ import com.example.eventapp.viewmodels.ProfileViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -78,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(root);
 
         // Initialize the permission launcher to handle permission results
-        ActivityResultLauncher<String[]> requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+        registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
             Boolean readMediaGranted = result.getOrDefault(Manifest.permission.READ_MEDIA_IMAGES, false);
             Boolean readStorageGranted = result.getOrDefault(Manifest.permission.READ_EXTERNAL_STORAGE, false);
 
@@ -89,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // No SignupFragment yet
         @SuppressLint("HardwareIds") String androidId = Settings.Secure.getString(
                 root.getContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID
@@ -101,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Fetch and show all current user's notifications
         if (androidId != null) {
-            showNotifications(androidId);
+            observeNotifications(androidId);
         } else {
             Log.e(TAG, "User ID is null. Unable to fetch notifications.");
         }
@@ -281,22 +279,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Fetches and displays notifications for the user based on their Android ID.
-     * This method retrieves unread notifications from the NotificationService,
-     * processes them, and displays appropriate dialogs.
+     * Observes unread notifications for the user and processes them in real-time.
      *
-     * @param androidId The unique Android ID of the user.
+     * @param userId The unique user ID.
      */
-    private void showNotifications(String androidId) {
-        NotificationService notificationService = NotificationService.getInstance();
+    private void observeNotifications(String userId) {
+        LiveData<List<Notification>> unreadNotificationsLiveData = NotificationService.getInstance()
+                .fetchNotificationsLiveData(userId);
 
-        notificationService.fetchUnreadNotifications(androidId)
-                .thenCompose(this::processNotifications)
-                .exceptionally(throwable -> {
-                    Log.e(TAG, "Failed to fetch notifications:", throwable);
-                    runOnUiThread(() -> Toast.makeText(this, "Error fetching notifications", Toast.LENGTH_LONG).show());
-                    return null;
-                });
+        unreadNotificationsLiveData.observe(this, notifications -> {
+            if (notifications != null && !notifications.isEmpty()) {
+                processNotifications(notifications);
+            }
+        });
     }
 
     /**
@@ -304,19 +299,19 @@ public class MainActivity extends AppCompatActivity {
      * Handles both "Invite" and "General" types of notifications by delegating to specific processing methods.
      *
      * @param notifications A list of notifications to process. Can be empty or null.
-     * @return A CompletableFuture that completes when all notifications have been processed.
      */
-    private CompletableFuture<Void> processNotifications(List<Notification> notifications) {
+    private void processNotifications(List<Notification> notifications) {
         if (notifications == null || notifications.isEmpty()) {
             Log.i(TAG, "No notifications found.");
-            return CompletableFuture.completedFuture(null);
+            CompletableFuture.completedFuture(null);
+            return;
         }
         List<CompletableFuture<Void>> futures = new ArrayList<>();
 
         for (Notification notification : notifications) {
             futures.add(processNotification(notification));
         }
-        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
 
     /**

@@ -2,9 +2,12 @@ package com.example.eventapp.repositories;
 
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
+
 import com.example.eventapp.models.Notification;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.List;
@@ -107,37 +110,16 @@ public class NotificationRepository {
     }
 
     /**
-     * Fetches unread notifications for a user.
+     * Fetches unread notifications for a user as LiveData.
+     *
      * @param userId The ID of the user to fetch notifications for.
+     * @return LiveData containing a list of unread notifications.
      */
-    public CompletableFuture<List<Notification>> fetchUnreadNotifications(String userId) {
-        CompletableFuture<List<Notification>> future = new CompletableFuture<>();
-
-        db.collection("users")
+    public LiveData<List<Notification>> fetchNotificationsLiveData(String userId) {
+        Query query = db.collection("users")
                 .document(userId)
-                .collection("notifications")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                        QuerySnapshot querySnapshot = task.getResult();
-                        List<DocumentSnapshot> docs = querySnapshot.getDocuments();
-                        List<Notification> notifications = querySnapshot.toObjects(Notification.class);
+                .collection("notifications");
 
-                        for (int i = 0; i < notifications.size(); i++) {
-                            notifications.get(i).setDocumentId(docs.get(i).getId());
-                        }
-                        future.complete(notifications);
-                    }
-                    else if (task.isSuccessful() && task.getResult().isEmpty()) {
-                        Log.d(TAG, "fetchUnreadNotifications: no notifications found for userId: " + userId);
-                        future.complete(null);
-                    }
-                    else {
-                        Log.e(TAG, "fetchUnreadNotifications: fail", task.getException());
-                        future.completeExceptionally(task.getException());
-                    }
-                });
-
-        return future;
+        return Common.runQueryLiveData("fetchUnreadNotificationsLiveData", query, Notification.class, TAG);
     }
 }

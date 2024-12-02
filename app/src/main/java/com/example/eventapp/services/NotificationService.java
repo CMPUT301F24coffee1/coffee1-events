@@ -2,6 +2,8 @@ package com.example.eventapp.services;
 
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
+
 import com.example.eventapp.models.Notification;
 import com.example.eventapp.repositories.NotificationRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -55,11 +57,11 @@ public class NotificationService {
     }
 
     /**
-     * Fetches unread notifications for a user.
+     * Fetches live data of unread notifications for a user.
      * @param userId The ID of the user to fetch notifications for.
      */
-    public CompletableFuture<List<Notification>> fetchUnreadNotifications(String userId) {
-        return notificationRepository.fetchUnreadNotifications(userId);
+    public LiveData<List<Notification>> fetchNotificationsLiveData(String userId) {
+        return notificationRepository.fetchNotificationsLiveData(userId);
     }
 
     /**

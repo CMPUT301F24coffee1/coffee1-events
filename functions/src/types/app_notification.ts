@@ -3,5 +3,5 @@ export interface AppNotification {
   eventId: string;
   title: string;
   message: string;
-  type: string;
+  type: 'Invite' | 'General';
 }

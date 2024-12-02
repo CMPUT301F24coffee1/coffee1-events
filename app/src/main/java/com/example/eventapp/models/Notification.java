@@ -1,10 +1,11 @@
 package com.example.eventapp.models;
 
+import com.example.eventapp.interfaces.HasDocumentId;
 import com.google.firebase.firestore.Exclude;
 
 import java.io.Serializable;
 
-public class Notification implements Serializable {
+public class Notification implements Serializable, HasDocumentId {
     @Exclude
     private String documentId;
 
