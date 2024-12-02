@@ -1,8 +1,6 @@
 package com.example.eventapp.ui.events;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,13 +42,24 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
 
     @Override
     public void lotteryDraw(int drawCount){
-        entrantsViewModel.drawEntrants(drawCount);
+        entrantsViewModel.drawEntrants(drawCount).thenAccept(resultString -> {
+            Toast.makeText(getContext(), resultString, Toast.LENGTH_LONG).show();
+        }).exceptionally(throwable -> {
+            Toast.makeText(getContext(), "Lottery run failed: " + throwable.getMessage(), Toast.LENGTH_LONG).show();
+            return null;
+        });
     }
 
     @Override
     public void notifySelected(String messageContents){
         Log.d("ViewEntrantsFragment", "message contents were: " + messageContents);
-        entrantsViewModel.notifyEntrants(getSelectedEntrants(), messageContents);
+        List<UserSignupEntry> selectedEntrants = getSelectedEntrants();
+
+        if (selectedEntrants.isEmpty()) {
+            Toast.makeText(getContext(), "No users selected", Toast.LENGTH_LONG).show();
+            return;
+        }
+        entrantsViewModel.notifyEntrants(selectedEntrants, messageContents);
     }
 
     /**

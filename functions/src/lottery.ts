@@ -10,13 +10,14 @@ import { shuffleArray } from './utils';
  * @param {string} eventId ID of the event
  * @param {AppEvent} eventData Data of the event
  * @param {number} numberOfEntrants Number of entrants to select
+ * @return {string} String describing the result of the lottery
  */
 export async function processLottery(
   db: FirebaseFirestore.Firestore,
   eventId: string,
   eventData: AppEvent,
   numberOfEntrants: number
-) {
+): Promise<string> {
   logger.info(`Starting lottery for event: ${eventId}, ${eventData.eventName}`);
 
   const [eligibleSignupsSnapshot, enrolledSignupsSnapshot] = await Promise.all([
@@ -32,10 +33,9 @@ export async function processLottery(
     eligibleSignupsSnapshot.empty ||
     (isReroll && enrolledAmount + eligibleAmount < numberOfEntrants)
   ) {
-    logger.warn(
-      `Not enough eligible signups found for event ${eventId}. Lottery skipped.`
-    );
-    return;
+    const message = 'Not enough eligible signups found for the event. Lottery skipped.';
+    logger.debug(message);
+    return message;
   }
 
   const { selectedSignups, lostSignups } = selectSignups(
@@ -47,9 +47,9 @@ export async function processLottery(
 
   await processSignups(db, eventId, eventData, selectedSignups, lostSignups);
 
-  logger.info(
-    `Lottery processed. Selected ${selectedSignups.length} entrants for event ${eventId}.`
-  );
+  const message = `Lottery processed. Selected ${selectedSignups.length} entrants for the event.`;
+  logger.info(message);
+  return message;
 }
 
 /**
@@ -172,9 +172,9 @@ async function processSignups(
 
     bulkWriter.update(signupRef, {
       chosen: false,
-      waitlisted: false,
+      waitlisted: true,
       enrolled: false,
-      cancelled: true,
+      cancelled: false,
     });
 
     const notificationRef = db

@@ -116,10 +116,6 @@ public class EntrantsViewModel extends ViewModel {
         }
     }
 
-    public void clearFilter(){
-        updateFilter(new SignupFilter());
-    }
-
     public Event getCurrentEventToQuery() {
         return currentEventToQuery;
     }
@@ -169,25 +165,27 @@ public class EntrantsViewModel extends ViewModel {
                 });
     }
 
-    public void drawEntrants(int drawCount){
-        // draw drawCount entrants
-        Log.d("EntrantsViewModel", "drawEntrants called for "+drawCount+"Entrants");
-    }
-
-    public CompletableFuture<String> runLottery(int numberOfAttendees) {
+    public CompletableFuture<String> drawEntrants(int drawCount) {
+        Log.d("EntrantsViewModel", "drawEntrants called for " + drawCount + " Entrants");
         CompletableFuture<String> future = new CompletableFuture<>();
 
         Map<String, Object> data = new HashMap<>();
         data.put("eventId", currentEventToQuery.getDocumentId());
         data.put("organizerId", currentEventToQuery.getOrganizerId());
-        data.put("numberOfAttendees", numberOfAttendees);
+        data.put("numberOfAttendees", drawCount);
 
         firebaseFunctions
                 .getHttpsCallable("runLottery")
                 .call(data)
                 .continueWith(task -> {
-                    String result = (String) task.getResult().getData();
-                    future.complete(result);
+                    HashMap<String, String> result = (HashMap) task.getResult().getData();
+
+                    if (result == null) {
+                        future.completeExceptionally(new NullPointerException("Lottery result is null"));
+                        return future;
+                    }
+                    Log.i(TAG, "Lottery result: " + result.get("result"));
+                    future.complete(result.get("result"));
                     return null;
                 }).addOnFailureListener(ex -> {
                     Log.e(TAG, "Running the lottery failed:", ex);
