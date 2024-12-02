@@ -36,8 +36,8 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
     @Override
     public void notifySelected(String messageContents){
         // send message to selected entrants with messagecontents
-        Log.d("ViewEntrantsFragment", "sending messages!");
         Log.d("ViewEntrantsFragment", "message contents were: "+messageContents);
+        entrantsViewModel.notifyEntrants(getSelectedEntrants(), messageContents);
     }
 
     @Override

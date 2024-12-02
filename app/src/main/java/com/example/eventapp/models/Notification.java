@@ -18,20 +18,20 @@ public class Notification implements Serializable {
     }
 
     // Constructor for invitation notification
-    public Notification(String userId, String title, String message, String eventId, String type) {
+    public Notification(String userId, String title, String message, String eventId) {
         this.userId = userId;
         this.title = title;
         this.message = message;
         this.eventId = eventId;
-        this.type = type;
+        this.type = "Invite";
     }
 
     // Constructor for general notification
-    public Notification(String userId, String title, String message, String type) {
+    public Notification(String userId, String title, String message) {
         this.userId = userId;
         this.title = title;
         this.message = message;
-        this.type = type;
+        this.type = "General";
     }
 
     public String getDocumentId() {

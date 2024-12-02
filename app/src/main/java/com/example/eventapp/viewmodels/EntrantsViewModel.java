@@ -7,8 +7,10 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.eventapp.models.Event;
+import com.example.eventapp.models.Notification;
 import com.example.eventapp.repositories.DTOs.SignupFilter;
 import com.example.eventapp.repositories.DTOs.UserSignupEntry;
+import com.example.eventapp.repositories.NotificationRepository;
 import com.example.eventapp.repositories.SignupRepository;
 
 import java.util.ArrayList;
@@ -17,16 +19,18 @@ import java.util.List;
 public class EntrantsViewModel extends ViewModel {
     private Event currentEventToQuery;
     private final SignupRepository signupRepository;
+    private final NotificationRepository notificationRepository;
     private final MediatorLiveData<List<UserSignupEntry>> filteredUserSignupEntriesLiveData = new MediatorLiveData<>();
     private LiveData<List<UserSignupEntry>> currentUserSignupEntriesLiveData;
     private SignupFilter currentFilter;
 
     public EntrantsViewModel(){
-        this(SignupRepository.getInstance());
+        this(SignupRepository.getInstance(), NotificationRepository.getInstance());
     }
 
-    public EntrantsViewModel(SignupRepository signupRepository){
+    public EntrantsViewModel(SignupRepository signupRepository, NotificationRepository notificationRepository){
         this.signupRepository = signupRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     public LiveData<List<UserSignupEntry>> getFilteredUserSignupEntriesLiveData() {
@@ -55,7 +59,12 @@ public class EntrantsViewModel extends ViewModel {
     }
 
     public void notifyEntrants(List<UserSignupEntry> selectedEntrants, String messageContent) {
-        // TODO: implement
+        String notificationTitle = "Notification for Event \"" +currentEventToQuery.getEventName()+ "\"";
+        for(UserSignupEntry userSignupEntry: selectedEntrants) {
+            String userId = userSignupEntry.getUser().getUserId();
+            Notification notification = new Notification(userId, notificationTitle, messageContent);
+            notificationRepository.uploadNotification(notification);
+        }
     }
 
     public void clearFilter(){
