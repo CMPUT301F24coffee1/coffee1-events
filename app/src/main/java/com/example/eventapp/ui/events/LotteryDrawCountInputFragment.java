@@ -15,8 +15,8 @@ import com.example.eventapp.R;
 
 
 public class LotteryDrawCountInputFragment extends DialogFragment {
-    private LotteryDrawCountInputListener listener;
-    private int enrollSpaceRemaining;
+    private final LotteryDrawCountInputListener listener;
+    private final int enrollSpaceRemaining;
 
     interface LotteryDrawCountInputListener {
         void lotteryDraw(int drawCount);
@@ -44,8 +44,11 @@ public class LotteryDrawCountInputFragment extends DialogFragment {
                         Toast.makeText(getContext(), "Draw Count is Empty", Toast.LENGTH_SHORT).show();
                     }else{
                         int chosenDrawCount = Integer.parseInt(drawCountInput);
-                        if(chosenDrawCount > this.enrollSpaceRemaining){
+
+                        if(chosenDrawCount > this.enrollSpaceRemaining) {
                             Toast.makeText(getContext(), "Draw Count is too Large", Toast.LENGTH_SHORT).show();
+                        } else if(chosenDrawCount < 1) {
+                            Toast.makeText(getContext(), "Draw Count is less than 1", Toast.LENGTH_SHORT).show();
                         }else{
                             listener.lotteryDraw(chosenDrawCount);
                         }

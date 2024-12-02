@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.firebase.database)
     implementation(libs.play.services.maps)
+    implementation(libs.firebase.functions)
     testImplementation(libs.junit)
     testImplementation(libs.core.testing)
     testImplementation(libs.robolectric)
