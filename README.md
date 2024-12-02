@@ -16,7 +16,7 @@ containing details about when each User Story was completed.
 
 ## Setup
 
-1. (Set up a firebase project)[https://firebase.google.com/docs/functions/get-started?gen=2nd]
+1. [Set up a firebase project](https://firebase.google.com/docs/functions/get-started?gen=2nd)
 
 2. Download the *google-services.json* file and place it in the **/app** directory of the project
 
