@@ -4,6 +4,9 @@
 
     <!-- Get permissions to access photos on Android 12 and below and Android 13 and above -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"
+        tools:ignore="ScopedStorage" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
@@ -40,13 +43,13 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        <!-- referenced the zxing android embedded documentation -->
         </activity> <!-- referenced the zxing android embedded documentation -->
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="fullSensor"
             tools:ignore="DiscouragedApi"
             tools:replace="screenOrientation" />
-
     </application>
 
 </manifest>
