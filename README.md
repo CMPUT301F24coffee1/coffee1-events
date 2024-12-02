@@ -29,5 +29,3 @@ sudo apt install node-typescript
 cd ..
 firebase deploy --only functions
 ```
-
-## Screenshots
