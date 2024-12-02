@@ -158,4 +158,9 @@ public class EntrantsViewModel extends ViewModel {
                     return eventRepository.updateEvent(event);
                 });
     }
+
+    public void drawEntrants(int drawCount){
+        // draw drawCount entrants
+        Log.d("EntrantsViewModel", "drawEntrants called for "+drawCount+"Entrants");
+    }
 }
