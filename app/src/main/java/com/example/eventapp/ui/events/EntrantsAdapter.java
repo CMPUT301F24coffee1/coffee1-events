@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,55 +13,63 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.User;
-import com.example.eventapp.repositories.UserRepository;
+import com.example.eventapp.repositories.DTOs.UserSignupEntry;
 import com.example.eventapp.services.photos.PhotoManager;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
-public class EntrantsAdapter extends RecyclerView.Adapter<EntrantsAdapter.ViewHolder>  {
+public class EntrantsAdapter extends RecyclerView.Adapter<EntrantsAdapter.ViewHolder> {
 
-    private ArrayList<User> entrantList;
+    private final ArrayList<UserSignupEntry> entrantList;
 
-    public EntrantsAdapter(ArrayList<User> entrants){
+    public EntrantsAdapter(ArrayList<UserSignupEntry> entrants) {
         entrantList = entrants;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView entrantName;
         private final ImageView entrantPhoto;
-        private final TextView you;
+        private final TextView status;
+        private final CheckBox selectionCheckBox;
 
-        public ViewHolder(View view){
+        public ViewHolder(View view) {
             super(view);
             entrantName = view.findViewById(R.id.entrant_name_card_text);
             entrantPhoto = view.findViewById(R.id.entrant_card_photo);
-            you = view.findViewById(R.id.entrant_card_you);
+            status = view.findViewById(R.id.entrant_card_status);
+            selectionCheckBox = view.findViewById(R.id.entrant_card_checkbox);
         }
 
         public TextView getNameView() {
             return entrantName;
         }
+
         public ImageView getPhotoView() {
             return entrantPhoto;
         }
 
-        public TextView getYouView() {
-            return you;
+        public TextView getStatusView() {
+            return status;
+        }
+
+        public CheckBox getSelectionCheckBox() {
+            return selectionCheckBox;
         }
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.entrant_card, parent, false);
-        return new ViewHolder(view);
+    public EntrantsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.entrant_card, parent, false);
+        return new EntrantsAdapter.ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
-        User user = entrantList.get(position);
-        User actualUser = UserRepository.getInstance().getCurrentUserLiveData().getValue();
+    public void onBindViewHolder(@NonNull EntrantsAdapter.ViewHolder viewHolder, int position) {
+        UserSignupEntry entry = entrantList.get(position);
+        User user = entry.getUser();
+
         viewHolder.getNameView().setText(user.getName());
 
         if (user.hasPhoto()) {
@@ -71,11 +80,19 @@ public class EntrantsAdapter extends RecyclerView.Adapter<EntrantsAdapter.ViewHo
             viewHolder.getPhotoView().setImageBitmap(PhotoManager.generateDefaultProfilePicture(user.getName(), user.getUserId()));
         }
 
-        assert actualUser != null;
-        if (Objects.equals(user.getUserId(), actualUser.getUserId())) {
-            viewHolder.getYouView().setVisibility(View.VISIBLE);
-        }
+        viewHolder.getSelectionCheckBox().setChecked(entry.isSelected());
+        viewHolder.getStatusView().setText(entry.getAttendanceStatus());
 
+        viewHolder.itemView.setOnClickListener(v -> {
+            boolean newSelectedState = !entry.isSelected();
+            entry.setSelected(newSelectedState);
+            viewHolder.getSelectionCheckBox().setChecked(newSelectedState);
+        });
+
+        viewHolder.getSelectionCheckBox().setOnClickListener(v -> {
+            boolean newSelectedState = viewHolder.getSelectionCheckBox().isChecked();
+            entry.setSelected(newSelectedState);
+        });
     }
 
     @Override
