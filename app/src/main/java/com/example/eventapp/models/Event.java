@@ -208,7 +208,7 @@ public class Event implements HasDocumentId {
      *
      * @return true if a poster exists, otherwise false
      */
-    public Boolean hasPoster() { return !(posterUriString.isEmpty());}
+    public Boolean hasPoster() { return (posterUriString != null && !posterUriString.isEmpty()); }
 
     /**
      * Checks if geolocation is required for this event.

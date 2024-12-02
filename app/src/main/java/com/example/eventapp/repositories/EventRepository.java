@@ -1,5 +1,6 @@
 package com.example.eventapp.repositories;
 
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -235,6 +236,40 @@ public class EventRepository {
                     future.completeExceptionally(e); // Handle failure
                 });
 
+        return future;
+    }
+
+    /**
+     * Retrieves an event by its image uri.
+     *
+     * @param imageUri The Uri of the image to search for.
+     * @return A CompletableFuture containing the event matching the image Uri hash, or null if not found.
+     */
+    public CompletableFuture<Event> getEventByImageUri(Uri imageUri) {
+        Objects.requireNonNull(imageUri);
+        CompletableFuture<Event> future = new CompletableFuture<>();
+
+        eventCollection
+                .whereEqualTo("posterUri", imageUri)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                        DocumentSnapshot document = querySnapshot.getDocuments().get(0);
+                        Event event = document.toObject(Event.class);
+                        if (event != null) {
+                            event.setDocumentId(document.getId());
+                        }
+                        future.complete(event);
+                    } else {
+                        Log.w(TAG, "getEventByUri: no event found with Image Uri: " + imageUri);
+                        future.complete(null);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "getEventByUri: failed to retrieve event with Image Uri: " + imageUri, e);
+                    future.completeExceptionally(e);
+                });
         return future;
     }
 

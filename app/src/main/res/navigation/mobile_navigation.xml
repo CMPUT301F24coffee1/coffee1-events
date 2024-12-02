@@ -24,6 +24,11 @@
         tools:layout="@layout/fragment_admin_profiles" />
 
     <fragment
+        android:id="@+id/navigation_admin_images"
+        android:name="com.example.eventapp.ui.images.ImagesFragment"
+        android:label="@string/title_images"
+        tools:layout="@layout/fragment_admin_images" />
+    <fragment
         android:id="@+id/navigation_profile"
         android:name="com.example.eventapp.ui.profiles.ProfileFragment"
         android:label="@string/title_profile"

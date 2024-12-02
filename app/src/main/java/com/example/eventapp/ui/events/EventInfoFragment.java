@@ -20,7 +20,9 @@ import com.example.eventapp.models.Event;
 import com.example.eventapp.models.Signup;
 import com.example.eventapp.services.FormatDate;
 import com.example.eventapp.viewmodels.EntrantsViewModel;
+import com.example.eventapp.ui.images.ImageInfoFragment;
 import com.example.eventapp.viewmodels.EventsViewModel;
+import com.example.eventapp.viewmodels.ImagesViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -99,7 +101,18 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
             Glide.with(this)
                     .load(event.getPosterUri())
                     .into(eventImage);
+            eventImage.setOnClickListener((v) -> {
+                if (v.isClickable()) {
+                    ImagesViewModel imagesViewModel = new ViewModelProvider(requireActivity()).get(ImagesViewModel.class);
+                    imagesViewModel.setSelectedImage(event.getPosterUri());
+                    new ImageInfoFragment().show(requireActivity().getSupportFragmentManager(), "fragment_image_info");
+                }
+            });
+            eventImage.setClickable(true);
+            eventImage.setFocusable(true);
         } else {
+            eventImage.setClickable(false);
+            eventImage.setFocusable(false);
             eventImage.setImageResource(R.drawable.default_event_poster);
         }
 
@@ -124,12 +137,9 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
             editEventButton.setOnClickListener(view12 -> eventsFragment.showEditEventPopup(event));
             editEventButton.setVisibility(View.VISIBLE);
 
-            eventEntrantsCount.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Log.d("EventInfoFragment", "clicked on eventEntrantsCount");
-                    navigateToEventEntrantsScreen();
-                }
+            eventEntrantsCount.setOnClickListener(v -> {
+                Log.d("EventInfoFragment", "clicked on eventEntrantsCount");
+                navigateToEventEntrantsScreen();
             });
         }
         return view;
