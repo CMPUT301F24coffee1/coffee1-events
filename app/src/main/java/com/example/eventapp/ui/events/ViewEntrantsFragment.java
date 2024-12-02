@@ -101,23 +101,15 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
             int enrolledCount = getEnrolledCount();
             int maxEnrolledSize = entrantsViewModel.getCurrentEventToQuery().getNumberOfAttendees();
             if(enrolledCount < maxEnrolledSize){
-                lotteryButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // show confirmation popup
-                        askForLotteryConfirmation(maxEnrolledSize-enrolledCount);
-                    }
+                lotteryButton.setOnClickListener(view15 -> {
+                    // show confirmation popup
+                    askForLotteryConfirmation(maxEnrolledSize-enrolledCount);
                 });
             }else{
                 lotteryButton.setOnClickListener(view13 -> Toast.makeText(getContext(), "Enrollment is Full", Toast.LENGTH_SHORT).show());
             }
         }else{
-            lotteryButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    askForLotteryDrawCount();
-                }
-            });
+            lotteryButton.setOnClickListener(view14 -> askForLotteryDrawCount(entrantsViewModel.getCurrentEventToQuery().getNumberOfAttendees()));
         }
 
         Event currentEvent = entrantsViewModel.getCurrentEventToQuery();
@@ -249,7 +241,8 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
                 .setMessage("Draw "+drawCount+" entrants?").create().show();
     }
 
-    private void askForLotteryDrawCount(){
-        //
+    private void askForLotteryDrawCount(int spaceRemaining){
+        LotteryDrawCountInputFragment lotteryDrawCountInputFragment = new LotteryDrawCountInputFragment(this, spaceRemaining);
+        lotteryDrawCountInputFragment.show(requireActivity().getSupportFragmentManager(), "lottery_draw_count_input");
     }
 }
