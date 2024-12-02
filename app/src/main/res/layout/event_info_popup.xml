@@ -24,6 +24,41 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/popup_event_facility_image_card"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="-40dp"
+                app:cardBackgroundColor="?attr/colorOnSurfaceDark"
+                app:cardCornerRadius="100dp"
+                app:cardElevation="6dp"
+                app:contentPadding="6dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/popup_event_poster_image"
+                app:strokeColor="?attr/colorOnSurfaceDark"
+                app:strokeWidth="6dp">
+
+                <ImageView
+                    android:id="@+id/popup_event_facility_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/ic_facility_24dp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/popup_event_facility_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="Facility Name"
+                app:layout_constraintBottom_toBottomOf="@+id/popup_event_facility_image_card"
+                app:layout_constraintStart_toEndOf="@+id/popup_event_facility_image_card"
+                app:layout_constraintTop_toBottomOf="@+id/popup_event_poster_image" />
+
             <TextView
                 android:id="@+id/popup_event_name_text"
                 android:layout_width="0dp"
@@ -47,6 +82,7 @@
                 android:layout_marginEnd="8dp"
                 android:background="?android:attr/selectableItemBackground"
                 android:foreground="?android:attr/selectableItemBackground"
+                android:scaleType="centerCrop"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/popup_event_name_text"
@@ -57,14 +93,13 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:text="Event Duration"
                 android:textSize="23sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/popup_event_poster_image" />
+                app:layout_constraintTop_toBottomOf="@+id/popup_event_facility_image_card" />
 
             <TextView
                 android:id="@+id/popup_event_registration_deadline_text"
@@ -92,19 +127,35 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/popup_event_waitlist_button" />
 
-            <TextView
+            <Button
                 android:id="@+id/create_event_max_entrants"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="10dp"
+                android:backgroundTint="?attr/colorPrimary"
+                android:text="Event Entrants Count"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/popup_event_description_text"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <TextView
+                android:id="@+id/create_event_max_entrants2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="10dp"
                 android:text="Event Entrants Count"
                 android:textSize="20sp"
                 android:textStyle="bold"
+                android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/popup_event_description_text"
                 app:layout_constraintVertical_bias="0.0" />
@@ -135,6 +186,17 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/popup_event_registration_deadline_text" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/popup_event_qr_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/create_event_max_entrants"
+                app:layout_constraintTop_toBottomOf="@+id/popup_event_description_text"
+                app:srcCompat="@drawable/ic_qr_scan_24dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

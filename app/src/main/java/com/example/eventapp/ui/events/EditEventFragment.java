@@ -1,5 +1,7 @@
 package com.example.eventapp.ui.events;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +15,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.cardview.widget.CardView;
+import androidx.core.util.Pair;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
@@ -22,10 +26,20 @@ import com.example.eventapp.models.Event;
 import com.example.eventapp.R;
 import com.example.eventapp.viewmodels.EventsViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.CompositeDateValidator;
+import com.google.android.material.datepicker.DateValidatorPointBackward;
+import com.google.android.material.datepicker.DateValidatorPointForward;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Objects;
+import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * EditEventFragment is a BottomSheetDialogFragment that provides an interface for users
@@ -38,7 +52,7 @@ import java.util.Objects;
  * <p>
  * Implements the {@link DatePickerFragment.SetDateListener} interface to handle selected dates.
  */
-public class EditEventFragment extends BottomSheetDialogFragment implements DatePickerFragment.SetDateListener {
+public class EditEventFragment extends BottomSheetDialogFragment {
     private EventsViewModel eventsViewModel;
     private Event event;
     private String posterUriString;
@@ -68,20 +82,6 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
     }
 
     /**
-     *
-     * @param timestamp A l
-     * @param type
-     */
-    @Override
-    public void setDate(long timestamp, int type) {
-        switch(type) {
-            case 0: timestamps.set(0, timestamp); break;
-            case 1: timestamps.set(1, timestamp); break;
-            case 2: timestamps.set(2, timestamp); break;
-        }
-    }
-
-    /**
      * Initialize and run the edit fragment with current event info
      * @param inflater The LayoutInflater object that can be used to inflate
      * any views in the fragment,
@@ -96,16 +96,14 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         eventsViewModel = new ViewModelProvider(requireActivity()).get(EventsViewModel.class);
-        timestamps = new ArrayList<>(Arrays.asList(event.getStartDate(), event.getEndDate(), event.getDeadline()));
         View view = inflater.inflate(R.layout.edit_event_popup, container, false);
 
         EditText eventName = view.findViewById(R.id.popup_edit_event_name);
         EditText eventDescription = view.findViewById(R.id.popup_edit_event_description);
         EditText maxEventEntrants = view.findViewById(R.id.popup_edit_event_max_entrants);
-        Button saveEventButton = view.findViewById(R.id.popup_save_event_button);
-        Button eventDurationButton = view.findViewById(R.id.popup_edit_event_duration_button);
+        FloatingActionButton saveEventButton = view.findViewById(R.id.popup_save_event_button);
         Button eventRegistrationDeadlineButton = view.findViewById(R.id.popup_edit_event_registration_deadline_button);
-        Button selectPosterButton = view.findViewById(R.id.popup_edit_event_add_poster);
+        CardView selectPosterButton = view.findViewById(R.id.popup_edit_event_add_poster_card);
         Button deleteEventButton = view.findViewById(R.id.popup_edit_event_delete_event_button);
         posterImageView = view.findViewById(R.id.popup_edit_event_image);
 
@@ -116,15 +114,10 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
         if (event.hasPoster()) {
             Glide.with(this).load(event.getPosterUri()).into(posterImageView);
         } else {
-            posterImageView.setImageResource(R.drawable.default_event_poster);
+            posterImageView.setImageBitmap(PhotoManager.generateDefaultPoster(event.getDocumentId()));
         }
 
-        // Implement event duration and registration deadline buttons
-        eventDurationButton.setOnClickListener(v -> {
-            showDatePickerFragment(1);
-            showDatePickerFragment(0);
-        });
-        eventRegistrationDeadlineButton.setOnClickListener(v -> showDatePickerFragment(2));
+        eventRegistrationDeadlineButton.setOnClickListener(v -> runDatePickers());
 
         // Get new photo if selected
         PhotoPicker.PhotoPickerCallback pickerCallback = new PhotoPicker.PhotoPickerCallback() {
@@ -164,10 +157,6 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
                 // Update event details
                 event.setEventName(newName);
                 event.setEventDescription(newDescription);
-                event.setStartDate(timestamps.get(0));
-                event.setEndDate(timestamps.get(1));
-                event.setDeadline(timestamps.get(2));
-
                 if (!maxEntrants.isEmpty()) {
                     try {
                         event.setMaxEntrants(Integer.parseInt(maxEntrants));
@@ -209,11 +198,54 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
     }
 
     /**
-     * Open the date picker fragments
-     * @param type Defines the type of date (0: start, 1: end, 2: deadline)
+     * Runs the date pickers, and then returns the timestamps of the dates selected
+     * @return Start time, end time, and deadline of picked dates.
      */
-    private void showDatePickerFragment(int type) {
-        DatePickerFragment datePickerFragment = new DatePickerFragment(this, type);
-        datePickerFragment.show(getActivity().getSupportFragmentManager(), null);
+    private void runDatePickers() {
+
+        CalendarConstraints.Builder constraints = new CalendarConstraints.Builder()
+                .setValidator(DateValidatorPointForward.now());
+
+        MaterialDatePicker<Pair<Long, Long>> durationDatePicker = MaterialDatePicker.Builder.dateRangePicker()
+                .setTitleText("Select Registration Duration")
+                .setCalendarConstraints(constraints.build())
+                .build();
+
+        AtomicReference<Pair<Long, Long>> durationDates = new AtomicReference<>();
+
+        durationDatePicker.show(requireActivity().getSupportFragmentManager(), TAG);
+        durationDatePicker.addOnPositiveButtonClickListener(dates -> {
+            durationDates.set(dates);
+            CalendarConstraints.DateValidator dateValidatorMin = DateValidatorPointForward.from(durationDates.get().first);
+            CalendarConstraints.DateValidator dateValidatorMax = DateValidatorPointBackward.before(durationDates.get().second);
+
+            ArrayList<CalendarConstraints.DateValidator> listValidators =
+                    new ArrayList<CalendarConstraints.DateValidator>();
+            listValidators.add(dateValidatorMin);
+            listValidators.add(dateValidatorMax);
+            CalendarConstraints.Builder constraintsDeadline = new CalendarConstraints.Builder()
+                    .setValidator(CompositeDateValidator.allOf(listValidators));
+
+            MaterialDatePicker<Long> deadlineDatePicker = MaterialDatePicker.Builder.datePicker()
+                    .setTitleText("Select Deadline")
+                    .setCalendarConstraints(constraintsDeadline.build())
+                    .build();
+
+            deadlineDatePicker.show(requireActivity().getSupportFragmentManager(), TAG);
+            deadlineDatePicker.addOnPositiveButtonClickListener(date -> {
+                eventsViewModel.setCreatingEventDatesInitialized(true);
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+                calendar.setTimeInMillis(durationDates.get().first + 86400000);
+                event.setStartDate(calendar.getTimeInMillis());
+                String startTime = format.format(calendar.getTime());
+                calendar.setTimeInMillis(durationDates.get().second + 86400000);
+                String endTime = format.format(calendar.getTime());
+                event.setEndDate(calendar.getTimeInMillis());
+                calendar.setTimeInMillis(date + 86400000);
+                String deadLine = format.format(calendar.getTime());
+                event.setDeadline(calendar.getTimeInMillis());
+            });
+        });
     }
 }

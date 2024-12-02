@@ -68,9 +68,9 @@ export const runLottery = onCall(async (request) => {
       );
     }
 
-    await processLottery(db, eventId, eventData, numberOfAttendees);
+    const lotteryResult = await processLottery(db, eventId, eventData, numberOfAttendees);
 
-    return { result: 'Lottery processed successfully.' };
+    return { result: lotteryResult };
   } catch (error) {
     logger.error(`Error processing lottery for event ${eventId}:`, error);
     throw new HttpsError('internal', `An error has occurred: ${error}`);
