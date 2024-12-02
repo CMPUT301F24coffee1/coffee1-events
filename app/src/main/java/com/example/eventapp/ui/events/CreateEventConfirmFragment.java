@@ -180,6 +180,7 @@ public class CreateEventConfirmFragment extends Fragment {
                     public void onUploadSuccess(String downloadUrl) {
                         String uriString = downloadUrl;
                         Log.d("PhotoUploader", "Photo uploaded successfully: " + uriString);
+                        event.setPosterUriString(downloadUrl);
                         eventsViewModel.addEvent(event);
                         navController.popBackStack(R.id.navigation_create_event, true);
                     }
