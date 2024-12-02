@@ -5,6 +5,9 @@ import com.google.firebase.firestore.Exclude;
 
 import java.io.Serializable;
 
+/**
+ * Represents a custom notification that can be sent to users.
+ */
 public class Notification implements Serializable, HasDocumentId {
     @Exclude
     private String documentId;
@@ -18,7 +21,13 @@ public class Notification implements Serializable, HasDocumentId {
     public Notification() {
     }
 
-    // Constructor for invitation notification
+    /**
+     * Constructor for an invitation notification
+     * @param userId the userId of the user receiving the notification
+     * @param title the title of the notification
+     * @param message the message displayed in the notification
+     * @param eventId the eventId of the event that the user is invited to enroll in
+     */
     public Notification(String userId, String title, String message, String eventId) {
         this.userId = userId;
         this.title = title;
@@ -27,7 +36,12 @@ public class Notification implements Serializable, HasDocumentId {
         this.type = "Invite";
     }
 
-    // Constructor for general notification
+    /**
+     * Constructor for a general notification
+     * @param userId the userId of the user receiving the notification
+     * @param title the title of the notification
+     * @param message the message displayed in the notification
+     */
     public Notification(String userId, String title, String message) {
         this.userId = userId;
         this.title = title;
