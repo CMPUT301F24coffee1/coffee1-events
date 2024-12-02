@@ -82,6 +82,7 @@ public class EventsViewModelTest {
         Event event = new Event();
         event.setEventName("Test Event");
         event.setFacilityId("testFacilityId");
+        event.setNumberOfAttendees(1);
 
         eventsViewModel.addEvent(event).get();
 
@@ -104,6 +105,7 @@ public class EventsViewModelTest {
         Event event = new Event();
         event.setEventName("Test Event");
         event.setFacilityId("testFacilityId");
+        event.setNumberOfAttendees(1);
 
         eventsViewModel.addEvent(event).get();
 
@@ -128,6 +130,7 @@ public class EventsViewModelTest {
         Event event = new Event();
         event.setEventName("Test Event");
         event.setFacilityId("testFacilityId");
+        event.setNumberOfAttendees(1);
 
         eventsViewModel.addEvent(event).get();
 
@@ -156,6 +159,7 @@ public class EventsViewModelTest {
         Event event = new Event();
         event.setEventName("Test Event");
         event.setFacilityId("testFacilityId");
+        event.setNumberOfAttendees(1);
 
         eventsViewModel.addEvent(event).get();
         assertNotNull(event.getDocumentId());
@@ -177,6 +181,7 @@ public class EventsViewModelTest {
         Event event = new Event();
         event.setEventName("Test Event");
         event.setFacilityId("testFacilityId");
+        event.setNumberOfAttendees(1);
 
         eventsViewModel.addEvent(event).get();
         assertNotNull(event.getDocumentId());

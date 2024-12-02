@@ -47,6 +47,7 @@ public class EventRepositoryTest {
         event.setOrganizerId("testOrganizerId");
         event.setFacilityId("testFacilityId");
         event.setEventName("Test Event");
+        event.setNumberOfAttendees(1);
 
         CompletableFuture<String> addEventFuture = eventRepository.addEvent(event);
         String documentId = addEventFuture.get();
@@ -84,6 +85,7 @@ public class EventRepositoryTest {
         event.setOrganizerId("testOrganizerId");
         event.setFacilityId("testFacilityId");
         event.setEventName("Original Title");
+        event.setNumberOfAttendees(1);
 
         CompletableFuture<String> addEventFuture = eventRepository.addEvent(event);
         String documentId = addEventFuture.get();
@@ -126,6 +128,7 @@ public class EventRepositoryTest {
         event.setOrganizerId("testOrganizerId");
         event.setFacilityId("testFacilityId");
         event.setEventName("Event to be Removed");
+        event.setNumberOfAttendees(1);
 
         CompletableFuture<String> addEventFuture = eventRepository.addEvent(event);
         String documentId = addEventFuture.get();
