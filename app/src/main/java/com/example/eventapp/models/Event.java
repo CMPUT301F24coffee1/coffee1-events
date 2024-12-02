@@ -17,6 +17,7 @@ public class Event implements HasDocumentId, Serializable {
     private String documentId;
     private String organizerId;
     private String facilityId;
+    private boolean lotteryProcessed = false;
 
     private int numberOfAttendees;
     private String eventName;
@@ -130,6 +131,24 @@ public class Event implements HasDocumentId, Serializable {
      */
     public void setFacilityId(String facilityId) {
         this.facilityId = facilityId;
+    }
+
+    /**
+     * Determines whether the lottery has been processed for this particular event.
+     *
+     * @return boolean representing whether the lottery has been processed.
+     */
+    public boolean isLotteryProcessed() {
+        return lotteryProcessed;
+    }
+
+    /**
+     * Sets whether the lottery has been processed for this particular event.
+     *
+     * @param lotteryProcessed boolean representing whether the lottery has been processed.
+     */
+    public void setLotteryProcessed(boolean lotteryProcessed) {
+        this.lotteryProcessed = lotteryProcessed;
     }
 
     /**
