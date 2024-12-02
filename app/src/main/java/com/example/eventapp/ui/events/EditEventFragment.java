@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -185,8 +186,11 @@ public class EditEventFragment extends BottomSheetDialogFragment {
                     if (oldPosterUri == null) {
                         PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "events", "poster", uploadCallback);
                     } else {
-                        final String id = Objects.requireNonNull(oldPosterUri.getLastPathSegment()).split("/")[1];
-                        PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "events", id, "poster", uploadCallback);
+                        if (Objects.requireNonNull(oldPosterUri.getLastPathSegment()).split("/").length > 1) {
+                            final String id = Objects.requireNonNull(oldPosterUri.getLastPathSegment()).split("/")[1];
+                            PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "events", id, "poster", uploadCallback);
+                        }
+
                     }
                 } else {
                     editEventListener.saveEditedEvent(event);
