@@ -2,6 +2,7 @@ package com.example.eventapp.ui.events;
 
 import android.os.Bundle;
 import android.util.Log;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
@@ -24,20 +25,31 @@ public class EventMapFragment extends FragmentActivity implements OnMapReadyCall
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        Toolbar toolbar = findViewById(R.id.maps_toolbar);
+        toolbar.setTitle("Map");
+        toolbar.setNavigationIcon(android.R.drawable.ic_menu_revert);
 
-        // Initialize Firestore
-        db = FirebaseFirestore.getInstance();
+        // Handle Back Button Click
+        toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(this);
+
+        String eventId = getIntent().getStringExtra("eventId");
+        if (eventId != null) {
+            // Initialize Firestore
+            db = FirebaseFirestore.getInstance();
+
+            // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.map);
+            if (mapFragment != null) {
+                mapFragment.getMapAsync(this);
+            }
         }
     }
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
         mMap = googleMap;
 
         // Get data from Firestore

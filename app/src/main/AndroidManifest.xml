@@ -30,6 +30,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCrN1WWujbacEv2kdIjIVFTXN6bgHWl91Q" />
 
+        <activity android:name=".ui.events.EventMapFragment" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

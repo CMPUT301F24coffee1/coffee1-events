@@ -2,6 +2,8 @@ package com.example.eventapp.ui.events;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,6 +28,7 @@ public class ViewEntrantsFragment extends Fragment {
     private RecyclerView entrantsList;
     private ArrayList<User> entrants;
     private boolean[] filterOptions;
+    private final String TEST_EVENT_ID = "yZAbcFApEPz5kxl6kVBw";
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.fragment_view_entrants, null);
@@ -41,6 +44,7 @@ public class ViewEntrantsFragment extends Fragment {
         entrants = new ArrayList<>();
 
         ImageButton filterOptionsButton = view.findViewById(R.id.fragment_view_entrants_filter_options_button);
+        ImageButton showMap = view.findViewById(R.id.fragment_view_entrants_notify_all_button);
 
         filterOptionsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,6 +52,17 @@ public class ViewEntrantsFragment extends Fragment {
                 showFilterOptionsPopup();
             }
         });
+
+        // Set up a click listener if event has geolocation enabled (replace true with event.hasGeolocation())
+        if (true) {
+            showMap.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), EventMapFragment.class);
+
+                // Pass additional data if needed
+                intent.putExtra("eventId", TEST_EVENT_ID);
+                startActivity(intent);
+            });
+        }
 
         // for testing
         entrants.add(new User("abc", "def"));
