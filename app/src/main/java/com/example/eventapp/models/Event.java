@@ -5,12 +5,14 @@ import android.net.Uri;
 import com.example.eventapp.interfaces.HasDocumentId;
 import com.google.firebase.firestore.Exclude;
 
+import java.io.Serializable;
+
 /**
  * Represents an Event in the application, containing details about the organizer,
  * associated facility, event description, poster, schedule, and registration limits.
  * Implements the {@link HasDocumentId} interface for Firestore integration.
  */
-public class Event implements HasDocumentId {
+public class Event implements HasDocumentId, Serializable {
     @Exclude
     private String documentId;
     private String organizerId;

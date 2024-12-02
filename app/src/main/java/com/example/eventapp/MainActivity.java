@@ -12,18 +12,20 @@ import android.view.View;
 import android.widget.Toast;
 import android.Manifest;
 
+import com.example.eventapp.models.Event;
 import com.example.eventapp.models.Notification;
 import com.example.eventapp.models.User;
+import com.example.eventapp.repositories.EventRepository;
 import com.example.eventapp.repositories.UserRepository;
-import com.example.eventapp.repositories.NotificationRepository;
-import com.example.eventapp.services.notifications.ShowNotifications;
-import com.example.eventapp.viewmodels.NotificationsViewModel;
+import com.example.eventapp.services.NotificationService;
+import com.example.eventapp.ui.notifications.NotificationDialogFragment;
 import com.example.eventapp.viewmodels.ProfileViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -37,10 +39,12 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.eventapp.databinding.ActivityMainBinding;
 import com.google.firebase.FirebaseApp;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -86,21 +90,12 @@ public class MainActivity extends AppCompatActivity {
         );
         createOrLoadCurrentUser(androidId);
 
-        // Initializing viewModel and repository to check the notifications
-        NotificationsViewModel notificationsViewModel = new NotificationsViewModel();
-        notificationRepository = NotificationRepository.getInstance();
-
         // UNCOMMENT THIS LINE TO TEST NOTIFICATIONS
-        //testUploadNotification(androidId);
+        // testUploadNotification(androidId);
 
-        // Fetch and show all current users notifications
+        // Fetch and show all current user's notifications
         if (androidId != null) {
-            notificationRepository.fetchUnreadNotifications(androidId)
-                    .thenAccept(notifications -> ShowNotifications.showInAppNotifications(MainActivity.this, notifications, notificationsViewModel))
-                    .exceptionally(throwable -> {
-                        Log.e(TAG, "Failed to fetch notifications:", throwable);
-                        return null;
-                    });
+            showNotifications(androidId);
         } else {
             Log.e(TAG, "User ID is null. Unable to fetch notifications.");
         }
@@ -264,16 +259,107 @@ public class MainActivity extends AppCompatActivity {
 
         Notification i_notification = new Notification(
                 userId,
-                "Test Invite Title",
-                "This is a to test the invite notification.",
+                "Coolest title.",
+                "Coolest message!",
+                "SET_THIS",
                 "Invite"
         );
 
-        notificationRepository.uploadNotification(g_notification)
+        NotificationService.getInstance().uploadNotification(g_notification)
                 .thenAccept(s -> Log.d(TAG, "Notification uploaded successfully!"))
                 .exceptionally(throwable -> {
                     Log.e(TAG, "Failed to upload notification", throwable);
                     return null;
                 });
+    }
+
+    /**
+     * Fetches and displays notifications for the user based on their Android ID.
+     * This method retrieves unread notifications from the NotificationService,
+     * processes them, and displays appropriate dialogs.
+     *
+     * @param androidId The unique Android ID of the user.
+     */
+    private void showNotifications(String androidId) {
+        NotificationService notificationService = NotificationService.getInstance();
+
+        notificationService.fetchUnreadNotifications(androidId)
+                .thenCompose(this::processNotifications)
+                .exceptionally(throwable -> {
+                    Log.e(TAG, "Failed to fetch notifications:", throwable);
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "Error fetching notifications", Toast.LENGTH_LONG).show();
+                    });
+                    return null;
+                });
+    }
+
+    /**
+     * Processes a list of notifications, displaying each notification in an appropriate dialog.
+     * Handles both "Invite" and "General" types of notifications by delegating to specific processing methods.
+     *
+     * @param notifications A list of notifications to process. Can be empty or null.
+     * @return A CompletableFuture that completes when all notifications have been processed.
+     */
+    private CompletableFuture<Void> processNotifications(List<Notification> notifications) {
+        if (notifications == null || notifications.isEmpty()) {
+            Log.i(TAG, "No notifications found.");
+            return CompletableFuture.completedFuture(null);
+        }
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+        for (Notification notification : notifications) {
+            futures.add(processNotification(notification));
+        }
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+    }
+
+    /**
+     * Processes a single notification and displays the appropriate dialog.
+     * For "Invite" notifications, event data is fetched before displaying the dialog.
+     *
+     * @param notification The notification to process.
+     * @return A CompletableFuture that completes when the notification has been processed.
+     */
+    private CompletableFuture<Void> processNotification(Notification notification) {
+        EventRepository eventRepository = EventRepository.getInstance();
+
+        if ("Invite".equals(notification.getType())) {
+            return eventRepository.getEventById(notification.getEventId())
+                    .thenCompose(event -> {
+                        if (event != null) {
+                            return showNotificationDialog(notification, event);
+                        } else {
+                            Log.e(TAG, "Event not found for notification: " + notification.getEventId());
+                            return CompletableFuture.completedFuture(null);
+                        }
+                    })
+                    .exceptionally(throwable -> {
+                        Log.e(TAG, "Failed to fetch event data for notification: " + notification.getEventId(), throwable);
+                        runOnUiThread(() -> {
+                            Toast.makeText(this, "Error loading event data", Toast.LENGTH_LONG).show();
+                        });
+                        return null;
+                    });
+        } else {
+            return showNotificationDialog(notification, null);
+        }
+    }
+
+    /**
+     * Displays a dialog for the given notification, optionally with associated event data.
+     *
+     * @param notification The notification to display in the dialog.
+     * @param event The event associated with the notification, if applicable. Can be null.
+     * @return A CompletableFuture that completes when the dialog has been shown.
+     */
+    private CompletableFuture<Void> showNotificationDialog(Notification notification, @Nullable Event event) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        runOnUiThread(() -> {
+            NotificationDialogFragment dialog = NotificationDialogFragment.newInstance(notification, event);
+            dialog.show(getSupportFragmentManager(), "NotificationDialog");
+            future.complete(null);
+        });
+        return future;
     }
 }

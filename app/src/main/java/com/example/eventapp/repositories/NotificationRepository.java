@@ -116,7 +116,6 @@ public class NotificationRepository {
         db.collection("users")
                 .document(userId)
                 .collection("notifications")
-                .whereEqualTo("read", false)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && !task.getResult().isEmpty()) {
@@ -127,7 +126,6 @@ public class NotificationRepository {
                         for (int i = 0; i < notifications.size(); i++) {
                             notifications.get(i).setDocumentId(docs.get(i).getId());
                         }
-
                         future.complete(notifications);
                     }
                     else if (task.isSuccessful() && task.getResult().isEmpty()) {
