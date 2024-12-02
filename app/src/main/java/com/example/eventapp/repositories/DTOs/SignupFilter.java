@@ -1,4 +1,4 @@
-package com.example.eventapp.repositories;
+package com.example.eventapp.repositories.DTOs;
 
 /**
  * Represents filter criteria for querying signups.

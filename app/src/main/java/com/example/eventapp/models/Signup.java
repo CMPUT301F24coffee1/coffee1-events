@@ -18,7 +18,7 @@ public class Signup implements HasDocumentId {
     private long signupTimestamp;
 
     private boolean isCancelled = false;
-    private boolean isWaitlisted = false;
+    private boolean isWaitlisted = true;
     // Chosen means that a user is selected, but has not accepted the invitation yet
     private boolean isChosen = false;
     private boolean isEnrolled = false;

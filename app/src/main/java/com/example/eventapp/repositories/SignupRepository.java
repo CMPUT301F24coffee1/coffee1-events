@@ -7,10 +7,15 @@ import androidx.lifecycle.Transformations;
 
 import com.example.eventapp.models.Signup;
 import com.example.eventapp.models.User;
+import com.google.firebase.firestore.Filter;
+import com.example.eventapp.repositories.DTOs.SignupFilter;
+import com.example.eventapp.repositories.DTOs.UserSignupEntry;
 import com.google.firebase.firestore.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -229,36 +234,58 @@ public class SignupRepository {
     }
 
     /**
-     * Retrieves all users signed up for a specific event.
+     * Retrieves all users signed up for a specific event, wrapped in UserSignupEntry.
      *
      * @param eventId The ID of the event.
-     * @return LiveData containing a list of User instances signed up for the event.
+     * @return LiveData containing a list of UserSignupEntry instances signed up for the event.
      */
-    public LiveData<List<User>> getSignedUpUsersLiveData(String eventId) {
+    public LiveData<List<UserSignupEntry>> getSignedUpUsersLiveData(String eventId) {
         return getSignedUpUsersByFilterLiveData(eventId, new SignupFilter());
     }
 
     /**
-     * Retrieves all users signed up for a specific event, filtered by a SignupFilter.
+     * Retrieves all users signed up for a specific event, wrapped in UserSignupEntry.
      *
      * @param eventId The ID of the event.
-     * @param filter instance of SignupFilter, outlining what to filter Signups by.
-     * @return LiveData containing a list of User instances signed up for the event.
+     * @param filter An instance of SignupFilter
+     * @return LiveData containing a list of UserSignupEntry instances signed up for the event.
      */
-    public LiveData<List<User>> getSignedUpUsersByFilterLiveData(String eventId, SignupFilter filter) {
+    public LiveData<List<UserSignupEntry>> getSignedUpUsersByFilterLiveData(
+           String eventId,
+           SignupFilter filter) {
+        Objects.requireNonNull(filter);
         Query query = signupCollection.whereEqualTo("eventId", eventId);
 
-        if (filter.isCancelled != null) {
-            query = query.whereEqualTo("cancelled", filter.isCancelled);
+        if ((filter.isCancelled == null || !filter.isCancelled) &&
+                (filter.isWaitlisted == null || !filter.isWaitlisted) &&
+                (filter.isChosen == null || !filter.isChosen) &&
+                (filter.isEnrolled == null || !filter.isEnrolled)) {
+            MutableLiveData<List<UserSignupEntry>> emptyLiveData = new MutableLiveData<>();
+            emptyLiveData.setValue(new ArrayList<>());
+            return emptyLiveData;
         }
-        if (filter.isWaitlisted != null) {
-            query = query.whereEqualTo("waitlisted", filter.isWaitlisted);
+        Log.d(TAG, "filter isCancelled: " + filter.isCancelled);
+        Log.d(TAG, "filter isWaitlisted: " + filter.isWaitlisted);
+        Log.d(TAG, "filter isChosen: " + filter.isChosen);
+        Log.d(TAG, "filter isEnrolled: " + filter.isEnrolled);
+
+        List<Filter> filters = new ArrayList<>();
+
+        if (filter.isCancelled != null && filter.isCancelled) {
+            filters.add(Filter.equalTo("cancelled", true));
         }
-        if (filter.isChosen != null) {
-            query = query.whereEqualTo("chosen", filter.isChosen);
+        if (filter.isWaitlisted != null && filter.isWaitlisted) {
+            filters.add(Filter.equalTo("waitlisted", true));
         }
-        if (filter.isEnrolled != null) {
-            query = query.whereEqualTo("enrolled", filter.isEnrolled);
+        if (filter.isChosen != null && filter.isChosen) {
+            filters.add(Filter.equalTo("chosen", true));
+        }
+        if (filter.isEnrolled != null && filter.isEnrolled) {
+            filters.add(Filter.equalTo("enrolled", true));
+        }
+
+        if (!filters.isEmpty()) {
+            query = query.where(Filter.or(filters.toArray(new Filter[0])));
         }
 
         LiveData<List<Signup>> signupLiveData = Common.runQueryLiveData(
@@ -266,17 +293,57 @@ public class SignupRepository {
 
         return Transformations.switchMap(signupLiveData, signups -> {
             if (signups == null || signups.isEmpty()) {
-                MutableLiveData<List<User>> emptyLiveData = new MutableLiveData<>();
+                MutableLiveData<List<UserSignupEntry>> emptyLiveData = new MutableLiveData<>();
                 emptyLiveData.setValue(new ArrayList<>());
                 return emptyLiveData;
             }
 
+            // Mapping from userId to Signup
             List<String> userIds = new ArrayList<>();
+            Map<String, Signup> signupMap = new HashMap<>();
             for (Signup signup : signups) {
                 userIds.add(signup.getUserId());
+                signupMap.put(signup.getUserId(), signup);
             }
-            return userRepository.getUsersByIdsLiveData(userIds);
+
+            LiveData<List<User>> usersLiveData = userRepository.getUsersByIdsLiveData(userIds);
+
+            // Mapping from User to UserSignupEntry
+            return Transformations.map(usersLiveData, users -> {
+                List<UserSignupEntry> entries = new ArrayList<>();
+                if (users != null) {
+                    for (User user : users) {
+                        Signup signup = signupMap.get(user.getUserId());
+                        Objects.requireNonNull(signup);
+
+                        String attendanceStatus = determineAttendanceStatus(signup);
+                        UserSignupEntry entry = new UserSignupEntry(user, attendanceStatus);
+                        entries.add(entry);
+                    }
+                }
+                return entries;
+            });
         });
+    }
+
+    /**
+     * Determines the attendance status string based on the signup's fields.
+     *
+     * @param signup the Signup object to determine the status for.
+     * @return the attendance status string.
+     */
+    private String determineAttendanceStatus(Signup signup) {
+        if (signup.isCancelled()) {
+            return "Cancelled";
+        } else if (signup.isWaitlisted()) {
+            return "Waitlisted";
+        } else if (signup.isChosen()) {
+            return "Chosen";
+        } else if (signup.isEnrolled()) {
+            return "Enrolled";
+        } else {
+            return "Unknown";
+        }
     }
 
     /**
