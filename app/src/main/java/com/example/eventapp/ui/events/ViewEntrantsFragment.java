@@ -84,7 +84,7 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
         notifySelectedButton.setOnClickListener(view1 -> promptUserForNotificationMessage());
 
         // Cancel Selected Button
-        ImageButton cancelSelectedButton = view.findViewById(R.id.fragment_view_entrants_cancel_selected_button);
+        ImageButton cancelSelectedButton = view.findViewById(R.id.fragment_view_entrants_delete_selected_button);
         cancelSelectedButton.setOnClickListener(view12 -> cancelSelectedSignups());
 
         Event currentEvent = entrantsViewModel.getCurrentEventToQuery();

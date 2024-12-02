@@ -78,7 +78,7 @@ public class EntrantsViewModel extends ViewModel {
         }
     }
 
-    public CompletableFuture<Void> cancelSignupEntry(UserSignupEntry userSignupEntry) {
+    public CompletableFuture<Void> removeSignupEntry(UserSignupEntry userSignupEntry) {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
         if (currentEventToQuery == null) {
@@ -96,14 +96,13 @@ public class EntrantsViewModel extends ViewModel {
                         future.completeExceptionally(ex);
                         return future;
                     }
-                    signup.setCancelled(true);
-                    return signupRepository.updateSignup(signup);
+                    return signupRepository.removeSignup(signup);
                 });
     }
 
     public void cancelEntrants(List<UserSignupEntry> selectedEntrants){
         for(UserSignupEntry userSignupEntry: selectedEntrants) {
-            cancelSignupEntry(userSignupEntry);
+            removeSignupEntry(userSignupEntry);
         }
     }
 
