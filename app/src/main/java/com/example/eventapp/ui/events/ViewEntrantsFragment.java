@@ -16,8 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
-import com.example.eventapp.models.User;
-import com.example.eventapp.repositories.SignupFilter;
+import com.example.eventapp.repositories.DTOs.SignupFilter;
+import com.example.eventapp.repositories.DTOs.UserSignupEntry;
 import com.example.eventapp.viewmodels.EntrantsViewModel;
 
 import java.util.ArrayList;
@@ -25,13 +25,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ViewEntrantsFragment extends Fragment {
-    private ArrayList<User> entrants;
+    private ArrayList<UserSignupEntry> entrants;
     private EntrantsAdapter entrantsAdapter;
     private EntrantsViewModel entrantsViewModel;
 
     // Cancelled, Waitlisted, Chosen, Enrolled:
     private boolean[] filterOptions;
 
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_view_entrants, container, false);
     }
@@ -40,7 +41,6 @@ public class ViewEntrantsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize ViewModel and data
         entrantsViewModel = new ViewModelProvider(requireActivity()).get(EntrantsViewModel.class);
         filterOptions = new boolean[]{false, false, false, false};
         entrants = new ArrayList<>();
@@ -57,12 +57,7 @@ public class ViewEntrantsFragment extends Fragment {
 
         // Manage QR Code Button
         ImageButton manageQrCodeButton = view.findViewById(R.id.fragment_view_entrants_qr_code_button);
-        manageQrCodeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showManageQrCodeFragment();
-            }
-        });
+        manageQrCodeButton.setOnClickListener(v -> showManageQrCodeFragment());
 
         Event currentEvent = entrantsViewModel.getCurrentEventToQuery();
         if (currentEvent != null) {
@@ -71,14 +66,14 @@ public class ViewEntrantsFragment extends Fragment {
             Log.e("ViewEntrantsFragment", "Current event is null");
         }
 
-        entrantsViewModel.getFilteredUsersLiveData().observe(getViewLifecycleOwner(), this::updateEntrantsList);
+        entrantsViewModel.getFilteredUserSignupEntriesLiveData().observe(getViewLifecycleOwner(), this::updateEntrantsList);
         updateFilter();
     }
 
-    private void updateEntrantsList(List<User> newEntrants) {
+    private void updateEntrantsList(List<UserSignupEntry> newEntrants) {
         entrants.clear();
         entrants.addAll(newEntrants);
-        // TODO: calculating diff with DiffUtil
+        // TODO: Use DiffUtil for better performance
         entrantsAdapter.notifyDataSetChanged();
     }
 
@@ -112,5 +107,28 @@ public class ViewEntrantsFragment extends Fragment {
     private void showManageQrCodeFragment() {
         ManageQRCodeFragment manageQRCodeFragment = new ManageQRCodeFragment(entrantsViewModel.getCurrentEventToQuery());
         manageQRCodeFragment.show(requireActivity().getSupportFragmentManager(), "manage_qr_code");
+    }
+
+    // Use this like this:
+    // Button notifyButton = view.findViewById(R.id.notify_selected_button);
+    // notifyButton.setOnClickListener(v -> {
+    //     List<UserSignupEntry> selectedEntrants = getSelectedEntrants();
+    //     entrantsViewModel.notifyEntrants(selectedEntrants, messageContent);
+    // });
+    public List<UserSignupEntry> getSelectedEntrants() {
+        List<UserSignupEntry> selectedEntrants = new ArrayList<>();
+        for (UserSignupEntry entry : entrants) {
+            if (entry.isSelected()) {
+                selectedEntrants.add(entry);
+            }
+        }
+        return selectedEntrants;
+    }
+
+    public void clearSelection() {
+        for (UserSignupEntry entry : entrants) {
+            entry.setSelected(false);
+        }
+        entrantsAdapter.notifyDataSetChanged();
     }
 }
