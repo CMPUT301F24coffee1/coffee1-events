@@ -107,10 +107,10 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
 
     private void updateFilter() {
         SignupFilter signupFilter = new SignupFilter(
-                filterOptions[0] ? true : null, // isCancelled
-                filterOptions[1] ? true : null, // isWaitlisted
-                filterOptions[2] ? true : null, // isChosen
-                filterOptions[3] ? true : null  // isEnrolled
+                filterOptions[0], // isCancelled
+                filterOptions[1], // isWaitlisted
+                filterOptions[2], // isChosen
+                filterOptions[3]  // isEnrolled
         );
 
         entrantsViewModel.updateFilter(signupFilter);
