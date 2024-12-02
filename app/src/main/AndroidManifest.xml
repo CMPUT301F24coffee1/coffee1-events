@@ -37,7 +37,6 @@
             android:screenOrientation="fullSensor"
             tools:replace="screenOrientation"
             tools:ignore="DiscouragedApi" />
-        <receiver android:name="com.example.eventapp.services.notifications.NotificationActionReceiver" />
     </application>
 
 </manifest>
