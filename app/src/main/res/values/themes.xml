@@ -21,6 +21,9 @@
         <item name="materialButtonStyle">@style/buttonTheme</item>
         <item name="floatingActionButtonStyle">@style/fabTheme</item>
 
+        <!-- Error Colours -->
+        <item name="colorError">@color/design_default_color_error</item>
+
         <!-- Primary colours -->
         <item name="colorPrimary">@color/material_dynamic_primary50</item>
         <item name="colorPrimaryDark">@color/material_dynamic_primary20</item>

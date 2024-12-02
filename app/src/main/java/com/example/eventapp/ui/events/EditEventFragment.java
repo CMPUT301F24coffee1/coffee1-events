@@ -151,55 +151,60 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
 
         // Save button
         saveEventButton.setOnClickListener(v -> {
-            String newName = eventName.getText().toString();
-            String newDescription = eventDescription.getText().toString();
-            String maxEntrants = maxEventEntrants.getText().toString();
+            if (saveEventButton.isFocusable()) {
+                String newName = eventName.getText().toString();
+                String newDescription = eventDescription.getText().toString();
+                String maxEntrants = maxEventEntrants.getText().toString();
 
-            if (newName.isEmpty()) {
-                Toast.makeText(getContext(), "Event name is required", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Update event details
-            event.setEventName(newName);
-            event.setEventDescription(newDescription);
-            event.setGeolocationRequired(geolocationRequired.isChecked());
-            event.setStartDate(timestamps.get(0));
-            event.setEndDate(timestamps.get(1));
-            event.setDeadline(timestamps.get(2));
-
-            if (!maxEntrants.isEmpty()) {
-                try {
-                    event.setMaxEntrants(Integer.parseInt(maxEntrants));
-                } catch (NumberFormatException e) {
-                    event.setMaxEntrants(-1); // Reset if invalid
+                if (newName.isEmpty()) {
+                    Toast.makeText(getContext(), "Event name is required", Toast.LENGTH_SHORT).show();
+                    return;
                 }
-            }
 
-            // Handle new poster upload if selected
-            if (selectedPhotoUri != null) {
-                PhotoManager.UploadCallback uploadCallback = new PhotoManager.UploadCallback()
-                {
-                    @Override
-                    public void onUploadSuccess (String downloadUrl){
-                        event.setPosterUriString(downloadUrl);
-                        editEventListener.saveEditedEvent(event);
+                saveEventButton.setFocusable(false);
+
+                // Update event details
+                event.setEventName(newName);
+                event.setEventDescription(newDescription);
+                event.setGeolocationRequired(geolocationRequired.isChecked());
+                event.setStartDate(timestamps.get(0));
+                event.setEndDate(timestamps.get(1));
+                event.setDeadline(timestamps.get(2));
+
+                if (!maxEntrants.isEmpty()) {
+                    try {
+                        event.setMaxEntrants(Integer.parseInt(maxEntrants));
+                    } catch (NumberFormatException e) {
+                        event.setMaxEntrants(-1); // Reset if invalid
                     }
+                }
 
-                    @Override
-                    public void onUploadFailure(Exception e) {
-                        Toast.makeText(getContext(), "Failed to upload photo", Toast.LENGTH_SHORT).show();
+                // Handle new poster upload if selected
+                if (selectedPhotoUri != null) {
+                    PhotoManager.UploadCallback uploadCallback = new PhotoManager.UploadCallback()
+                    {
+                        @Override
+                        public void onUploadSuccess (String downloadUrl){
+                            event.setPosterUriString(downloadUrl);
+                            editEventListener.saveEditedEvent(event);
+                        }
+
+                        @Override
+                        public void onUploadFailure(Exception e) {
+                            saveEventButton.setFocusable(true);
+                            Toast.makeText(getContext(), "Failed to upload photo", Toast.LENGTH_SHORT).show();
+                        }
+                    };
+
+                    if (oldPosterUri == null) {
+                        PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "events", "poster", uploadCallback);
+                    } else {
+                        final String id = Objects.requireNonNull(oldPosterUri.getLastPathSegment()).split("/")[1];
+                        PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "events", id, "poster", uploadCallback);
                     }
-                };
-
-                if (oldPosterUri == null) {
-                    PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "events", "poster", uploadCallback);
                 } else {
-                    final String id = Objects.requireNonNull(oldPosterUri.getLastPathSegment()).split("/")[1];
-                    PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "events", id, "poster", uploadCallback);
+                    editEventListener.saveEditedEvent(event);
                 }
-            } else {
-                editEventListener.saveEditedEvent(event);
             }
         });
 

@@ -122,75 +122,80 @@ public class CreateEventFragment extends BottomSheetDialogFragment implements Da
         createEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (createEventButton.isFocusable()) {
 
-                Log.d("CreateEventFragment", "Create Button Clicked");
-                String newEventName = eventName.getText().toString();
-                String newEventDescription = eventDescription.getText().toString();
-                String maxEntrants = maxEventEntrants.getText().toString();
+                    Log.d("CreateEventFragment", "Create Button Clicked");
+                    String newEventName = eventName.getText().toString();
+                    String newEventDescription = eventDescription.getText().toString();
+                    String maxEntrants = maxEventEntrants.getText().toString();
 
-                // Check if there is an event name
-                if(newEventName.isEmpty()){
-                    Toast.makeText(getContext(), "Must have event name", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+                    // Check if there is an event name
+                    if (newEventName.isEmpty()) {
+                        Toast.makeText(getContext(), "Must have event name", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-                // Check if any timestamps are zero
-                if (timestamps.get(0) == 0 || timestamps.get(1) == 0 || timestamps.get(2) == 0) {
-                    Toast.makeText(getContext(), "All event dates must be set", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+                    // Check if any timestamps are zero
+                    if (timestamps.get(0) == 0 || timestamps.get(1) == 0 || timestamps.get(2) == 0) {
+                        Toast.makeText(getContext(), "All event dates must be set", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-                if (selectedPhotoUri == null) {
-                    // No photo selected, create the event directly
-                    if (maxEntrants.isEmpty()) {
-                        // No max entrant count given
-                        createEventListener.createEvent(new Event(newEventName, "", newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
-                    } else {
-                        try {
-                            int max = Integer.parseInt(maxEntrants);
-                            if (max > 0) {
-                                createEventListener.createEvent(new Event(newEventName, "", newEventDescription, geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2)));
-                            } else {
+                    createEventButton.setFocusable(false);
+
+                    if (selectedPhotoUri == null) {
+                        // No photo selected, create the event directly
+                        if (maxEntrants.isEmpty()) {
+                            // No max entrant count given
+                            createEventListener.createEvent(new Event(newEventName, "", newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                        } else {
+                            try {
+                                int max = Integer.parseInt(maxEntrants);
+                                if (max > 0) {
+                                    createEventListener.createEvent(new Event(newEventName, "", newEventDescription, geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                                } else {
+                                    createEventListener.createEvent(new Event(newEventName, "", newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                                }
+                            } catch (Exception e) {
+                                // Could not parse input, create event without max entrants
                                 createEventListener.createEvent(new Event(newEventName, "", newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                             }
-                        } catch (Exception e) {
-                            // Could not parse input, create event without max entrants
-                            createEventListener.createEvent(new Event(newEventName, "", newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                         }
-                    }
-                } else {
-                    // Upload photo to Firebase storage and only create the event after a successful upload
-                    PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "events", "poster", new PhotoManager.UploadCallback() {
-                        @Override
-                        public void onUploadSuccess(String downloadUrl) {
-                            posterUriString = downloadUrl;
-                            Log.d("PhotoUploader", "Photo uploaded successfully: " + posterUriString);
+                    } else {
+                        // Upload photo to Firebase storage and only create the event after a successful upload
+                        PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "events", "poster", new PhotoManager.UploadCallback() {
+                            @Override
+                            public void onUploadSuccess(String downloadUrl) {
+                                posterUriString = downloadUrl;
+                                Log.d("PhotoUploader", "Photo uploaded successfully: " + posterUriString);
 
-                            // After the photo is uploaded successfully, create the event
-                            if (maxEntrants.isEmpty()) {
-                                // No max entrant count given
-                                createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
-                            } else {
-                                try {
-                                    int max = Integer.parseInt(maxEntrants);
-                                    if (max > 0) {
-                                        createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2)));
-                                    } else {
+                                // After the photo is uploaded successfully, create the event
+                                if (maxEntrants.isEmpty()) {
+                                    // No max entrant count given
+                                    createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                                } else {
+                                    try {
+                                        int max = Integer.parseInt(maxEntrants);
+                                        if (max > 0) {
+                                            createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), max, timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                                        } else {
+                                            createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
+                                        }
+                                    } catch (Exception e) {
+                                        // Could not parse input, create event without max entrants
                                         createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                                     }
-                                } catch (Exception e) {
-                                    // Could not parse input, create event without max entrants
-                                    createEventListener.createEvent(new Event(newEventName, posterUriString, newEventDescription, geolocationRequired.isChecked(), timestamps.get(0), timestamps.get(1), timestamps.get(2)));
                                 }
                             }
-                        }
 
-                        @Override
-                        public void onUploadFailure(Exception e) {
-                            Log.e("PhotoUploader", "Upload failed", e);
-                            Toast.makeText(getContext(), "Photo upload failed. Please try again.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                            @Override
+                            public void onUploadFailure(Exception e) {
+                                Log.e("PhotoUploader", "Upload failed", e);
+                                createEventButton.setFocusable(true);
+                                Toast.makeText(getContext(), "Photo upload failed. Please try again.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
                 }
             }
 
