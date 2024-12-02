@@ -48,8 +48,6 @@ public class MainActivity extends AppCompatActivity {
     NavController navController;
     Menu navMenu;
 
-    private static final String TEST_USER_ID = "ef5f56cd4eaae07b"; // Replace with a valid user ID
-    private static final String TEST_NOTIFICATION_ID = "notificationId123"; // Replace with a valid notification ID
     private NotificationRepository notificationRepository;
 
     /**
@@ -70,14 +68,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(root);
 
         // Initialize the permission launcher to handle permission results
-        // Continue with photo access or loading
         ActivityResultLauncher<String[]> requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
             Boolean readMediaGranted = result.getOrDefault(Manifest.permission.READ_MEDIA_IMAGES, false);
             Boolean readStorageGranted = result.getOrDefault(Manifest.permission.READ_EXTERNAL_STORAGE, false);
 
             if (readMediaGranted != null && readMediaGranted || readStorageGranted != null && readStorageGranted) {
                 Toast.makeText(this, "Permission granted to access photos", Toast.LENGTH_SHORT).show();
-                // Continue with photo access or loading
             } else {
                 Toast.makeText(this, "Permission denied to access photos", Toast.LENGTH_SHORT).show();
             }

@@ -12,8 +12,8 @@ public class Signup implements HasDocumentId {
     @Exclude
     private String documentId;
     private String userId;
-    private double latitude;
-    private double longitude;
+    private Double latitude;
+    private Double longitude;
     private String eventId;
     private long signupTimestamp;
 
@@ -45,7 +45,7 @@ public class Signup implements HasDocumentId {
      * @param userId  the ID of the user signing up
      * @param eventId the ID of the event to which the user is signing up
      */
-    public Signup(String userId, String eventId, double latitude, double longitude) {
+    public Signup(String userId, String eventId, Double latitude, Double longitude) {
         this.userId = userId;
         this.eventId = eventId;
         this.latitude = latitude;
@@ -94,28 +94,28 @@ public class Signup implements HasDocumentId {
      *
      * @return the latitude of the user
      */
-    public double getLatitude() { return latitude; }
+    public Double getLatitude() { return latitude; }
 
     /**
      * Sets the latitude of the user of where they signed up
      *
      * @param latitude the users current latitude
      */
-    public void setLatitude(double latitude) { this.latitude = latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
 
     /**
      * Gets the longitude of the user of where they signed up
      *
      * @return the longitude of the user
      */
-    public double getLongitude() { return longitude; }
+    public Double getLongitude() { return longitude; }
 
     /**
      * Sets the longitude of the user of where they signed up
      *
      * @param longitude the users current longitude
      */
-    public void setLongitude(double longitude) { this.longitude = longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
 
     /**
      * Gets the event ID associated with this signup.
