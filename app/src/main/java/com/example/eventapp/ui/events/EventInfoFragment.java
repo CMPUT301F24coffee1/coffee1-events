@@ -28,6 +28,7 @@ import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
 import com.example.eventapp.models.Signup;
 import com.example.eventapp.services.FormatDate;
+import com.example.eventapp.viewmodels.EntrantsViewModel;
 import com.example.eventapp.ui.images.ImageInfoFragment;
 import com.example.eventapp.services.GetUserLocationService;
 import com.example.eventapp.viewmodels.EventsViewModel;
@@ -267,7 +268,9 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
     }
 
     private void navigateToEventEntrantsScreen(){
+        EntrantsViewModel entrantsViewModel = new ViewModelProvider(requireActivity()).get(EntrantsViewModel.class);
         NavController navController = NavHostFragment.findNavController(this);
+        entrantsViewModel.setCurrentEventToQuery(event);
         navController.navigate(R.id.navigation_view_entrants);
         requireActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
     }
