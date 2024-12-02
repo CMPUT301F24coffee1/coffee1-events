@@ -76,4 +76,5 @@
     <string name="selected_image">Selected Image</string>
     <string name="delete_image">Delete Image</string>
     <string name="type">Type</string>
+    <string name="title_activity_maps">MapsActivity</string>
 </resources>

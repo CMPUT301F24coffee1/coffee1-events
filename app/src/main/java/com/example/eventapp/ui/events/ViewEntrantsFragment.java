@@ -1,6 +1,7 @@
 package com.example.eventapp.ui.events;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,18 +25,43 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Fragment for displaying the entrants for a given event
+ * Has options to filter based on what list the entrant is on
+ * Can display the map view if the given event has
+ * geolocation turned on
+ */
 public class ViewEntrantsFragment extends Fragment {
     private ArrayList<User> entrants;
     private EntrantsAdapter entrantsAdapter;
     private EntrantsViewModel entrantsViewModel;
 
-    // Cancelled, Waitlisted, Chosen, Enrolled:
     private boolean[] filterOptions;
 
+    /**
+     * This creates the view inflater for the view
+     *
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return the inflater for the fragment
+     */
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_view_entrants, container, false);
     }
 
+    /**
+     * This is used to create the entrant view
+     *
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -71,10 +97,29 @@ public class ViewEntrantsFragment extends Fragment {
             Log.e("ViewEntrantsFragment", "Current event is null");
         }
 
+        // Show Map Button
+        ImageButton showMap = view.findViewById(R.id.fragment_view_entrants_show_map);
+        assert currentEvent != null;
+        if (currentEvent.isGeolocationRequired()) {
+            showMap.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), EventMapFragment.class);
+
+                // Pass additional data if needed
+                intent.putExtra("eventId", currentEvent.getDocumentId());
+                startActivity(intent);
+            });
+        } else {
+            showMap.setVisibility(View.GONE);
+        }
+
         entrantsViewModel.getFilteredUsersLiveData().observe(getViewLifecycleOwner(), this::updateEntrantsList);
         updateFilter();
     }
 
+    /**
+     * Method for updating the entrants list
+     * @param newEntrants Live data list of current entrants
+     */
     private void updateEntrantsList(List<User> newEntrants) {
         entrants.clear();
         entrants.addAll(newEntrants);
@@ -82,6 +127,9 @@ public class ViewEntrantsFragment extends Fragment {
         entrantsAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * Method for showing the filter options popup
+     */
     private void showFilterOptionsPopup() {
         CharSequence[] options = {"Cancelled", "Waitlisted", "Chosen", "Enrolled"};
         boolean[] tempFilterOptions = Arrays.copyOf(filterOptions, filterOptions.length);
@@ -98,6 +146,9 @@ public class ViewEntrantsFragment extends Fragment {
                 .show();
     }
 
+    /**
+     * Method for updating the applied filters
+     */
     private void updateFilter() {
         SignupFilter signupFilter = new SignupFilter(
                 filterOptions[0] ? true : null, // isCancelled
@@ -109,6 +160,9 @@ public class ViewEntrantsFragment extends Fragment {
         entrantsViewModel.updateFilter(signupFilter);
     }
 
+    /**
+     * Method for showing the manage QR Fragment
+     */
     private void showManageQrCodeFragment() {
         ManageQRCodeFragment manageQRCodeFragment = new ManageQRCodeFragment(entrantsViewModel.getCurrentEventToQuery());
         manageQRCodeFragment.show(requireActivity().getSupportFragmentManager(), "manage_qr_code");

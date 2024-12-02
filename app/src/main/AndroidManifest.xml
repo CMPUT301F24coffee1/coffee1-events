@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <!-- Get permissions to access photos on Android 12 and below and Android 13 and above -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32"
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_IMAGES"
         android:required="false" />
-
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -24,6 +29,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EventApp"
         tools:targetApi="31">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCrN1WWujbacEv2kdIjIVFTXN6bgHWl91Q" />
+
+        <activity android:name=".ui.events.EventMapFragment" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -36,9 +47,13 @@
         </activity>
         <service android:name=".SaveImageService" />
         <!-- referenced the zxing android embedded documentation -->
+        </activity> <!-- referenced the zxing android embedded documentation -->
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="fullSensor"
+            tools:ignore="DiscouragedApi"
+            tools:replace="screenOrientation" />
+
             tools:replace="screenOrientation"
             tools:ignore="DiscouragedApi" />
     </application>
