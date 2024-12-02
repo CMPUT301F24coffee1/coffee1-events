@@ -18,6 +18,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="298dp"
+            android:background="@android:color/transparent"
+            android:tint="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/fragment_view_entrants_delete_selected_button"
@@ -28,6 +30,8 @@
             android:id="@+id/fragment_view_entrants_delete_selected_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:tint="?attr/colorError"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/fragment_view_entrants_filter_options_button"
             app:layout_constraintHorizontal_bias="0.05"
@@ -67,7 +71,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <ImageButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fragment_view_entrants_draw_button"
             android:layout_width="60dp"
             android:layout_height="60dp"
@@ -75,50 +79,70 @@
             android:layout_marginTop="2dp"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="2dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:src="@drawable/baseline_shuffle_24"
+            android:tint="?attr/colorPrimary"
+            app:backgroundTint="@android:color/transparent"
+            app:borderWidth="0dp"
+            app:elevation="0dp"
+            app:hoveredFocusedTranslationZ="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/fragment_view_entrants_notify_selected_button"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@tools:sample/avatars" />
+            app:maxImageSize="64dp"
+            app:pressedTranslationZ="0dp" />
 
-        <ImageButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fragment_view_entrants_notify_selected_button"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_marginTop="2dp"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="2dp"
+            android:src="@drawable/baseline_notification_add_24"
+            android:tint="?attr/colorPrimary"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            app:backgroundTint="@android:color/transparent"
+            app:borderWidth="0dp"
+            app:elevation="0dp"
+            app:hoveredFocusedTranslationZ="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/fragment_view_entrants_show_map"
             app:layout_constraintStart_toEndOf="@+id/fragment_view_entrants_draw_button"
             app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@tools:sample/avatars" />
+            app:maxImageSize="64dp"
+            app:pressedTranslationZ="0dp" />
 
-        <ImageButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fragment_view_entrants_show_map"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_marginTop="2dp"
-            android:layout_marginEnd="20dp"
             android:layout_marginBottom="2dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/fragment_view_entrants_qr_code_button"
-            app:layout_constraintStart_toEndOf="@+id/fragment_view_entrants_notify_selected_button"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <ImageButton
-            android:id="@+id/fragment_view_entrants_qr_code_button"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="2dp"
+            android:src="@drawable/baseline_map_24"
+            android:tint="?attr/colorPrimary"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            app:backgroundTint="@android:color/transparent"
+            app:borderWidth="0dp"
+            app:elevation="0dp"
+            app:hoveredFocusedTranslationZ="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/fragment_view_entrants_show_map"
+            app:layout_constraintStart_toEndOf="@+id/fragment_view_entrants_notify_selected_button"
             app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@tools:sample/avatars" />
+            app:maxImageSize="64dp"
+            app:pressedTranslationZ="0dp" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

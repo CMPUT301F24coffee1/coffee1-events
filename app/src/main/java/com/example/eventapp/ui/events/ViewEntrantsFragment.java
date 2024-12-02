@@ -5,12 +5,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,6 +25,7 @@ import com.example.eventapp.models.Event;
 import com.example.eventapp.repositories.DTOs.SignupFilter;
 import com.example.eventapp.repositories.DTOs.UserSignupEntry;
 import com.example.eventapp.viewmodels.EntrantsViewModel;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,6 +73,19 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
      */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Hide the profile button
+        requireActivity().addMenuProvider(new MenuProvider() {
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                menu.findItem(R.id.navigation_profile).setVisible(false); // Hide old menu
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem item) {
+                return false;
+            }
+        }, getViewLifecycleOwner());
+
         return inflater.inflate(R.layout.fragment_view_entrants, container, false);
     }
 
@@ -93,7 +111,7 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
         filterOptionsButton.setOnClickListener(v -> showFilterOptionsPopup());
 
         // Notify Users Button
-        ImageButton notifySelectedButton = view.findViewById(R.id.fragment_view_entrants_notify_selected_button);
+        FloatingActionButton notifySelectedButton = view.findViewById(R.id.fragment_view_entrants_notify_selected_button);
         notifySelectedButton.setOnClickListener(view1 -> promptUserForNotificationMessage());
 
         // Cancel Selected Button
@@ -101,7 +119,7 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
         cancelSelectedButton.setOnClickListener(view12 -> cancelSelectedSignups());
 
         // Lottery Button
-        ImageButton lotteryButton = view.findViewById(R.id.fragment_view_entrants_draw_button);
+        FloatingActionButton lotteryButton = view.findViewById(R.id.fragment_view_entrants_draw_button);
         if(entrantsViewModel.getCurrentEventToQuery().isLotteryProcessed()){
             int enrolledCount = getEnrolledCount();
             int maxEnrolledSize = entrantsViewModel.getCurrentEventToQuery().getNumberOfAttendees();
@@ -124,7 +142,7 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
         }
 
         // Show Map Button
-        ImageButton showMap = view.findViewById(R.id.fragment_view_entrants_show_map);
+        FloatingActionButton showMap = view.findViewById(R.id.fragment_view_entrants_show_map);
         assert currentEvent != null;
         if (currentEvent.isGeolocationRequired()) {
             showMap.setOnClickListener(v -> {

@@ -122,7 +122,8 @@ public class MainActivity extends AppCompatActivity {
                 R.id.navigation_facility_add,
                 R.id.navigation_create_event,
                 R.id.navigation_create_event_dates,
-                R.id.navigation_create_event_confirm);
+                R.id.navigation_create_event_confirm,
+                R.id.navigation_view_entrants);
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             if (destination.getId() == R.id.navigation_profile_edit) {
