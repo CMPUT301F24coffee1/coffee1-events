@@ -47,7 +47,6 @@
             tools:ignore="DiscouragedApi"
             tools:replace="screenOrientation" />
 
-        <receiver android:name=".services.notifications.NotificationActionReceiver" />
     </application>
 
 </manifest>
