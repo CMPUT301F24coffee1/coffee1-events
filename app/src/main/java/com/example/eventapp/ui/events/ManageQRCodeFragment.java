@@ -1,9 +1,11 @@
 package com.example.eventapp.ui.events;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.lifecycle.ViewModelProvider;
@@ -33,6 +35,16 @@ public class ManageQRCodeFragment extends BottomSheetDialogFragment {
         QRCodeGenerator qrCodeGenerator = new QRCodeGenerator(event.getQrCodeHash(), 400, 400);
         qrCodeGenerator.generateQRCodeBitmap();
         qrCodeImage.setImageBitmap(qrCodeGenerator.getQrCodeBitmap());
+
+        // set save button
+        Button saveButton = view.findViewById(R.id.fragment_manage_qr_code_save_button);
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // save bitmap image
+                Log.d("ManageQRCodeFragment", "Save QRCode Bitmap");
+            }
+        });
 
         return view;
     }
