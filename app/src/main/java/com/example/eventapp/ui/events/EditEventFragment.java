@@ -101,7 +101,6 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
 
         EditText eventName = view.findViewById(R.id.popup_edit_event_name);
         EditText eventDescription = view.findViewById(R.id.popup_edit_event_description);
-        CheckBox geolocationRequired = view.findViewById(R.id.popup_edit_event_geolocation_checkbox);
         EditText maxEventEntrants = view.findViewById(R.id.popup_edit_event_max_entrants);
         Button saveEventButton = view.findViewById(R.id.popup_save_event_button);
         Button eventDurationButton = view.findViewById(R.id.popup_edit_event_duration_button);
@@ -113,7 +112,6 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
         // Initialize with current event data
         eventName.setText(event.getEventName());
         eventDescription.setText(event.getEventDescription());
-        geolocationRequired.setChecked(event.isGeolocationRequired());
         maxEventEntrants.setText(event.getMaxEntrants() == -1 ? "" : String.valueOf(event.getMaxEntrants()));
         if (event.hasPoster()) {
             Glide.with(this).load(event.getPosterUri()).into(posterImageView);
@@ -166,7 +164,6 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
                 // Update event details
                 event.setEventName(newName);
                 event.setEventDescription(newDescription);
-                event.setGeolocationRequired(geolocationRequired.isChecked());
                 event.setStartDate(timestamps.get(0));
                 event.setEndDate(timestamps.get(1));
                 event.setDeadline(timestamps.get(2));
