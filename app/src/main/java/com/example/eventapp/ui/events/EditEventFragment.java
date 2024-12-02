@@ -58,7 +58,7 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
 
     /**
      * Constructor for the edit event fragment
-     * @param event The event that is going to be edited
+     * @param event The event that is going to be editedF
      * @param listener A listener to transfer the data to the parent fragment
      */
     public EditEventFragment(Event event, EditEventListener listener) {
@@ -180,8 +180,6 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
                     @Override
                     public void onUploadSuccess (String downloadUrl){
                         event.setPosterUriString(downloadUrl);
-
-
                         editEventListener.saveEditedEvent(event);
                     }
 
@@ -195,7 +193,7 @@ public class EditEventFragment extends BottomSheetDialogFragment implements Date
                     PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "events", "poster", uploadCallback);
                 } else {
                     final String id = Objects.requireNonNull(oldPosterUri.getLastPathSegment()).split("/")[1];
-                    PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "events", "poster", id, uploadCallback);
+                    PhotoManager.uploadPhotoToFirebase(getContext(), selectedPhotoUri, 75, "events", id, "poster", uploadCallback);
                 }
             } else {
                 editEventListener.saveEditedEvent(event);

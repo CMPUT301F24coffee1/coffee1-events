@@ -13,6 +13,7 @@ import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.EventRepository;
 import com.example.eventapp.repositories.SignupRepository;
 import com.example.eventapp.repositories.UserRepository;
+import com.example.eventapp.services.photos.PhotoManager;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -204,6 +205,10 @@ public class EventsViewModel extends ViewModel {
      * @return A CompletableFuture indicating the completion of the removal.
      */
     public CompletableFuture<Void> removeEvent(Event event) {
+        if (event.hasPoster()) {
+            PhotoManager.deletePhotoFromFirebase(event.getPosterUri());
+        }
+
         CompletableFuture<Void> removeEventFuture = eventRepository.removeEvent(event);
 
         removeEventFuture.thenAccept(discard -> {

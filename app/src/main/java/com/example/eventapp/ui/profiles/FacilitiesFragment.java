@@ -134,6 +134,6 @@ public class FacilitiesFragment extends Fragment implements
     private void showFacilityInfoPopup(Facility facility) {
         FacilityInfoFragment facilityInfoFragment = new FacilityInfoFragment();
         profileViewModel.setSelectedFacility(facility);
-        facilityInfoFragment.show(requireActivity().getSupportFragmentManager(), "fragment_info");
+        facilityInfoFragment.show(requireActivity().getSupportFragmentManager(), "fragment_facility_info");
     }
 }

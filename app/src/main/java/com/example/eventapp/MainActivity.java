@@ -142,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
         currentUserLiveData.observeForever(user -> {
             if (user != null) {
                 navView.getMenu().findItem(R.id.navigation_admin_profiles).setVisible(user.isAdmin());
+                navView.getMenu().findItem(R.id.navigation_admin_images).setVisible(user.isAdmin());
             }
         });
     }
