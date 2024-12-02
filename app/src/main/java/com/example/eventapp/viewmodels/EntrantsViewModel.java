@@ -11,26 +11,36 @@ import com.example.eventapp.models.Notification;
 import com.example.eventapp.repositories.DTOs.SignupFilter;
 import com.example.eventapp.repositories.DTOs.UserSignupEntry;
 import com.example.eventapp.repositories.NotificationRepository;
+import com.example.eventapp.repositories.EventRepository;
 import com.example.eventapp.repositories.SignupRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class EntrantsViewModel extends ViewModel {
     private Event currentEventToQuery;
     private final SignupRepository signupRepository;
     private final NotificationRepository notificationRepository;
+    private final EventRepository eventRepository;
     private final MediatorLiveData<List<UserSignupEntry>> filteredUserSignupEntriesLiveData = new MediatorLiveData<>();
     private LiveData<List<UserSignupEntry>> currentUserSignupEntriesLiveData;
     private SignupFilter currentFilter;
 
     public EntrantsViewModel(){
-        this(SignupRepository.getInstance(), NotificationRepository.getInstance());
+        this(
+                SignupRepository.getInstance(),
+                NotificationRepository.getInstance(),
+                EventRepository.getInstance());
     }
 
-    public EntrantsViewModel(SignupRepository signupRepository, NotificationRepository notificationRepository){
+    public EntrantsViewModel(
+            SignupRepository signupRepository,
+            NotificationRepository notificationRepository,
+            EventRepository eventRepository) {
         this.signupRepository = signupRepository;
         this.notificationRepository = notificationRepository;
+        this.eventRepository = eventRepository;
     }
 
     public LiveData<List<UserSignupEntry>> getFilteredUserSignupEntriesLiveData() {
@@ -73,5 +83,50 @@ public class EntrantsViewModel extends ViewModel {
 
     public Event getCurrentEventToQuery() {
         return currentEventToQuery;
+    }
+
+    public CompletableFuture<Void> deleteQrCodeHash() {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
+        if (currentEventToQuery == null) {
+            Exception ex = new IllegalStateException("Current event is null");
+            future.completeExceptionally(ex);
+            return future;
+        }
+        String eventId = currentEventToQuery.getDocumentId();
+
+        return eventRepository.getEventById(eventId)
+                .thenCompose(event -> {
+                    if (event == null) {
+                        Exception ex = new IllegalStateException("Event not found");
+                        future.completeExceptionally(ex);
+                        return future;
+                    }
+                    event.setQrCodeHash(null);
+                    return eventRepository.updateEvent(event);
+                });
+    }
+
+    public CompletableFuture<Void> reAddQrCodeHash() {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
+        if (currentEventToQuery == null) {
+            Exception ex = new IllegalStateException("Current event is null");
+            future.completeExceptionally(ex);
+            return future;
+        }
+        String eventId = currentEventToQuery.getDocumentId();
+        String newHash = eventId + "--display";
+
+        return eventRepository.getEventById(eventId)
+                .thenCompose(event -> {
+                    if (event == null) {
+                        Exception ex = new IllegalStateException("Event not found");
+                        future.completeExceptionally(ex);
+                        return future;
+                    }
+                    event.setQrCodeHash(newHash);
+                    return eventRepository.updateEvent(event);
+                });
     }
 }
