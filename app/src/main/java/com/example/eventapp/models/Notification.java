@@ -2,25 +2,27 @@ package com.example.eventapp.models;
 
 import com.google.firebase.firestore.Exclude;
 
-public class Notification {
+import java.io.Serializable;
+
+public class Notification implements Serializable {
     @Exclude
     private String documentId;
 
     private String userId;
     private String title;
     private String message;
-    private String event;
+    private String eventId;
     private String type;
 
     public Notification() {
     }
 
     // Constructor for invitation notification
-    public Notification(String userId, String title, String message, String event, String type) {
+    public Notification(String userId, String title, String message, String eventId, String type) {
         this.userId = userId;
         this.title = title;
         this.message = message;
-        this.event = event;
+        this.eventId = eventId;
         this.type = type;
     }
 
@@ -58,9 +60,9 @@ public class Notification {
         this.message = message;
     }
 
-    public String getEvent() { return event; }
+    public String getEventId() { return eventId; }
 
-    public void setEvent(String event) { this.event = event; }
+    public void setEventId(String eventId) { this.eventId = eventId; }
 
     public String getType() {
         return type;

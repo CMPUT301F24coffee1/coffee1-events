@@ -41,6 +41,8 @@ public class ScanQrViewModelTest {
         Event event = new Event();
         event.setEventName("Test Event");
         event.setOrganizerId("testOrganizerId");
+        event.setFacilityId("testFacilityId");
+        event.setNumberOfAttendees(1);
 
         String documentId = eventRepository.addEvent(event).get();
         assertNotNull("Document ID should not be null", documentId);

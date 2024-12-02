@@ -5,17 +5,20 @@ import android.net.Uri;
 import com.example.eventapp.interfaces.HasDocumentId;
 import com.google.firebase.firestore.Exclude;
 
+import java.io.Serializable;
+
 /**
  * Represents an Event in the application, containing details about the organizer,
  * associated facility, event description, poster, schedule, and registration limits.
  * Implements the {@link HasDocumentId} interface for Firestore integration.
  */
-public class Event implements HasDocumentId {
+public class Event implements HasDocumentId, Serializable {
     @Exclude
     private String documentId;
     private String organizerId;
     private String facilityId;
 
+    private int numberOfAttendees;
     private String eventName;
     private String posterUriString;
     private String eventDescription;
@@ -54,10 +57,19 @@ public class Event implements HasDocumentId {
     }
 
     // Constructor with poster attribute
-    public Event(String eventName, String posterUriString, String eventDescription, boolean geolocationRequired, int maxEntrants, long startDate, long endDate, long deadline) {
+    public Event(String eventName,
+                 String posterUriString,
+                 String eventDescription,
+                 int numberOfAttendees,
+                 boolean geolocationRequired,
+                 int maxEntrants,
+                 long startDate,
+                 long endDate,
+                 long deadline) {
         this.eventName = eventName;
         this.posterUriString = posterUriString;
         this.eventDescription = eventDescription;
+        this.numberOfAttendees = numberOfAttendees;
         this.geolocationRequired = geolocationRequired;
         this.maxEntrants = maxEntrants;
         this.startDate = startDate;
@@ -118,6 +130,28 @@ public class Event implements HasDocumentId {
      */
     public void setFacilityId(String facilityId) {
         this.facilityId = facilityId;
+    }
+
+    /**
+     * Gets the number of attendees (which will be sampled by the lottery) for the event.
+     *
+     * @return number of event attendees.
+     */
+    public int getNumberOfAttendees() {
+        return numberOfAttendees;
+    }
+
+    /**
+     * Sets the number of attendees (which will be sampled by the lottery) for the event.
+     *
+     * @param numberOfAttendees number of attendees for the event (>= 1)
+     */
+    public void setNumberOfAttendees(int numberOfAttendees) {
+        if (numberOfAttendees >= 1) {
+            this.numberOfAttendees = numberOfAttendees;
+        } else {
+            throw new IllegalArgumentException("Number of event attendees must be >= 1");
+        }
     }
 
     /**
