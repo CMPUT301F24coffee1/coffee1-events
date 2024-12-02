@@ -25,6 +25,8 @@ robolectric = "4.13"
 zxingAndroidEmbedded = "4.3.0"
 firebaseStorage = "21.0.1"
 firebaseDatabase = "21.0.0"
+playServicesMaps = "19.0.0"
+googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
 
 [libraries]
 core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
@@ -53,7 +55,9 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxingAndroidEmbedded" }
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
+play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+google-android-libraries-mapsplatform-secrets-gradle-plugin = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "googleAndroidLibrariesMapsplatformSecretsGradlePlugin" }
 

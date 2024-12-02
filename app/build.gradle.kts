@@ -3,6 +3,7 @@ import java.util.ArrayList
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
+    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
 }
 
 android {
@@ -55,6 +56,7 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(libs.glide)
     implementation(libs.firebase.database)
+    implementation(libs.play.services.maps)
     testImplementation(libs.junit)
     testImplementation(libs.core.testing)
     testImplementation(libs.robolectric)
