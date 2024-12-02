@@ -52,8 +52,6 @@ public class MainActivity extends AppCompatActivity {
     NavController navController;
     Menu navMenu;
 
-    private NotificationRepository notificationRepository;
-
     /**
      * Initializes the main activity and sets up Firebase, bindings, navigation, and permission handling.
      * This method handles the configuration of the navigation controller, dynamically adjusts the visibility
