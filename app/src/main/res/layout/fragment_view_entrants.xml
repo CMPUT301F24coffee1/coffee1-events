@@ -95,7 +95,7 @@
             tools:srcCompat="@tools:sample/avatars" />
 
         <ImageButton
-            android:id="@+id/fragment_view_entrants_notify_all_button"
+            android:id="@+id/fragment_view_entrants_show_map"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_marginTop="2dp"

@@ -21,6 +21,7 @@ import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
 import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.SignupFilter;
+import com.example.eventapp.repositories.UserRepository;
 import com.example.eventapp.viewmodels.EntrantsViewModel;
 
 import java.util.ArrayList;
@@ -57,7 +58,6 @@ public class ViewEntrantsFragment extends Fragment {
 
         // Handle filter button
         ImageButton filterOptionsButton = view.findViewById(R.id.fragment_view_entrants_filter_options_button);
-        ImageButton showMap = view.findViewById(R.id.fragment_view_entrants_notify_all_button);
         filterOptionsButton.setOnClickListener(v -> showFilterOptionsPopup());
 
         // Manage QR Code Button
@@ -69,34 +69,24 @@ public class ViewEntrantsFragment extends Fragment {
             }
         });
 
-        // Set up a click listener if event has geolocation enabled (replace true with event.hasGeolocation())
-        if (true) {
-            showMap.setOnClickListener(v -> {
-                Intent intent = new Intent(requireContext(), EventMapFragment.class);
-
-                // Pass additional data if needed
-                intent.putExtra("eventId", TEST_EVENT_ID);
-                startActivity(intent);
-            });
-        }
-
-        // for testing
-        entrants.add(new User("abc", "def"));
-        entrants.add(new User("abc", "def"));
-        entrants.add(new User("abc", "def"));
-        User actualUser = UserRepository.getInstance().getCurrentUserLiveData().getValue();
-        entrants.add(actualUser);
-        entrants.add(new User("abc", "def"));
-        entrants.add(new User("abc", "def"));
-        entrants.add(new User("abc", "def"));
-        entrants.add(new User("abc", "def"));
-        entrants.add(new User("abc", "def"));
-        entrants.add(new User("abc", "def"));
         Event currentEvent = entrantsViewModel.getCurrentEventToQuery();
         if (currentEvent != null) {
             entrantsViewModel.setCurrentEventToQuery(currentEvent);
         } else {
             Log.e("ViewEntrantsFragment", "Current event is null");
+        }
+
+        // Show Map Button
+        ImageButton showMap = view.findViewById(R.id.fragment_view_entrants_show_map);
+        assert currentEvent != null;
+        if (currentEvent.isGeolocationRequired()) {
+            showMap.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), EventMapFragment.class);
+
+                // Pass additional data if needed
+                intent.putExtra("eventId", currentEvent.getDocumentId());
+                startActivity(intent);
+            });
         }
 
         entrantsViewModel.getFilteredUsersLiveData().observe(getViewLifecycleOwner(), this::updateEntrantsList);
