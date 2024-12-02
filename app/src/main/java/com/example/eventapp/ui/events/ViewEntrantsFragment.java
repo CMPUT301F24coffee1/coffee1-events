@@ -1,9 +1,7 @@
 package com.example.eventapp.ui.events;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,26 +19,49 @@ import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
 import com.example.eventapp.models.User;
 import com.example.eventapp.repositories.SignupFilter;
-import com.example.eventapp.repositories.UserRepository;
 import com.example.eventapp.viewmodels.EntrantsViewModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Fragment for displaying the entrants for a given event
+ * Has options to filter based on what list the entrant is on
+ * Can display the map view if the given event has
+ * geolocation turned on
+ */
 public class ViewEntrantsFragment extends Fragment {
     private ArrayList<User> entrants;
     private EntrantsAdapter entrantsAdapter;
     private EntrantsViewModel entrantsViewModel;
 
-    // Cancelled, Waitlisted, Chosen, Enrolled:
     private boolean[] filterOptions;
-    private final String TEST_EVENT_ID = "yZAbcFApEPz5kxl6kVBw";
 
+    /**
+     * This creates the view inflater for the view
+     *
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return the inflater for the fragment
+     */
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_view_entrants, container, false);
     }
 
+    /**
+     * This is used to create the entrant view
+     *
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -95,6 +116,10 @@ public class ViewEntrantsFragment extends Fragment {
         updateFilter();
     }
 
+    /**
+     * Method for updating the entrants list
+     * @param newEntrants Live data list of current entrants
+     */
     private void updateEntrantsList(List<User> newEntrants) {
         entrants.clear();
         entrants.addAll(newEntrants);
@@ -102,6 +127,9 @@ public class ViewEntrantsFragment extends Fragment {
         entrantsAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * Method for showing the filter options popup
+     */
     private void showFilterOptionsPopup() {
         CharSequence[] options = {"Cancelled", "Waitlisted", "Chosen", "Enrolled"};
         boolean[] tempFilterOptions = Arrays.copyOf(filterOptions, filterOptions.length);
@@ -118,6 +146,9 @@ public class ViewEntrantsFragment extends Fragment {
                 .show();
     }
 
+    /**
+     * Method for updating the applied filters
+     */
     private void updateFilter() {
         SignupFilter signupFilter = new SignupFilter(
                 filterOptions[0] ? true : null, // isCancelled
@@ -129,6 +160,9 @@ public class ViewEntrantsFragment extends Fragment {
         entrantsViewModel.updateFilter(signupFilter);
     }
 
+    /**
+     * Method for showing the manage QR Fragment
+     */
     private void showManageQrCodeFragment() {
         ManageQRCodeFragment manageQRCodeFragment = new ManageQRCodeFragment(entrantsViewModel.getCurrentEventToQuery());
         manageQRCodeFragment.show(requireActivity().getSupportFragmentManager(), "manage_qr_code");

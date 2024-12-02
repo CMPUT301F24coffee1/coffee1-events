@@ -14,15 +14,24 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+/**
+ * This is the fragment for the map view which allows
+ * the organizers to see where their entrants joined from
+ * if they have geolocation on
+ */
 public class EventMapFragment extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private FirebaseFirestore db;
 
+    /**
+     * This is where we initialize the get the map
+     *
+     * @param savedInstanceState the saved instance of the activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +58,11 @@ public class EventMapFragment extends FragmentActivity implements OnMapReadyCall
         }
     }
 
+    /**
+     * This overrides the onMapReadyMethod to display user locations on the map
+     *
+     * @param googleMap the google maps map
+     */
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         googleMap.getUiSettings().setZoomControlsEnabled(true);

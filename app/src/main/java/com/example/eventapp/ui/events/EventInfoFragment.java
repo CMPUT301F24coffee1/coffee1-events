@@ -3,6 +3,7 @@ package com.example.eventapp.ui.events;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -76,6 +77,11 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         void editEventInfo(Event event);
     }
 
+    /**
+     * Initializes the location permission launcher when the view is created
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -183,6 +189,10 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         return view;
     }
 
+    /**
+     * This method is called once we have location permissions
+     * and joins the user with their location to the event with a signup
+     */
     private void fetchLocationAndJoinWaitlist() {
         locationService.fetchUserLocation(requireActivity(), new GetUserLocationService.LocationCallback() {
             @Override
@@ -190,11 +200,16 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
                 joinEventWaitlist(event, location.getLatitude(), location.getLongitude());
                 waitlistButton.setText(R.string.leave_waitlist);
                 currentWaitlistButtonState = 1;
+                Toast.makeText(requireContext(), "This event uses your geolocation", Toast.LENGTH_SHORT).show();
 
             }
         });
     }
 
+    /**
+     * Checks what stage of denial the user is in and asks for
+     * permission accordingly
+     */
     private void checkAndRequestLocationPermission() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -210,8 +225,13 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         }
     }
 
+    /**
+     * Displays an alert stating the reason the user must allow location permissions
+     * The user cannot get into geolocation required events without giving
+     * location permissions
+     */
     private void showPermissionRationale() {
-        new AlertDialog.Builder(requireContext())
+        new AlertDialog.Builder(requireContext(), android.R.style.Theme_DeviceDefault_Dialog_Alert)
                 .setTitle("Location Permission Needed")
                 .setMessage("This event requires location permission to join.")
                 .setPositiveButton("Grant Permission", (dialog, which) -> {
@@ -223,6 +243,12 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
                 .show();
     }
 
+    /**
+     * This method shows an error if the event id is null and
+     *
+     * @param eventEntrantsCount The number of entrants in the event
+     * @param waitlistButton The button to join the waitlist
+     */
     private void observeEventSignups(TextView eventEntrantsCount, Button waitlistButton) {
         if (event.getDocumentId() == null) {
             Log.e(TAG, "Event document ID is null");
@@ -255,6 +281,10 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         });
     }
 
+    /**
+     * This method updates the waitlist button to switch states
+     * @param waitlistButton the button that is used to join/leave the waitlist
+     */
     private void updateWaitlistButtonState(Button waitlistButton) {
         boolean isAlreadyInWaitlist = isAlreadyOnWaitlist(event);
 
@@ -267,6 +297,10 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         }
     }
 
+    /**
+     * This is the method to navigate to the event entrants screen
+     * This occurs when the event entrants field is clicked
+     */
     private void navigateToEventEntrantsScreen(){
         EntrantsViewModel entrantsViewModel = new ViewModelProvider(requireActivity()).get(EntrantsViewModel.class);
         NavController navController = NavHostFragment.findNavController(this);
@@ -275,23 +309,40 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         requireActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
     }
 
+    /**
+     * Joins the user to the waitlist with null location
+     * Done by adding a signup object trough the events view model
+     * Used for events that do not require geolocation
+     * @param event This is the event that the user is joining
+     */
     private void joinEventWaitlist(Event event){
         eventsViewModel.registerToEvent(event);
     }
 
     /**
-     * Add user to waitlist of event
-     *
-     * @param event
+     * Joins the user to the waitlist with location
+     * Done by adding a signup object trough the events view model
+     * Used for events that do require geolocation
+     * @param event This is the event that the user is joining
      */
     private void joinEventWaitlist(Event event, double lat, double lon){
         eventsViewModel.registerToEvent(event, lat, lon);
     }
 
+    /**
+     * Unregisters the user from the waitlist
+     * Tells the view model to delete the signup
+     * @param event The event that the user is leaving
+     */
     private void leaveEventWaitlist(Event event){
         eventsViewModel.unregisterFromEvent(event);
     }
 
+    /**
+     * Checks if the user is already on the waitlist for a given event
+     * @param event The event that needs to be checked
+     * @return Boolean value of whether they user is signed up for the event
+     */
     private boolean isAlreadyOnWaitlist(Event event){
         return eventsViewModel.isSignedUp(event);
     }

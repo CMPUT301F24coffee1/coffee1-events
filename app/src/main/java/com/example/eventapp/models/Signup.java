@@ -40,10 +40,11 @@ public class Signup implements HasDocumentId {
     }
 
     /**
-     * Creates a Signup with a specified user and event.
-     *
-     * @param userId  the ID of the user signing up
+     * Creates a Signup with a specified user, event, and location
+     * @param userId the ID of the user signing up
      * @param eventId the ID of the event to which the user is signing up
+     * @param latitude the latitude of the user at signup
+     * @param longitude the longitude of the user at signup
      */
     public Signup(String userId, String eventId, Double latitude, Double longitude) {
         this.userId = userId;

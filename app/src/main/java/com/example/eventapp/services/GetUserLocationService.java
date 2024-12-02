@@ -12,22 +12,39 @@ import androidx.core.app.ActivityCompat;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
+/**
+ * Service class for getting the users location
+ * Has various checks and calls to make sure the user's location is accessible
+ */
 public class GetUserLocationService {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private final FusedLocationProviderClient fusedLocationClient;
     private final Context context;
 
-    // Callback interface to return location data
+    /**
+     * Callback interface to return location data
+     */
     public interface LocationCallback {
         void onLocationReceived(Location location);
     }
 
+    /**
+     * This method initializes the service with context
+     * @param context The current context from the activity
+     */
     public GetUserLocationService(Context context) {
         this.context = context;
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
     }
 
+    /**
+     * This method checks the users current location permissions
+     * If we do not yet have the user permissions it requests them and returns
+     * If we do have the permissions, then it returns the users location
+     * @param activity The current activity
+     * @param callback A callback to put the location info into
+     */
     public void fetchUserLocation(Activity activity, LocationCallback callback) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED &&
