@@ -87,6 +87,8 @@ public class ViewEntrantsFragment extends Fragment {
                 intent.putExtra("eventId", currentEvent.getDocumentId());
                 startActivity(intent);
             });
+        } else {
+            showMap.setVisibility(View.GONE);
         }
 
         entrantsViewModel.getFilteredUsersLiveData().observe(getViewLifecycleOwner(), this::updateEntrantsList);

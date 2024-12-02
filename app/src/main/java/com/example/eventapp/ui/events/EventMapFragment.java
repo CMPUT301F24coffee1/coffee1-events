@@ -8,11 +8,13 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.eventapp.R;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -57,6 +59,7 @@ public class EventMapFragment extends FragmentActivity implements OnMapReadyCall
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        boolean firstValidLocation = true;
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Double latitude = document.getDouble("latitude");
                             Double longitude = document.getDouble("longitude");
@@ -65,6 +68,12 @@ public class EventMapFragment extends FragmentActivity implements OnMapReadyCall
                             if (latitude != null && longitude != null) {
                                 LatLng location = new LatLng(latitude, longitude);
                                 mMap.addMarker(new MarkerOptions().position(location).title("User: " + userId));
+
+                                // Set the camera to the first valid location
+                                if (firstValidLocation) {
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 10)); // Adjust zoom level as needed
+                                    firstValidLocation = false; // After the first location, don't change the camera position
+                                }
                             }
                         }
                     } else {
