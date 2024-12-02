@@ -1,6 +1,8 @@
 package com.example.eventapp.ui.events;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -31,13 +34,18 @@ import java.util.List;
  * Can display the map view if the given event has
  * geolocation turned on
  */
-public class ViewEntrantsFragment extends Fragment implements NotificationMessageInputFragment.NotificationMessageInputListener {
+public class ViewEntrantsFragment extends Fragment implements NotificationMessageInputFragment.NotificationMessageInputListener, LotteryDrawCountInputFragment.LotteryDrawCountInputListener {
     private ArrayList<UserSignupEntry> entrants;
     private EntrantsAdapter entrantsAdapter;
     private EntrantsViewModel entrantsViewModel;
 
     // Cancelled, Waitlisted, Chosen, Enrolled:
     private boolean[] filterOptions;
+
+    @Override
+    public void lotteryDraw(int drawCount){
+        entrantsViewModel.drawEntrants(drawCount);
+    }
 
     @Override
     public void notifySelected(String messageContents){
@@ -86,6 +94,22 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
         // Cancel Selected Button
         ImageButton cancelSelectedButton = view.findViewById(R.id.fragment_view_entrants_delete_selected_button);
         cancelSelectedButton.setOnClickListener(view12 -> cancelSelectedSignups());
+
+        // Lottery Button
+        ImageButton lotteryButton = view.findViewById(R.id.fragment_view_entrants_draw_button);
+        if(entrantsViewModel.getCurrentEventToQuery().isLotteryProcessed()){
+            int enrolledCount = getEnrolledCount();
+            int maxEnrolledSize = entrantsViewModel.getCurrentEventToQuery().getNumberOfAttendees();
+            if(enrolledCount < maxEnrolledSize){
+                lotteryButton.setOnClickListener(view15 -> {
+                    askForLotteryDrawCount(maxEnrolledSize-enrolledCount);
+                });
+            }else{
+                lotteryButton.setOnClickListener(view13 -> Toast.makeText(getContext(), "Enrollment is Full", Toast.LENGTH_SHORT).show());
+            }
+        }else{
+            lotteryButton.setOnClickListener(view14 -> askForLotteryDrawCount(entrantsViewModel.getCurrentEventToQuery().getNumberOfAttendees()));
+        }
 
         Event currentEvent = entrantsViewModel.getCurrentEventToQuery();
         if (currentEvent != null) {
@@ -181,6 +205,17 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
         return selectedEntrants;
     }
 
+    public int getEnrolledCount() {
+        int enrolledCount = 0;
+        for (UserSignupEntry entry : entrants) {
+            String status = entry.getAttendanceStatus();
+            if(status.equals("Enrolled")){
+                enrolledCount++;
+            }
+        }
+        return enrolledCount;
+    }
+
     public void clearSelection() {
         for (UserSignupEntry entry : entrants) {
             entry.setSelected(false);
@@ -195,5 +230,10 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
 
     private void cancelSelectedSignups(){
         entrantsViewModel.cancelEntrants(getSelectedEntrants());
+    }
+
+    private void askForLotteryDrawCount(int spaceRemaining){
+        LotteryDrawCountInputFragment lotteryDrawCountInputFragment = new LotteryDrawCountInputFragment(this, spaceRemaining);
+        lotteryDrawCountInputFragment.show(requireActivity().getSupportFragmentManager(), "lottery_draw_count_input");
     }
 }
