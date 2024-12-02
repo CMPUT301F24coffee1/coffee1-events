@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Permission denied to access photos", Toast.LENGTH_SHORT).show();
             }
         });
+        //test
 
         // No SignupFragment yet
         @SuppressLint("HardwareIds") String androidId = Settings.Secure.getString(
