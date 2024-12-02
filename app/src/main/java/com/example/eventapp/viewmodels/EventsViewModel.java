@@ -43,6 +43,10 @@ public class EventsViewModel extends ViewModel {
     private final MediatorLiveData<List<Event>> signedUpEventsLiveData = new MediatorLiveData<>();
     private final MediatorLiveData<List<Facility>> userFacilitiesLiveData = new MediatorLiveData<>();
 
+    private Event creatingEvent;
+    private boolean creatingEventDatesInitialized;
+    private Facility creatingEventFacility;
+
     /**
      * Default constructor for EventsViewModel.
      * Initializes the view model with default repositories for events, signups, facilities, and users.
@@ -361,5 +365,38 @@ public class EventsViewModel extends ViewModel {
      */
     public LiveData<String> getText() {
         return mText;
+    }
+
+    /**
+     * Retrieves the event that is currently in the process of being created
+     *
+     * @return Event that is currently being created
+     */
+    public Event getCreatingEvent() {
+        return creatingEvent;
+    }
+
+    /**
+     * Sets the event that is currently in the process of being created
+     * @param creatingEvent The event in question to update the currently created event with
+     */
+    public void setCreatingEvent(Event creatingEvent) {
+        this.creatingEvent = creatingEvent;
+    }
+
+    /**
+     * Determines whether or not the current created event has initialized the dates.
+     * @return Bool on whether or not the currently creating event has initialized the dates.
+     */
+    public boolean isCreatingEventDatesInitialized() {
+        return creatingEventDatesInitialized;
+    }
+
+    /**
+     * Sets the status of whether or not the creating event dates are initialized yet
+     * @param creatingEventDateInitialized Whether or not the event dates of the event being currently created are initialized or not yet
+     */
+    public void setCreatingEventDatesInitialized(boolean creatingEventDateInitialized) {
+        this.creatingEventDatesInitialized = creatingEventDateInitialized;
     }
 }

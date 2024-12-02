@@ -139,6 +139,7 @@
                             android:ems="10"
                             android:hint="@string/name"
                             android:inputType="text"
+                            android:maxLength="100"
                             android:textColor="?attr/textColor" />
 
                     </com.google.android.material.textfield.TextInputLayout>

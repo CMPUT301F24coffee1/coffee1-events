@@ -9,8 +9,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.eventapp.R;
@@ -149,10 +151,13 @@ public class EventsFragment extends Fragment implements
     private void showCreateEventPopup() {
         eventsViewModel.getUserFacilities().observe(getViewLifecycleOwner(), facilities -> {
             if (facilities == null || facilities.isEmpty()) {
-                Toast.makeText(getContext(), "Create a facility first", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Plase create a facility first", Toast.LENGTH_SHORT).show();
+                NavHostFragment.findNavController(this).navigate(R.id.navigation_facility_add);
             } else {
                 CreateEventFragment createEventFragment = new CreateEventFragment();
-                createEventFragment.show(getActivity().getSupportFragmentManager(), "create_event");
+                eventsViewModel.setCreatingEvent(null);
+                eventsViewModel.setCreatingEventDatesInitialized(false);
+                NavHostFragment.findNavController(this).navigate(R.id.navigation_create_event);
             }
         });
     }

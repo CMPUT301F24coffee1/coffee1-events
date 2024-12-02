@@ -3,7 +3,6 @@ package com.example.eventapp.ui.events;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -119,7 +118,7 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         TextView eventDuration = view.findViewById(R.id.popup_event_duration_text);
         TextView eventRegistrationDeadline = view.findViewById(R.id.popup_event_registration_deadline_text);
         TextView eventDescription = view.findViewById(R.id.popup_event_description_text);
-        TextView eventEntrantsCount = view.findViewById(R.id.popup_create_event_max_entrants);
+        TextView eventEntrantsCount = view.findViewById(R.id.create_event_max_entrants);
 
         eventName.setText(event.getEventName());
 

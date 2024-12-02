@@ -52,6 +52,7 @@
                 app:cardBackgroundColor="?attr/colorSurface"
                 app:cardCornerRadius="20dp"
                 app:contentPadding="10dp"
+                app:layout_constrainedHeight="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -84,12 +85,14 @@
 
                     <TextView
                         android:id="@+id/facility_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:gravity="center"
                         android:hint="@string/facility"
                         android:textAlignment="center"
                         android:textColor="@android:color/primary_text_dark"
                         android:textSize="24sp"
+                        app:layout_constrainedHeight="true"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/facility_photo_card"

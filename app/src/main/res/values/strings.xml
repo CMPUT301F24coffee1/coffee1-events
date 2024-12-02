@@ -77,4 +77,8 @@
     <string name="delete_image">Delete Image</string>
     <string name="type">Type</string>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="title_create_event">Create Event</string>
+    <string name="title_create_event_dates">Set Registration Dates</string>
+    <string name="title_create_event_confirm">Confirm Event Creation</string>
+    <string name="next">Next</string>
 </resources>

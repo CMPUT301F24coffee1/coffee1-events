@@ -13,10 +13,12 @@
         <!-- Text Colours -->
         <item name="textColor">@color/material_dynamic_neutral95</item>
         <item name="android:textColor">?attr/textColor</item>
+        <item name="android:textColorPrimary">?attr/textColor</item>
         <item name="textColorDark">@color/material_dynamic_neutral80</item>
         <item name="android:textColorHint">?attr/textColorDark</item>
         <item name="textInputStyle">@style/editTextTheme</item>
         <item name="editTextStyle">@style/editTextStyle</item>
+        <item name="android:editTextColor">?attr/textColor</item>
         <!-- Button Colours -->
         <item name="materialButtonStyle">@style/buttonTheme</item>
         <item name="floatingActionButtonStyle">@style/fabTheme</item>
@@ -39,6 +41,13 @@
         <item name="colorOnSurfaceDark">@color/material_dynamic_neutral10</item>
         <item name="colorOnSurfaceVariant">@color/material_dynamic_neutral_variant40</item>
 
+        <!-- Spinner -->
+        <item name="android:spinnerItemStyle">@style/spinner</item>
+
+        <item name="materialCalendarStyle">@style/calendarTheme</item>
+        <item name="materialCalendarFullscreenTheme">@style/calendarTheme</item>
+        <item name="materialCalendarTheme">@style/calendarTheme</item>
+
     </style>
 
     <style name="buttonTheme" parent="Widget.MaterialComponents.Button">
@@ -50,8 +59,10 @@
     <style name="editTextTheme" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
         <item name="boxBackgroundColor">?attr/colorOnSurfaceDark</item>
         <item name="boxStrokeColor">?attr/textColorDark</item>
+        <item name="colorControlNormal">?attr/textColorDark</item>
         <item name="helperTextTextColor">@color/negative_colour</item>
         <item name="android:textColorHint">?attr/textColorDark</item>
+        <item name="android:textColor">?attr/textColor</item>
     </style>
     <style name="editTextStyle" parent="Widget.AppCompat.EditText">
         <item name="android:textColor">?attr/textColor</item>
@@ -66,5 +77,16 @@
         <item name="itemIconTint">@color/bottom_nav_item_color</item>
     </style>
 
+    <style name="spinner" parent="Widget.AppCompat.TextView.SpinnerItem">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">?attr/textColor</item>
+    </style>
+
+    <style name="calendarTheme" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar.Fullscreen">
+        <item name="colorOnSurface">?attr/textColorDark</item>
+        <item name="colorOnSurfaceVariant">?attr/textColor</item>
+        <item name="colorOnPrimary">?attr/textColor</item>
+        <item name="colorSurface">?attr/colorOnSurfaceDark</item>
+    </style>
 
 </resources>

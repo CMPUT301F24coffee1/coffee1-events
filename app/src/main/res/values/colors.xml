@@ -8,4 +8,5 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="negative_colour">#F01818</color>
+    <color name="mtrl_textinput_default_box_stroke_color">@color/material_dynamic_neutral80</color>
 </resources>

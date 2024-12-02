@@ -16,7 +16,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.Objects;
 
 public class NotificationMessageInputFragment extends DialogFragment {
-    NotificationMessageInputListener listener;
+    private NotificationMessageInputListener listener;
     interface NotificationMessageInputListener {
         void notifySelected(String messageContents);
     }

@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorOnSurface">
+
+    <!-- Handle -->
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/create_event_image_layout"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/create_event_image"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/create_event_photo_darken"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:alpha="0.5"
+            android:background="@color/material_dynamic_neutral0"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/create_event_photo_modify"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:contentDescription="@string/modify_profile_photo"
+            android:padding="30dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_add_photo_alternate_24dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/create_event_facility_image_card"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="-40dp"
+        app:cardBackgroundColor="?attr/colorOnSurfaceDark"
+        app:cardCornerRadius="100dp"
+        app:cardElevation="6dp"
+        app:contentPadding="6dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/create_event_image_layout"
+        app:strokeColor="?attr/colorOnSurfaceDark"
+        app:strokeWidth="6dp">
+
+        <ImageView
+            android:id="@+id/create_event_facility_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:background="?android:attr/selectableItemBackground"
+            android:foreground="?android:attr/selectableItemBackground"
+            app:srcCompat="@drawable/ic_facility_24dp" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toEndOf="@+id/create_event_facility_image_card"
+        app:layout_constraintTop_toBottomOf="@+id/create_event_image_layout">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Facility"
+            android:textColor="?attr/textColorDark"
+            android:textStyle="italic"
+            app:layout_constraintBottom_toBottomOf="@+id/create_event_facility_spinner"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Spinner
+            android:id="@+id/create_event_facility_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?attr/textColorDark"
+            android:clickable="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textView"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/create_event_facility_image_card">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/create_event_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            app:boxBackgroundColor="?attr/colorOnSurface"
+            app:helperText="* Required"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintBottom_toTopOf="@+id/create_event_number_of_attendees"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            app:layout_constraintVertical_chainStyle="packed">
+
+            <EditText
+                android:id="@+id/create_event_name_input"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:hint="Event Name"
+                android:inputType="text"
+                android:maxLength="100"
+                android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/create_event_number_of_attendees"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:boxBackgroundColor="?attr/colorOnSurface"
+            app:helperText="* Required, Minimum 1"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintBottom_toTopOf="@+id/create_event_max_inputs"
+            app:layout_constraintEnd_toEndOf="@+id/create_event_name"
+            app:layout_constraintStart_toStartOf="@+id/create_event_name"
+            app:layout_constraintTop_toBottomOf="@+id/create_event_name">
+
+            <EditText
+                android:id="@+id/create_event_number_of_attendees_input"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="Number of Attendees"
+                android:inputType="number" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/create_event_max_inputs"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:boxBackgroundColor="?attr/colorOnSurface"
+            app:helperText="Leave Empty for No Limit"
+            app:helperTextTextColor="?attr/textColorDark"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintBottom_toTopOf="@+id/create_event_description"
+            app:layout_constraintEnd_toEndOf="@+id/create_event_number_of_attendees"
+            app:layout_constraintStart_toStartOf="@+id/create_event_number_of_attendees"
+            app:layout_constraintTop_toBottomOf="@+id/create_event_number_of_attendees">
+
+            <EditText
+                android:id="@+id/create_event_max_entrants_input"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:hint="Waitlist Size"
+                android:inputType="phone" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="top"
+            app:constraint_referenced_ids="create_event_description" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="top"
+            app:constraint_referenced_ids="create_event_geolocation_checkbox_layout" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/create_event_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#FFFFFF"
+            app:boxBackgroundColor="?attr/colorOnSurface"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintBottom_toTopOf="@+id/create_event_geolocation_checkbox_layout"
+            app:layout_constraintEnd_toEndOf="@+id/create_event_max_inputs"
+            app:layout_constraintStart_toStartOf="@+id/create_event_max_inputs"
+            app:layout_constraintTop_toBottomOf="@+id/create_event_max_inputs">
+
+            <EditText
+                android:id="@+id/create_event_description_input"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:hint="@string/event_description"
+                android:inputType="textMultiLine"
+                android:maxLength="1000"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/create_event_max_inputs" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/create_event_geolocation_checkbox_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/create_event_description"
+            app:layout_constraintTop_toBottomOf="@+id/create_event_description"> <!-- Adjusted constraint -->
+
+            <!-- Set Event Duration Button -->
+
+            <!-- Require Geolocation CheckBox -->
+
+            <CheckBox
+                android:id="@+id/create_event_geolocation_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="?attr/textColorDark"
+                android:layoutDirection="rtl"
+                android:text="Require Geolocation"
+                android:textColor="?attr/textColor"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- NestedScrollView -->
+</androidx.constraintlayout.widget.ConstraintLayout>
