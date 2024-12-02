@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
@@ -58,23 +59,43 @@ public class ManageQRCodeFragment extends BottomSheetDialogFragment {
                     Button deleteButton = view.findViewById(R.id.fragment_manage_qr_code_delete_button);
                     deleteButton.setVisibility(View.VISIBLE);
                     deleteButton.setOnClickListener(view13 -> {
-                        // delete qrcode hash from database
-
+                        entrantsViewModel.deleteQrCodeHash()
+                                .thenAccept(aVoid -> {
+                                    getActivity().runOnUiThread(() -> {
+                                        Toast.makeText(getContext(), "QR code hash deleted", Toast.LENGTH_SHORT).show();
+                                    });
+                                })
+                                .exceptionally(e -> {
+                                    getActivity().runOnUiThread(() -> {
+                                        Toast.makeText(getContext(), "Failed to delete QR code hash: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    });
+                                    return null;
+                                });
                     });
 
                     Button generateButton = view.findViewById(R.id.fragment_manage_qr_code_generate_button);
                     generateButton.setVisibility(View.VISIBLE);
                     generateButton.setOnClickListener(view12 -> {
                         qrCodeGenerator.generateQRCodeBitmap();
-                        // re-add qrcode hash to database
-
                         qrCodeImage.setImageBitmap(qrCodeGenerator.getQrCodeBitmap());
-                    });
 
+                        entrantsViewModel.reAddQrCodeHash()
+                                .thenAccept(aVoid -> {
+                                    getActivity().runOnUiThread(() -> {
+                                        qrCodeImage.setImageBitmap(qrCodeGenerator.getQrCodeBitmap());
+                                        Toast.makeText(getContext(), "QR code hash updated", Toast.LENGTH_SHORT).show();
+                                    });
+                                })
+                                .exceptionally(e -> {
+                                    getActivity().runOnUiThread(() -> {
+                                        Toast.makeText(getContext(), "Failed to update QR code hash: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    });
+                                    return null;
+                                });
+                    });
                 }
             }
         });
-
         return view;
     }
 
