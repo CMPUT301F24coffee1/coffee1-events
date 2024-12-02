@@ -23,14 +23,22 @@ import com.example.eventapp.viewmodels.EntrantsViewModel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
-public class ViewEntrantsFragment extends Fragment {
+public class ViewEntrantsFragment extends Fragment implements NotificationMessageInputFragment.NotificationMessageInputListener {
     private ArrayList<UserSignupEntry> entrants;
     private EntrantsAdapter entrantsAdapter;
     private EntrantsViewModel entrantsViewModel;
 
     // Cancelled, Waitlisted, Chosen, Enrolled:
     private boolean[] filterOptions;
+
+    @Override
+    public void notifySelected(String messageContents){
+        // send message to selected entrants with messagecontents
+        Log.d("ViewEntrantsFragment", "sending messages!");
+        Log.d("ViewEntrantsFragment", "message contents were: "+messageContents);
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -58,6 +66,10 @@ public class ViewEntrantsFragment extends Fragment {
         // Manage QR Code Button
         ImageButton manageQrCodeButton = view.findViewById(R.id.fragment_view_entrants_qr_code_button);
         manageQrCodeButton.setOnClickListener(v -> showManageQrCodeFragment());
+
+        // Notify Users Button
+        ImageButton notifySelectedButton = view.findViewById(R.id.fragment_view_entrants_notify_selected_button);
+        notifySelectedButton.setOnClickListener(view1 -> promptUserForNotificationMessage());
 
         Event currentEvent = entrantsViewModel.getCurrentEventToQuery();
         if (currentEvent != null) {
@@ -130,5 +142,10 @@ public class ViewEntrantsFragment extends Fragment {
             entry.setSelected(false);
         }
         entrantsAdapter.notifyDataSetChanged();
+    }
+
+    private void promptUserForNotificationMessage() {
+        NotificationMessageInputFragment notificationMessageInputFragment = new NotificationMessageInputFragment(this);
+        notificationMessageInputFragment.show(requireActivity().getSupportFragmentManager(), "notification_message_input");
     }
 }
