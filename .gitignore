@@ -1,3 +1,6 @@
+app/.idea
+node_modules
+
 deploymentTargetSelector.xml
 *.log
 .firebaserc
