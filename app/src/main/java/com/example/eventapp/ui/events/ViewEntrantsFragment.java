@@ -102,14 +102,13 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
             int maxEnrolledSize = entrantsViewModel.getCurrentEventToQuery().getNumberOfAttendees();
             if(enrolledCount < maxEnrolledSize){
                 lotteryButton.setOnClickListener(view15 -> {
-                    // show confirmation popup
-                    askForLotteryConfirmation(maxEnrolledSize-enrolledCount);
+                    askForLotteryDrawCount(maxEnrolledSize-enrolledCount, enrolledCount);
                 });
             }else{
                 lotteryButton.setOnClickListener(view13 -> Toast.makeText(getContext(), "Enrollment is Full", Toast.LENGTH_SHORT).show());
             }
         }else{
-            lotteryButton.setOnClickListener(view14 -> askForLotteryDrawCount(entrantsViewModel.getCurrentEventToQuery().getNumberOfAttendees()));
+            lotteryButton.setOnClickListener(view14 -> askForLotteryDrawCount(entrantsViewModel.getCurrentEventToQuery().getNumberOfAttendees(), 0));
         }
 
         Event currentEvent = entrantsViewModel.getCurrentEventToQuery();
@@ -233,16 +232,8 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
         entrantsViewModel.cancelEntrants(getSelectedEntrants());
     }
 
-    private void askForLotteryConfirmation(int drawCount){
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-        builder.setPositiveButton("Confirm", (dialogInterface, i) -> entrantsViewModel.drawEntrants(drawCount))
-                .setNegativeButton("Cancel", null).setTitle("Lottery Confirmation")
-                .setMessage("Draw "+drawCount+" entrants?").create().show();
-    }
-
-    private void askForLotteryDrawCount(int spaceRemaining){
-        LotteryDrawCountInputFragment lotteryDrawCountInputFragment = new LotteryDrawCountInputFragment(this, spaceRemaining);
+    private void askForLotteryDrawCount(int spaceRemaining, int currentlyEnrolled){
+        LotteryDrawCountInputFragment lotteryDrawCountInputFragment = new LotteryDrawCountInputFragment(this, spaceRemaining, currentlyEnrolled);
         lotteryDrawCountInputFragment.show(requireActivity().getSupportFragmentManager(), "lottery_draw_count_input");
     }
 }

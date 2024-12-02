@@ -17,14 +17,16 @@ import com.example.eventapp.R;
 public class LotteryDrawCountInputFragment extends DialogFragment {
     private LotteryDrawCountInputListener listener;
     private int enrollSpaceRemaining;
+    private int currentlyEnrolled;
 
     interface LotteryDrawCountInputListener {
         void lotteryDraw(int drawCount);
     }
 
-    public LotteryDrawCountInputFragment(LotteryDrawCountInputListener listener, int enrollSpaceRemaining){
+    public LotteryDrawCountInputFragment(LotteryDrawCountInputListener listener, int enrollSpaceRemaining, int currentlyEnrolled){
         this.listener = listener;
         this.enrollSpaceRemaining = enrollSpaceRemaining;
+        this.currentlyEnrolled = currentlyEnrolled;
     }
 
     @NonNull
@@ -32,6 +34,7 @@ public class LotteryDrawCountInputFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState){
         View view = getLayoutInflater().inflate(R.layout.fragment_lottery_draw_count_input, null);
         EditText drawCountInputBox = view.findViewById(R.id.fragment_lottery_draw_count_input_box);
+        drawCountInputBox.setHint("Draw Count (<="+this.enrollSpaceRemaining+")");
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
