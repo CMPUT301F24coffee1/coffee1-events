@@ -262,16 +262,14 @@ public class MainActivity extends AppCompatActivity {
         Notification g_notification = new Notification(
                 userId,
                 "Test General Title",
-                "This is a to test the general notification.",
-                "General"
+                "This is a to test the general notification."
         );
 
         Notification i_notification = new Notification(
                 userId,
                 "Coolest title.",
                 "Coolest message!",
-                "SET_THIS",
-                "Invite"
+                "SET_THIS"
         );
 
         NotificationService.getInstance().uploadNotification(g_notification)

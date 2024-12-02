@@ -17,8 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
-import com.example.eventapp.models.User;
-import com.example.eventapp.repositories.SignupFilter;
+import com.example.eventapp.repositories.DTOs.SignupFilter;
+import com.example.eventapp.repositories.DTOs.UserSignupEntry;
 import com.example.eventapp.viewmodels.EntrantsViewModel;
 
 import java.util.ArrayList;
@@ -31,44 +31,38 @@ import java.util.List;
  * Can display the map view if the given event has
  * geolocation turned on
  */
-public class ViewEntrantsFragment extends Fragment {
-    private ArrayList<User> entrants;
+public class ViewEntrantsFragment extends Fragment implements NotificationMessageInputFragment.NotificationMessageInputListener {
+    private ArrayList<UserSignupEntry> entrants;
     private EntrantsAdapter entrantsAdapter;
     private EntrantsViewModel entrantsViewModel;
 
+    // Cancelled, Waitlisted, Chosen, Enrolled:
     private boolean[] filterOptions;
+
+    @Override
+    public void notifySelected(String messageContents){
+        Log.d("ViewEntrantsFragment", "message contents were: " + messageContents);
+        entrantsViewModel.notifyEntrants(getSelectedEntrants(), messageContents);
+    }
 
     /**
      * This creates the view inflater for the view
-     *
-     * @param inflater The LayoutInflater object that can be used to inflate
-     * any views in the fragment,
-     * @param container If non-null, this is the parent view that the fragment's
-     * UI should be attached to.  The fragment should not add the view itself,
-     * but this can be used to generate the LayoutParams of the view.
-     * @param savedInstanceState If non-null, this fragment is being re-constructed
-     * from a previous saved state as given here.
-     *
      * @return the inflater for the fragment
      */
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_view_entrants, container, false);
     }
 
     /**
      * This is used to create the entrant view
-     *
-     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
-     * @param savedInstanceState If non-null, this fragment is being re-constructed
-     * from a previous saved state as given here.
      */
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize ViewModel and data
         entrantsViewModel = new ViewModelProvider(requireActivity()).get(EntrantsViewModel.class);
-        filterOptions = new boolean[]{false, false, false, false};
+        filterOptions = new boolean[]{true, true, true, true};
         entrants = new ArrayList<>();
         entrantsAdapter = new EntrantsAdapter(entrants);
 
@@ -83,12 +77,11 @@ public class ViewEntrantsFragment extends Fragment {
 
         // Manage QR Code Button
         ImageButton manageQrCodeButton = view.findViewById(R.id.fragment_view_entrants_qr_code_button);
-        manageQrCodeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showManageQrCodeFragment();
-            }
-        });
+        manageQrCodeButton.setOnClickListener(v -> showManageQrCodeFragment());
+
+        // Notify Users Button
+        ImageButton notifySelectedButton = view.findViewById(R.id.fragment_view_entrants_notify_selected_button);
+        notifySelectedButton.setOnClickListener(view1 -> promptUserForNotificationMessage());
 
         Event currentEvent = entrantsViewModel.getCurrentEventToQuery();
         if (currentEvent != null) {
@@ -112,7 +105,7 @@ public class ViewEntrantsFragment extends Fragment {
             showMap.setVisibility(View.GONE);
         }
 
-        entrantsViewModel.getFilteredUsersLiveData().observe(getViewLifecycleOwner(), this::updateEntrantsList);
+        entrantsViewModel.getFilteredUserSignupEntriesLiveData().observe(getViewLifecycleOwner(), this::updateEntrantsList);
         updateFilter();
     }
 
@@ -120,10 +113,10 @@ public class ViewEntrantsFragment extends Fragment {
      * Method for updating the entrants list
      * @param newEntrants Live data list of current entrants
      */
-    private void updateEntrantsList(List<User> newEntrants) {
+    private void updateEntrantsList(List<UserSignupEntry> newEntrants) {
         entrants.clear();
         entrants.addAll(newEntrants);
-        // TODO: calculating diff with DiffUtil
+        // TODO: Use DiffUtil for better performance
         entrantsAdapter.notifyDataSetChanged();
     }
 
@@ -151,10 +144,10 @@ public class ViewEntrantsFragment extends Fragment {
      */
     private void updateFilter() {
         SignupFilter signupFilter = new SignupFilter(
-                filterOptions[0] ? true : null, // isCancelled
-                filterOptions[1] ? true : null, // isWaitlisted
-                filterOptions[2] ? true : null, // isChosen
-                filterOptions[3] ? true : null  // isEnrolled
+                filterOptions[0], // isCancelled
+                filterOptions[1], // isWaitlisted
+                filterOptions[2], // isChosen
+                filterOptions[3]  // isEnrolled
         );
 
         entrantsViewModel.updateFilter(signupFilter);
@@ -166,5 +159,33 @@ public class ViewEntrantsFragment extends Fragment {
     private void showManageQrCodeFragment() {
         ManageQRCodeFragment manageQRCodeFragment = new ManageQRCodeFragment(entrantsViewModel.getCurrentEventToQuery());
         manageQRCodeFragment.show(requireActivity().getSupportFragmentManager(), "manage_qr_code");
+    }
+
+    // Use this like this:
+    // Button notifyButton = view.findViewById(R.id.notify_selected_button);
+    // notifyButton.setOnClickListener(v -> {
+    //     List<UserSignupEntry> selectedEntrants = getSelectedEntrants();
+    //     entrantsViewModel.notifyEntrants(selectedEntrants, messageContent);
+    // });
+    public List<UserSignupEntry> getSelectedEntrants() {
+        List<UserSignupEntry> selectedEntrants = new ArrayList<>();
+        for (UserSignupEntry entry : entrants) {
+            if (entry.isSelected()) {
+                selectedEntrants.add(entry);
+            }
+        }
+        return selectedEntrants;
+    }
+
+    public void clearSelection() {
+        for (UserSignupEntry entry : entrants) {
+            entry.setSelected(false);
+        }
+        entrantsAdapter.notifyDataSetChanged();
+    }
+
+    private void promptUserForNotificationMessage() {
+        NotificationMessageInputFragment notificationMessageInputFragment = new NotificationMessageInputFragment(this);
+        notificationMessageInputFragment.show(requireActivity().getSupportFragmentManager(), "notification_message_input");
     }
 }
