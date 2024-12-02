@@ -34,6 +34,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Objects;
 
+/**
+ * This is used by the organizer/admin to view and manage the qr-code of an event.
+ * Admins can delete the QRCode hash from the database (and re-add it).
+ * Users can also save the QRCode image to their device's storage.
+ */
 public class ManageQRCodeFragment extends BottomSheetDialogFragment {
     private Event event;
     private EntrantsViewModel entrantsViewModel;
@@ -42,6 +47,23 @@ public class ManageQRCodeFragment extends BottomSheetDialogFragment {
         this.event = event;
     }
 
+    /**
+     * Sets up the screen, including the qrcode image being displayed, the functionality of the buttons,
+     * and what buttons are visible to the current user.
+     *
+     * If the user is an admin, more buttons will be visible (extra functionality such as deleting
+     * the QR Code hash of the event).
+     *
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.fragment_manage_qr_code, null);
@@ -112,6 +134,12 @@ public class ManageQRCodeFragment extends BottomSheetDialogFragment {
         });
         return view;
     }
+
+    /**
+     * Saves the QR-code to the phone's storage as an image.
+     *
+     * @param bitmap
+     */
     private void saveBitmap(Bitmap bitmap) {
         ContentResolver resolver = requireContext().getContentResolver();
         String fileName = event.getEventName() + "-QR-Code.png";

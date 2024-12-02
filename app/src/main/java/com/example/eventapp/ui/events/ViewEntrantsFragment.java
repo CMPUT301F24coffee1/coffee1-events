@@ -28,9 +28,8 @@ import java.util.List;
 
 /**
  * Fragment for displaying the entrants for a given event
- * Has options to filter based on what list the entrant is on
- * Can display the map view if the given event has
- * geolocation turned on
+ * Has options to filter based on the status of the entrants
+ * The user can navigate to the map view if the event has geolocation turned on.
  */
 public class ViewEntrantsFragment extends Fragment implements NotificationMessageInputFragment.NotificationMessageInputListener, LotteryDrawCountInputFragment.LotteryDrawCountInputListener {
     private ArrayList<UserSignupEntry> entrants;
@@ -40,6 +39,10 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
     // Cancelled, Waitlisted, Chosen, Enrolled:
     private boolean[] filterOptions;
 
+    /**
+     * Draws entrants (for the invitation to enroll)
+     * @param drawCount the number of entrants being drawn
+     */
     @Override
     public void lotteryDraw(int drawCount){
         entrantsViewModel.drawEntrants(drawCount).thenAccept(resultString -> {
@@ -50,6 +53,11 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
         });
     }
 
+    /**
+     * Sends a custom notification to the selected entrants.
+     *
+     * @param messageContents the contents of the notification to be sent to the entrants
+     */
     @Override
     public void notifySelected(String messageContents){
         Log.d("ViewEntrantsFragment", "message contents were: " + messageContents);
@@ -198,12 +206,11 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
         manageQRCodeFragment.show(requireActivity().getSupportFragmentManager(), "manage_qr_code");
     }
 
-    // Use this like this:
-    // Button notifyButton = view.findViewById(R.id.notify_selected_button);
-    // notifyButton.setOnClickListener(v -> {
-    //     List<UserSignupEntry> selectedEntrants = getSelectedEntrants();
-    //     entrantsViewModel.notifyEntrants(selectedEntrants, messageContent);
-    // });
+    /**
+     * Used to get the selected entrants.
+     *
+     * @return a list of UserSignupEntries
+     */
     public List<UserSignupEntry> getSelectedEntrants() {
         List<UserSignupEntry> selectedEntrants = new ArrayList<>();
         for (UserSignupEntry entry : entrants) {
@@ -214,6 +221,11 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
         return selectedEntrants;
     }
 
+    /**
+     * Get the number of entrants that are enrolled in the event.
+     *
+     * @return the number of entrants that are enrolled in the event
+     */
     public int getEnrolledCount() {
         int enrolledCount = 0;
         for (UserSignupEntry entry : entrants) {
@@ -225,6 +237,9 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
         return enrolledCount;
     }
 
+    /**
+     * Clear the selected status from all entrants
+     */
     public void clearSelection() {
         for (UserSignupEntry entry : entrants) {
             entry.setSelected(false);
@@ -232,15 +247,27 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
         entrantsAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * Show a popup to the user, prompting them to input the message they wish to send to the selected
+     * entrants
+     */
     private void promptUserForNotificationMessage() {
         NotificationMessageInputFragment notificationMessageInputFragment = new NotificationMessageInputFragment(this);
         notificationMessageInputFragment.show(requireActivity().getSupportFragmentManager(), "notification_message_input");
     }
 
+    /**
+     * Get rid of the selected entrants' signups
+     */
     private void cancelSelectedSignups(){
         entrantsViewModel.cancelEntrants(getSelectedEntrants());
     }
 
+    /**
+     * Show a popup to the user, prompting them to input the number of entrants they want to draw for.
+     *
+     * @param spaceRemaining the remaining number of entrants that can enroll (that the event has space for)
+     */
     private void askForLotteryDrawCount(int spaceRemaining){
         LotteryDrawCountInputFragment lotteryDrawCountInputFragment = new LotteryDrawCountInputFragment(this, spaceRemaining);
         lotteryDrawCountInputFragment.show(requireActivity().getSupportFragmentManager(), "lottery_draw_count_input");
