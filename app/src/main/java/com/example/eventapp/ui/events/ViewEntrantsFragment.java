@@ -83,6 +83,10 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
         ImageButton notifySelectedButton = view.findViewById(R.id.fragment_view_entrants_notify_selected_button);
         notifySelectedButton.setOnClickListener(view1 -> promptUserForNotificationMessage());
 
+        // Cancel Selected Button
+        ImageButton cancelSelectedButton = view.findViewById(R.id.fragment_view_entrants_delete_selected_button);
+        cancelSelectedButton.setOnClickListener(view12 -> cancelSelectedSignups());
+
         Event currentEvent = entrantsViewModel.getCurrentEventToQuery();
         if (currentEvent != null) {
             entrantsViewModel.setCurrentEventToQuery(currentEvent);
@@ -187,5 +191,9 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
     private void promptUserForNotificationMessage() {
         NotificationMessageInputFragment notificationMessageInputFragment = new NotificationMessageInputFragment(this);
         notificationMessageInputFragment.show(requireActivity().getSupportFragmentManager(), "notification_message_input");
+    }
+
+    private void cancelSelectedSignups(){
+        entrantsViewModel.cancelEntrants(getSelectedEntrants());
     }
 }

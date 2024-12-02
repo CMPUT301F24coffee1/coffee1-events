@@ -20,12 +20,12 @@
             android:layout_marginStart="298dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/fragment_view_entrants_edit_button"
+            app:layout_constraintStart_toEndOf="@+id/fragment_view_entrants_delete_selected_button"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_profiles_24dp" />
 
         <ImageButton
-            android:id="@+id/fragment_view_entrants_edit_button"
+            android:id="@+id/fragment_view_entrants_delete_selected_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"

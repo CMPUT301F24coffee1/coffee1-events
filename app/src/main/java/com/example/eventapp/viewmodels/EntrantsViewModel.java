@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.eventapp.models.Event;
 import com.example.eventapp.models.Notification;
+import com.example.eventapp.models.Signup;
 import com.example.eventapp.repositories.DTOs.SignupFilter;
 import com.example.eventapp.repositories.DTOs.UserSignupEntry;
 import com.example.eventapp.repositories.NotificationRepository;
@@ -74,6 +75,34 @@ public class EntrantsViewModel extends ViewModel {
             String userId = userSignupEntry.getUser().getUserId();
             Notification notification = new Notification(userId, notificationTitle, messageContent);
             notificationRepository.uploadNotification(notification);
+        }
+    }
+
+    public CompletableFuture<Void> removeSignupEntry(UserSignupEntry userSignupEntry) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
+        if (currentEventToQuery == null) {
+            Exception ex = new IllegalStateException("Current event is null");
+            future.completeExceptionally(ex);
+            return future;
+        }
+        String userId = userSignupEntry.getUser().getUserId();
+        String eventId = currentEventToQuery.getDocumentId();
+
+        return signupRepository.getSignup(userId, eventId)
+                .thenCompose(signup -> {
+                    if (signup == null) {
+                        Exception ex = new IllegalStateException("Signup not found");
+                        future.completeExceptionally(ex);
+                        return future;
+                    }
+                    return signupRepository.removeSignup(signup);
+                });
+    }
+
+    public void cancelEntrants(List<UserSignupEntry> selectedEntrants){
+        for(UserSignupEntry userSignupEntry: selectedEntrants) {
+            removeSignupEntry(userSignupEntry);
         }
     }
 
