@@ -13,7 +13,10 @@ import androidx.fragment.app.DialogFragment;
 
 import com.example.eventapp.R;
 
-
+/**
+ * Used to prompt the user to input how many entrants on the waiting list they want to draw
+ * (for the invitation to enroll.)
+ */
 public class LotteryDrawCountInputFragment extends DialogFragment {
     private final LotteryDrawCountInputListener listener;
     private final int enrollSpaceRemaining;

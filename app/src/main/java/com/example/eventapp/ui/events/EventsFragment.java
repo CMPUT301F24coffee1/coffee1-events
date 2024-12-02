@@ -60,6 +60,11 @@ public class EventsFragment extends Fragment implements
 
     private FragmentEventsBinding binding;
 
+    /**
+     * used to update the details of an edited event
+     *
+     * @param updatedEvent
+     */
     @Override
     public void saveEditedEvent(Event updatedEvent) {
         eventsViewModel.updateEvent(updatedEvent);
@@ -68,6 +73,11 @@ public class EventsFragment extends Fragment implements
         Log.d("EventsFragment", "Event edited: " + updatedEvent.getEventName());
     }
 
+    /**
+     * Used to delete an event.
+     *
+     * @param event
+     */
     @Override
     public void deleteEvent(Event event){
         eventsViewModel.removeEvent(event);
@@ -134,20 +144,32 @@ public class EventsFragment extends Fragment implements
 
     }
 
+
+    /**
+     * Updates the list of organized events.
+     *
+     * @param newOrganizedEvents
+     */
     private void updateOrganizedEventsList(List<Event> newOrganizedEvents) {
         organizedEvents.clear();
         organizedEvents.addAll(newOrganizedEvents);
-        // TODO: calculating diff with DiffUtil
         organizedEventsAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * Updates the list of signed up events.
+     *
+     * @param newSignedUpEvents
+     */
     private void updateSignedUpEventsList(List<Event> newSignedUpEvents) {
         signedUpEvents.clear();
         signedUpEvents.addAll(newSignedUpEvents);
-        // TODO: calculating diff with DiffUtil
         signedUpEventsAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * Shows
+     */
     private void showCreateEventPopup() {
         eventsViewModel.getUserFacilities().observe(getViewLifecycleOwner(), facilities -> {
             if (facilities == null || facilities.isEmpty()) {

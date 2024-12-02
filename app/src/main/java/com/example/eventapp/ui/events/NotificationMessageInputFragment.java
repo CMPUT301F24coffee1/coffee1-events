@@ -16,6 +16,10 @@ import com.example.eventapp.viewmodels.EntrantsViewModel;
 import com.google.android.material.textfield.TextInputEditText;
 import java.util.Objects;
 
+/**
+ * Used to prompt the user for the contents of the custom message they want to send to the entrants
+ * they selected.
+ */
 public class NotificationMessageInputFragment extends DialogFragment {
     private NotificationMessageInputListener listener;
     interface NotificationMessageInputListener {

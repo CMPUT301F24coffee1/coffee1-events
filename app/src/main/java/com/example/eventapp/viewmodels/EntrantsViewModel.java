@@ -58,11 +58,21 @@ public class EntrantsViewModel extends ViewModel {
         return filteredUserSignupEntriesLiveData;
     }
 
+    /**
+     * Set the event for which the user is currently viewing entrant details for.
+     *
+     * @param currentEventToQuery
+     */
     public void setCurrentEventToQuery(Event currentEventToQuery) {
         this.currentEventToQuery = currentEventToQuery;
         updateFilter(currentFilter != null ? currentFilter : new SignupFilter());
     }
 
+    /**
+     * Update the criteria for the entrants that are displayed in the ViewEntrantsFragment.
+     *
+     * @param filter
+     */
     public void updateFilter(SignupFilter filter){
         currentFilter = filter;
 
@@ -79,6 +89,12 @@ public class EntrantsViewModel extends ViewModel {
         }
     }
 
+    /**
+     * Sends a notification to entrants.
+     *
+     * @param selectedEntrants the entrants that will receive the notification
+     * @param messageContent the contents of the notification
+     */
     public void notifyEntrants(List<UserSignupEntry> selectedEntrants, String messageContent) {
         String notificationTitle = "Notification for Event \"" +currentEventToQuery.getEventName()+ "\"";
         for(UserSignupEntry userSignupEntry: selectedEntrants) {
@@ -120,6 +136,11 @@ public class EntrantsViewModel extends ViewModel {
         return currentEventToQuery;
     }
 
+    /**
+     * Used to delete the QRCodeHash data from the database.
+     *
+     * @return
+     */
     public CompletableFuture<Void> deleteQrCodeHash() {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
@@ -142,6 +163,10 @@ public class EntrantsViewModel extends ViewModel {
                 });
     }
 
+    /**
+     * Used to re-add QRCodeHash data to the database
+     * @return
+     */
     public CompletableFuture<Void> reAddQrCodeHash() {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
@@ -165,6 +190,11 @@ public class EntrantsViewModel extends ViewModel {
                 });
     }
 
+    /**
+     * Used to draw entrants from the waitling list (that will be invited to enroll in the event)
+     * @param drawCount
+     * @return
+     */
     public CompletableFuture<String> drawEntrants(int drawCount) {
         Log.d("EntrantsViewModel", "drawEntrants called for " + drawCount + " Entrants");
         CompletableFuture<String> future = new CompletableFuture<>();
