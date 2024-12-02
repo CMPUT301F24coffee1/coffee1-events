@@ -20,6 +20,10 @@
         app:srcCompat="@drawable/ic_delete_cross_24dp"
         app:tint="@color/white" />
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
     <androidx.cardview.widget.CardView
         android:id="@+id/facility_edit_top_card"
         android:layout_width="wrap_content"
@@ -47,7 +51,7 @@
                 android:contentDescription="@string/remove_photo"
                 android:focusable="true"
                 android:visibility="gone"
-                app:backgroundTint="@color/design_default_color_error"
+                app:backgroundTint="?attr/colorError"
                 app:fabSize="mini"
                 app:layout_constraintEnd_toEndOf="@+id/facility_edit_photo_card"
                 app:layout_constraintTop_toTopOf="@+id/facility_edit_photo_card"
@@ -120,7 +124,8 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         app:helperText="* Required"
-                        app:helperTextTextColor="@color/design_default_color_error"
+                        app:helperTextTextColor="?attr/colorError"
+                        app:layout_constrainedHeight="true"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toStartOf="parent"
@@ -135,6 +140,7 @@
                             android:hint="@string/facility_name"
                             android:importantForAutofill="no"
                             android:inputType="text"
+                            android:maxLength="100"
                             android:textColor="?attr/textColor" />
 
                     </com.google.android.material.textfield.TextInputLayout>
@@ -159,6 +165,7 @@
                             android:hint="@string/description"
                             android:importantForAutofill="no"
                             android:inputType="textMultiLine"
+                            android:maxLength="1000"
                             android:textColor="?attr/textColor" />
                     </com.google.android.material.textfield.TextInputLayout>
 

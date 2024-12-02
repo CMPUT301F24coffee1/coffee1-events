@@ -4,7 +4,9 @@ import android.net.Uri;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 
 import com.example.eventapp.models.Event;
 import com.example.eventapp.models.Signup;
@@ -18,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The `EventRepository` class is a singleton repository that provides access to Firestore operations
@@ -287,36 +290,22 @@ public class EventRepository {
      * @return LiveData containing a list of events the user is signed up for.
      */
     public LiveData<List<Event>> getSignedUpEventsOfUserLiveData(String userId) {
-        MutableLiveData<List<Event>> signedUpEventsLiveData = new MutableLiveData<>();
+        LiveData<List<Signup>> signupsLiveData = signupRepository.getSignupsOfUserLiveData(userId);
 
-        signupRepository.getSignupsOfUserLiveData(userId).observeForever(signups -> {
+        return Transformations.switchMap(signupsLiveData, signups -> {
             if (signups == null || signups.isEmpty()) {
-                signedUpEventsLiveData.setValue(new ArrayList<>());
-                return;
+                MutableLiveData<List<Event>> emptyLiveData = new MutableLiveData<>();
+                emptyLiveData.setValue(new ArrayList<>());
+                return emptyLiveData;
             }
 
             List<String> eventIds = new ArrayList<>();
             for (Signup signup : signups) {
                 eventIds.add(signup.getEventId());
             }
-
-            eventCollection.whereIn(FieldPath.documentId(), eventIds).get()
-                .addOnCompleteListener(eventTask -> {
-                    if (eventTask.isSuccessful() && eventTask.getResult() != null) {
-                        List<Event> events = eventTask.getResult().toObjects(Event.class);
-
-                        for (int i = 0; i < events.size(); i++) {
-                            events.get(i).setDocumentId(eventTask.getResult().getDocuments().get(i).getId());
-                        }
-                        signedUpEventsLiveData.setValue(events);
-                        Log.d(TAG, "getSignedUpEventsOfUserLiveData: retrieved " + events.size() + " events for user ID: " + userId);
-                    } else {
-                        Log.e(TAG, "getSignedUpEventsOfUserLiveData: failed to retrieve events", eventTask.getException());
-                        signedUpEventsLiveData.setValue(new ArrayList<>());
-                    }
-                });
+            Query query = eventCollection.whereIn(FieldPath.documentId(), eventIds);
+            return Common.runQueryLiveData("getSignedUpEventsOfUserLiveData", query, Event.class, TAG);
         });
-        return signedUpEventsLiveData;
     }
 
     /**

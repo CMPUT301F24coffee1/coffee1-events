@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/popup_edit_event_add_poster"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -32,7 +33,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="32dp"
                 android:hint="Event Name"
                 android:textSize="40sp"
                 app:layout_constraintEnd_toStartOf="@+id/popup_save_event_button"
@@ -40,56 +40,57 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <!-- Save Button -->
-            <Button
-                android:id="@+id/popup_save_event_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:backgroundTint="?attr/colorPrimary"
-                android:text="Save Changes"
-                android:textColor="?attr/textColor"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/popup_edit_event_name"
-                app:layout_constraintTop_toTopOf="parent" />
 
             <!-- Event Poster Image -->
-            <ImageView
-                android:id="@+id/popup_edit_event_image"
-                android:layout_width="0dp"
-                android:layout_height="200sp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="8dp"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/popup_edit_event_add_poster_card"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"
+                app:cardBackgroundColor="@android:color/transparent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/popup_edit_event_name"
-                tools:srcCompat="@tools:sample/avatars" />
+                app:layout_constraintTop_toBottomOf="@+id/popup_edit_event_name">
 
-            <!-- Event Duration and Geolocation Settings -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/popup_edit_event_geolocation_checkbox_layout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/popup_edit_event_image">
+                <ImageView
+                    android:id="@+id/popup_edit_event_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:scaleType="centerCrop"
+                    tools:srcCompat="@tools:sample/avatars" />
 
-                <Button
-                    android:id="@+id/popup_edit_event_duration_button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="?attr/colorPrimary"
-                    android:text="Edit Event Duration"
-                    android:textColor="?attr/textColor"
+                <View
+                    android:id="@+id/popup_edit_event_photo_darken"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:alpha="0.5"
+                    android:background="@color/material_dynamic_neutral0"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                <ImageView
+                    android:id="@+id/popup_edit_event_photo_modify"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/modify_profile_photo"
+                    android:padding="30dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_add_photo_alternate_24dp" />
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Event Duration and Geolocation Settings -->
 
             <!-- Event Registration Deadline Button -->
             <Button
@@ -99,11 +100,11 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:backgroundTint="?attr/colorPrimary"
-                android:text="Edit Registration Deadline"
+                android:text="Edit Registration Dates"
                 android:textColor="?attr/textColor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/popup_edit_event_geolocation_checkbox_layout" />
+                app:layout_constraintTop_toBottomOf="@+id/popup_edit_event_add_poster_card" />
 
             <!-- Event Description -->
             <EditText
@@ -128,9 +129,9 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="10dp"
                 android:hint="Max Number of Entrants (Optional)"
+                android:inputType="phone"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:inputType="phone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -138,17 +139,6 @@
                 app:layout_constraintVertical_bias="0.0" />
 
             <!-- Edit Poster Button -->
-            <Button
-                android:id="@+id/popup_edit_event_add_poster"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="?attr/colorPrimary"
-                android:text="Edit Poster"
-                android:textColor="?attr/textColor"
-                app:layout_constraintBottom_toTopOf="@+id/popup_edit_event_image"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/popup_edit_event_name"
-                app:layout_constraintTop_toBottomOf="@+id/popup_save_event_button" />
 
             <Button
                 android:id="@+id/popup_edit_event_delete_event_button"
@@ -164,6 +154,17 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/popup_edit_event_max_entrants" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/popup_save_event_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                app:layout_constraintBottom_toTopOf="@+id/popup_edit_event_add_poster_card"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:maxImageSize="36dp"
+                app:srcCompat="@drawable/ic_confirm_check_24dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

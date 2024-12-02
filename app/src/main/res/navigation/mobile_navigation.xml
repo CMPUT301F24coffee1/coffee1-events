@@ -12,6 +12,24 @@
         tools:layout="@layout/fragment_events" />
 
     <fragment
+        android:id="@+id/navigation_create_event"
+        android:name="com.example.eventapp.ui.events.CreateEventFragment"
+        android:label="@string/title_create_event"
+        tools:layout="@layout/fragment_create_event" />
+
+    <fragment
+        android:id="@+id/navigation_create_event_dates"
+        android:name="com.example.eventapp.ui.events.CreateEventDatesFragment"
+        android:label="@string/title_create_event_dates"
+        tools:layout="@layout/fragment_create_event_dates" />
+
+    <fragment
+        android:id="@+id/navigation_create_event_confirm"
+        android:name="com.example.eventapp.ui.events.CreateEventConfirmFragment"
+        android:label="@string/title_create_event_confirm"
+        tools:layout="@layout/fragment_create_event_confirm" />
+
+    <fragment
         android:id="@+id/navigation_scanqr"
         android:name="com.example.eventapp.ui.scanqr.ScanQrFragment"
         android:label="@string/title_scanqr"

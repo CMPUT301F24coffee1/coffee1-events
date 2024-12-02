@@ -3,7 +3,6 @@ package com.example.eventapp.ui.events;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,12 +10,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
@@ -28,7 +29,9 @@ import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
 import com.example.eventapp.models.Signup;
+import com.example.eventapp.repositories.FacilityRepository;
 import com.example.eventapp.services.FormatDate;
+import com.example.eventapp.services.photos.PhotoManager;
 import com.example.eventapp.viewmodels.EntrantsViewModel;
 import com.example.eventapp.ui.images.ImageInfoFragment;
 import com.example.eventapp.services.GetUserLocationService;
@@ -37,7 +40,10 @@ import com.example.eventapp.viewmodels.ImagesViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * A fragment displaying detailed information about an event in a bottom sheet dialog.
@@ -119,19 +125,32 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         TextView eventDuration = view.findViewById(R.id.popup_event_duration_text);
         TextView eventRegistrationDeadline = view.findViewById(R.id.popup_event_registration_deadline_text);
         TextView eventDescription = view.findViewById(R.id.popup_event_description_text);
-        TextView eventEntrantsCount = view.findViewById(R.id.popup_create_event_max_entrants);
+        Button eventEntrantsCount = view.findViewById(R.id.create_event_max_entrants);
+        TextView eventEntrantsText = view.findViewById(R.id.create_event_max_entrants2);
+        FloatingActionButton qrButton = view.findViewById(R.id.popup_event_qr_button);
+        CardView facilityCard = view.findViewById((R.id.popup_event_facility_image_card));
+        ImageView facilityImage = view.findViewById(R.id.popup_event_facility_image);
+        TextView facilityName = view.findViewById((R.id.popup_event_facility_name));
 
         eventName.setText(event.getEventName());
 
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calendar.setTimeInMillis(event.getStartDate());
+        String startTime = format.format(calendar.getTime());
+        calendar.setTimeInMillis(event.getEndDate());
+        String endTime = format.format(calendar.getTime());
         eventDuration.setText(getString(
                 R.string.event_duration,
-                FormatDate.format(event.getStartDate()),
-                FormatDate.format(event.getEndDate())
+                startTime,
+                endTime
         ));
+        calendar.setTimeInMillis(event.getDeadline());
+        String deadLine = format.format(calendar.getTime());
         eventRegistrationDeadline.setText(getString(
                 R.string.registration_deadline,
-                FormatDate.format(event.getDeadline())
-        ));
+                deadLine)
+        );
         eventDescription.setText(event.getEventDescription());
 
         if (event.hasPoster()) {
@@ -150,10 +169,35 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
         } else {
             eventImage.setClickable(false);
             eventImage.setFocusable(false);
-            eventImage.setImageResource(R.drawable.default_event_poster);
+            eventImage.setImageBitmap(PhotoManager.generateDefaultPoster(event.getDocumentId()));
         }
 
+        FacilityRepository facilityRepository = FacilityRepository.getInstance();
+        facilityRepository.getFacilityById(event.getFacilityId()).thenAccept(facility -> {
+            if (facility.hasPhoto()) {
+                Glide.with(requireContext())
+                        .load(facility.getPhotoUri())
+                        .into(facilityImage);
+                facilityCard.setOnClickListener((v) -> {
+                    if (v.isClickable()) {
+                        ImagesViewModel imagesViewModel = new ViewModelProvider(requireActivity()).get(ImagesViewModel.class);
+                        imagesViewModel.setSelectedImage(facility.getPhotoUri());
+                        new ImageInfoFragment().show(requireActivity().getSupportFragmentManager(), "fragment_image_info");
+                    }
+                });
+                facilityCard.setClickable(true);
+                facilityCard.setFocusable(true);
+            } else {
+                facilityCard.setClickable(false);
+                facilityCard.setFocusable(false);
+                facilityImage.setImageResource(R.drawable.ic_facility_24dp);
+            }
+
+            facilityName.setText(facility.getFacilityName());
+        });
+
         observeEventSignups(eventEntrantsCount, waitlistButton);
+        observeEventSignups(eventEntrantsText, waitlistButton);
         updateWaitlistButtonState(waitlistButton);
 
         // Initialize location service
@@ -184,6 +228,18 @@ public class EventInfoFragment extends BottomSheetDialogFragment {
             eventEntrantsCount.setOnClickListener(v -> {
                 Log.d("EventInfoFragment", "clicked on eventEntrantsCount");
                 navigateToEventEntrantsScreen();
+            });
+            eventEntrantsCount.setVisibility(View.VISIBLE);
+            eventEntrantsText.setVisibility(View.GONE);
+
+
+            qrButton.setVisibility(View.VISIBLE);
+            // Manage QR Code Button
+            EntrantsViewModel entrantsViewModel = new ViewModelProvider(requireActivity()).get(EntrantsViewModel.class);
+            entrantsViewModel.setCurrentEventToQuery(event);
+            qrButton.setOnClickListener(v -> {
+                ManageQRCodeFragment manageQRCodeFragment = new ManageQRCodeFragment(entrantsViewModel.getCurrentEventToQuery());
+                manageQRCodeFragment.show(requireActivity().getSupportFragmentManager(), "manage_qr_code");
             });
         }
         return view;
