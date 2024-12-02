@@ -5,6 +5,7 @@ import static com.example.eventapp.services.photos.PhotoManager.generateDefaultP
 import android.annotation.SuppressLint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -35,6 +36,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -43,6 +46,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.eventapp.databinding.ActivityMainBinding;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.FirebaseApp;
 
 import java.util.ArrayList;
@@ -87,6 +91,15 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Permission denied to access photos", Toast.LENGTH_SHORT).show();
             }
         });
+
+        // Request push notification permissions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
+            }
+        }
 
         @SuppressLint("HardwareIds") String androidId = Settings.Secure.getString(
                 root.getContext().getContentResolver(),
@@ -147,8 +160,71 @@ public class MainActivity extends AppCompatActivity {
                 displayProfilePicture(user, navMenu);
                 navView.getMenu().findItem(R.id.navigation_admin_profiles).setVisible(user.isAdmin());
                 navView.getMenu().findItem(R.id.navigation_admin_images).setVisible(user.isAdmin());
+                getFcmToken();
+
+                if (androidId != null && !user.isNotificationOptOut()) {
+                    observeNotifications(androidId);
+                } else {
+                    Log.e(TAG, "User ID is null. Unable to fetch notifications.");
+                }
             }
         });
+    }
+
+    /**
+     * Retrieves the Firebase Cloud Messaging (FCM) registration token for the device.
+     * Logs the token and sends it to the app's server.
+     */
+    private void getFcmToken() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                        return;
+                    }
+
+                    // Get new FCM registration token
+                    String token = task.getResult();
+
+                    // Log and send token to your app server
+                    Log.d(TAG, "FCM Registration Token: " + token);
+                    sendRegistrationTokenToServer(token);
+                });
+    }
+
+    /**
+     * Sends the FCM registration token to the app server for future notifications.
+     *
+     * @param token The FCM token to be sent to the server.
+     */
+    private void sendRegistrationTokenToServer(String token) {
+        UserRepository userRepository = UserRepository.getInstance();
+        userRepository.updateUserFcmToken(token)
+                .thenAccept(aVoid -> Log.d(TAG, "FCM token saved successfully"))
+                .exceptionally(e -> {
+                    Log.e(TAG, "Failed to save FCM token", e);
+                    return null;
+                });
+    }
+
+    /**
+     * Handles the result of permission requests, such as notification permissions.
+     *
+     * @param requestCode The request code passed in the permission request.
+     * @param permissions The requested permissions.
+     * @param grantResults The grant results for the requested permissions.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Notification permission granted");
+            } else {
+                Log.d(TAG, "Notification permission denied");
+            }
+        }
     }
 
     /**
@@ -257,29 +333,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Return the full name
         return firstName + " " + lastName;
-    }
-
-    // Code to test the upload notificatons (Will be deleted once Lottery is finished)
-    private void testUploadNotification(String userId) {
-        Notification g_notification = new Notification(
-                userId,
-                "Test General Title",
-                "This is a to test the general notification."
-        );
-
-        Notification i_notification = new Notification(
-                userId,
-                "Coolest title.",
-                "Coolest message!",
-                "SET_THIS"
-        );
-
-        NotificationService.getInstance().uploadNotification(g_notification)
-                .thenAccept(s -> Log.d(TAG, "Notification uploaded successfully!"))
-                .exceptionally(throwable -> {
-                    Log.e(TAG, "Failed to upload notification", throwable);
-                    return null;
-                });
     }
 
     /**

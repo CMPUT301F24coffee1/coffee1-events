@@ -25,17 +25,13 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.bumptech.glide.Glide;
 import com.example.eventapp.R;
 import com.example.eventapp.models.Event;
-import com.example.eventapp.models.Facility;
 import com.example.eventapp.repositories.FacilityRepository;
-import com.example.eventapp.services.FormatDate;
 import com.example.eventapp.services.photos.PhotoManager;
 import com.example.eventapp.ui.images.ImageInfoFragment;
 import com.example.eventapp.viewmodels.EventsViewModel;
 import com.example.eventapp.viewmodels.ImagesViewModel;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -160,7 +156,7 @@ public class CreateEventConfirmFragment extends Fragment {
         eventSubmittable = false;
         if (newEvent.getPosterUriString() == null) {
             eventsViewModel.addEvent(newEvent);
-            navController.popBackStack(R.id.navigation_create_event, true);
+            navController.navigate(R.id.navigation_events);
         } else {
             uploadPhotoAndCreateEvent(newEvent);
         }

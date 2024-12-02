@@ -1,7 +1,10 @@
 package com.example.eventapp.utils;
 
+import android.support.v4.app.INotificationSideChannel;
+
 import com.example.eventapp.repositories.EventRepository;
 import com.example.eventapp.repositories.FacilityRepository;
+import com.example.eventapp.repositories.NotificationRepository;
 import com.example.eventapp.repositories.SignupRepository;
 import com.example.eventapp.repositories.UserRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -82,5 +85,14 @@ public class FirestoreEmulator {
      */
     public static synchronized UserRepository getUserRepository() {
         return UserRepository.getTestInstance(getEmulatorInstance());
+    }
+
+    /**
+     * Retrieves a test instance of NotificationRepository using the Firestore emulator.
+     *
+     * @return The test instance of NotificationRepository.
+     */
+    public static synchronized NotificationRepository getNotificationRepository() {
+        return NotificationRepository.getTestInstance(getEmulatorInstance());
     }
 }

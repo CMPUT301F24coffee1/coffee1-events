@@ -291,6 +291,23 @@ public class UserRepository {
         });
     }
 
+    public CompletableFuture<Void> updateUserFcmToken(String token) {
+        User currentUser = currentUserLiveData.getValue();
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
+        if (currentUser == null || currentUser.getUserId() == null) {
+            future.completeExceptionally(new IllegalStateException("Current user is null"));
+            return future;
+        }
+
+        DocumentReference userRef = userCollection.document(currentUser.getUserId());
+        return CompletableFuture.runAsync(() -> {
+            userRef.update("fcmToken", token)
+                    .addOnSuccessListener(aVoid -> Log.d(TAG, "FCM token updated successfully"))
+                    .addOnFailureListener(e -> Log.e(TAG, "Failed to update FCM token", e));
+        });
+    }
+
     /**
      * Retrieves a LiveData list of all users.
      *
