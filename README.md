@@ -5,7 +5,6 @@
 
 - [About](#About)
 - [Setup](#Setup)
-- [Screenshots](#Screenshots)
 
 ## About
 
