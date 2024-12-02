@@ -50,7 +50,7 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
         super.onViewCreated(view, savedInstanceState);
 
         entrantsViewModel = new ViewModelProvider(requireActivity()).get(EntrantsViewModel.class);
-        filterOptions = new boolean[]{false, false, false, false};
+        filterOptions = new boolean[]{true, true, true, true};
         entrants = new ArrayList<>();
         entrantsAdapter = new EntrantsAdapter(entrants);
 

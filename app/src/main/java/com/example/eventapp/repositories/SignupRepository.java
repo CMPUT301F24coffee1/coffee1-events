@@ -253,8 +253,17 @@ public class SignupRepository {
     public LiveData<List<UserSignupEntry>> getSignedUpUsersByFilterLiveData(
            String eventId,
            SignupFilter filter) {
+        Objects.requireNonNull(filter);
         Query query = signupCollection.whereEqualTo("eventId", eventId);
 
+        if ((filter.isCancelled == null || !filter.isCancelled) &&
+                (filter.isWaitlisted == null || !filter.isWaitlisted) &&
+                (filter.isChosen == null || !filter.isChosen) &&
+                (filter.isEnrolled == null || !filter.isEnrolled)) {
+            MutableLiveData<List<UserSignupEntry>> emptyLiveData = new MutableLiveData<>();
+            emptyLiveData.setValue(new ArrayList<>());
+            return emptyLiveData;
+        }
         Log.d(TAG, "filter isCancelled: " + filter.isCancelled);
         Log.d(TAG, "filter isWaitlisted: " + filter.isWaitlisted);
         Log.d(TAG, "filter isChosen: " + filter.isChosen);
@@ -333,7 +342,7 @@ public class SignupRepository {
         } else if (signup.isEnrolled()) {
             return "Enrolled";
         } else {
-            return "Signed Up";
+            return "Unknown";
         }
     }
 
