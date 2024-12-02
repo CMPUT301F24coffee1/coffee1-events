@@ -17,16 +17,14 @@ import com.example.eventapp.R;
 public class LotteryDrawCountInputFragment extends DialogFragment {
     private LotteryDrawCountInputListener listener;
     private int enrollSpaceRemaining;
-    private int currentlyEnrolled;
 
     interface LotteryDrawCountInputListener {
         void lotteryDraw(int drawCount);
     }
 
-    public LotteryDrawCountInputFragment(LotteryDrawCountInputListener listener, int enrollSpaceRemaining, int currentlyEnrolled){
+    public LotteryDrawCountInputFragment(LotteryDrawCountInputListener listener, int enrollSpaceRemaining){
         this.listener = listener;
         this.enrollSpaceRemaining = enrollSpaceRemaining;
-        this.currentlyEnrolled = currentlyEnrolled;
     }
 
     @NonNull

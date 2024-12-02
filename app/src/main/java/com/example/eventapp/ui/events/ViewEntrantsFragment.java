@@ -102,13 +102,13 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
             int maxEnrolledSize = entrantsViewModel.getCurrentEventToQuery().getNumberOfAttendees();
             if(enrolledCount < maxEnrolledSize){
                 lotteryButton.setOnClickListener(view15 -> {
-                    askForLotteryDrawCount(maxEnrolledSize-enrolledCount, enrolledCount);
+                    askForLotteryDrawCount(maxEnrolledSize-enrolledCount);
                 });
             }else{
                 lotteryButton.setOnClickListener(view13 -> Toast.makeText(getContext(), "Enrollment is Full", Toast.LENGTH_SHORT).show());
             }
         }else{
-            lotteryButton.setOnClickListener(view14 -> askForLotteryDrawCount(entrantsViewModel.getCurrentEventToQuery().getNumberOfAttendees(), 0));
+            lotteryButton.setOnClickListener(view14 -> askForLotteryDrawCount(entrantsViewModel.getCurrentEventToQuery().getNumberOfAttendees()));
         }
 
         Event currentEvent = entrantsViewModel.getCurrentEventToQuery();
@@ -232,8 +232,8 @@ public class ViewEntrantsFragment extends Fragment implements NotificationMessag
         entrantsViewModel.cancelEntrants(getSelectedEntrants());
     }
 
-    private void askForLotteryDrawCount(int spaceRemaining, int currentlyEnrolled){
-        LotteryDrawCountInputFragment lotteryDrawCountInputFragment = new LotteryDrawCountInputFragment(this, spaceRemaining, currentlyEnrolled);
+    private void askForLotteryDrawCount(int spaceRemaining){
+        LotteryDrawCountInputFragment lotteryDrawCountInputFragment = new LotteryDrawCountInputFragment(this, spaceRemaining);
         lotteryDrawCountInputFragment.show(requireActivity().getSupportFragmentManager(), "lottery_draw_count_input");
     }
 }
