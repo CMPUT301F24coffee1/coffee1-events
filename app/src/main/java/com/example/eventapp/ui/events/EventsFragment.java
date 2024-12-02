@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -28,42 +29,34 @@ import java.util.List;
 /**
  * The EventsFragment class is responsible for displaying and managing the user's events,
  * including events they organize and events they are signed up for. This fragment implements
- * multiple listeners for event-related actions, such as creating, editing, and deleting events,
+ * multiple listeners for event-related actions, such as editing and deleting events,
  * as well as viewing event information.
- *
  * This fragment uses the EventsViewModel to observe changes to organized and signed-up events
  * and updates the corresponding RecyclerViews. It provides options to add new events, view
  * detailed event information, and modify existing events. The EventsFragment also handles
  * displaying the appropriate UI elements for event actions, including popups for creating,
  * editing, and viewing event details.
- *
  * Implements:
  * - {@link EventAdapter.OnEventClickListener}: to handle clicks on event items in RecyclerViews.
  * - {@link EventInfoFragment.EditEventInfoListener}: to handle editing from the event info popup.
- * - {@link CreateEventFragment.CreateEventListener}: to handle creation of a new event.
  * - {@link EditEventFragment.EditEventListener}: to handle saving or deleting edits on an event.
  */
 public class EventsFragment extends Fragment implements
-        EventAdapter.OnEventClickListener, EventInfoFragment.EditEventInfoListener, CreateEventFragment.CreateEventListener, EditEventFragment.EditEventListener {
+        EventAdapter.OnEventClickListener,
+        EventInfoFragment.EditEventInfoListener,
+        EditEventFragment.EditEventListener {
 
     private EventsViewModel eventsViewModel;
     private ArrayList<Event> organizedEvents;
     private ArrayList<Event> signedUpEvents;
     private EventAdapter organizedEventsAdapter;
     private EventAdapter signedUpEventsAdapter;
-    private CreateEventFragment currentCreateEventFragment;
     private EditEventFragment currentEditEventFragment;
     private EventInfoFragment currentEventInfoFragment;
     EventsListAdapter eventsListAdapter;
     ViewPager2 viewPager;
 
     private FragmentEventsBinding binding;
-
-    @Override
-    public void createEvent(Event event) {
-        eventsViewModel.addEvent(event);
-        currentCreateEventFragment.dismiss();
-    }
 
     @Override
     public void saveEditedEvent(Event updatedEvent) {
@@ -154,9 +147,14 @@ public class EventsFragment extends Fragment implements
     }
 
     private void showCreateEventPopup() {
-        CreateEventFragment createEventFragment = new CreateEventFragment(this);
-        currentCreateEventFragment = createEventFragment;
-        createEventFragment.show(getActivity().getSupportFragmentManager(), "create_event");
+        eventsViewModel.getUserFacilities().observe(getViewLifecycleOwner(), facilities -> {
+            if (facilities == null || facilities.isEmpty()) {
+                Toast.makeText(getContext(), "Create a facility first", Toast.LENGTH_SHORT).show();
+            } else {
+                CreateEventFragment createEventFragment = new CreateEventFragment();
+                createEventFragment.show(getActivity().getSupportFragmentManager(), "create_event");
+            }
+        });
     }
 
     @Override

@@ -7,11 +7,11 @@ import static org.junit.Assert.assertTrue;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 
 import com.example.eventapp.models.User;
 import com.example.eventapp.models.Event;
 import com.example.eventapp.repositories.EventRepository;
+import com.example.eventapp.repositories.FacilityRepository;
 import com.example.eventapp.repositories.SignupRepository;
 import com.example.eventapp.repositories.UserRepository;
 import com.example.eventapp.utils.FirestoreEmulator;
@@ -29,11 +29,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
@@ -45,6 +42,8 @@ public class EventsViewModelTest {
     private EventsViewModel eventsViewModel;
     private EventRepository eventRepository;
     private SignupRepository signupRepository;
+    // TODO: test facilityRepository inside viewmodel ->
+    private FacilityRepository facilityRepository;
     private UserRepository userRepository;
     private FirebaseFirestore firestoreEmulator;
     private final MutableLiveData<User> currentUserLiveData = new MutableLiveData<>();
@@ -54,6 +53,7 @@ public class EventsViewModelTest {
         eventRepository = FirestoreEmulator.getEventRepository();
         signupRepository = FirestoreEmulator.getSignupRepository();
         userRepository = FirestoreEmulator.getUserRepository();
+        facilityRepository = FirestoreEmulator.getFacilityRepository();
         firestoreEmulator = FirestoreEmulator.getEmulatorInstance();
 
         User testUser = new User();
@@ -64,6 +64,7 @@ public class EventsViewModelTest {
                 eventRepository,
                 signupRepository,
                 userRepository,
+                facilityRepository,
                 currentUserLiveData
         );
     }
