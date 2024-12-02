@@ -70,14 +70,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(root);
 
         // Initialize the permission launcher to handle permission results
-        // Continue with photo access or loading
         ActivityResultLauncher<String[]> requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
             Boolean readMediaGranted = result.getOrDefault(Manifest.permission.READ_MEDIA_IMAGES, false);
             Boolean readStorageGranted = result.getOrDefault(Manifest.permission.READ_EXTERNAL_STORAGE, false);
 
             if (readMediaGranted != null && readMediaGranted || readStorageGranted != null && readStorageGranted) {
                 Toast.makeText(this, "Permission granted to access photos", Toast.LENGTH_SHORT).show();
-                // Continue with photo access or loading
             } else {
                 Toast.makeText(this, "Permission denied to access photos", Toast.LENGTH_SHORT).show();
             }

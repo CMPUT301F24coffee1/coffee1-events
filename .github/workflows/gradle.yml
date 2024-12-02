@@ -36,10 +36,10 @@ jobs:
       run: touch ./app/google-services.json && echo $DATA | base64 -di > ./app/google-services.json
 
     - name: Build with Gradle Wrapper
-      run: ./gradlew assembleDebug
+      run: ./gradlew assembleDebug --stacktrace --info
 
     - name: Run Unit Tests
-      run: ./gradlew test
+      run: ./gradlew test --stacktrace --info
       
     - name: Start Firebase Emulators
       env:

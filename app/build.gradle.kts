@@ -41,6 +41,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.messaging)
+    implementation(libs.play.services.location)
+    implementation (libs.appcompat.v161)
     implementation(libs.mockito.core)
 
     implementation(libs.appcompat)
@@ -54,6 +56,7 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(libs.glide)
     implementation(libs.firebase.database)
+    implementation(libs.play.services.maps)
     testImplementation(libs.junit)
     testImplementation(libs.core.testing)
     testImplementation(libs.robolectric)
