@@ -3,6 +3,7 @@ import { AppEvent } from './types/app_event';
 import { Signup } from './types/signup';
 import { AppNotification } from './types/app_notification';
 import { shuffleArray } from './utils';
+import { messaging } from 'firebase-admin';
 
 /**
  * Processes the lottery for a given event.
@@ -33,7 +34,8 @@ export async function processLottery(
     eligibleSignupsSnapshot.empty ||
     (isReroll && enrolledAmount + eligibleAmount < numberOfEntrants)
   ) {
-    const message = 'Not enough eligible signups found for the event. Lottery skipped.';
+    const message =
+      'Not enough eligible signups found for the event. Lottery skipped.';
     logger.debug(message);
     return message;
   }
@@ -138,6 +140,7 @@ async function processSignups(
   lostSignups: FirebaseFirestore.QueryDocumentSnapshot[]
 ) {
   const bulkWriter = db.bulkWriter();
+  const notificationPromises: Promise<void>[] = [];
 
   selectedSignups.forEach((signupDoc) => {
     const signupRef = signupDoc.ref;
@@ -164,6 +167,10 @@ async function processSignups(
     };
 
     bulkWriter.create(notificationRef, notification);
+
+    notificationPromises.push(
+      sendPushNotificationToUser(db, signupData.userId, notification)
+    );
   });
 
   lostSignups.forEach((signupDoc) => {
@@ -193,7 +200,59 @@ async function processSignups(
     };
 
     bulkWriter.create(notificationRef, notification);
+
+    notificationPromises.push(
+      sendPushNotificationToUser(db, signupData.userId, notification)
+    );
   });
 
   await bulkWriter.close();
+  await Promise.all(notificationPromises);
+}
+
+/**
+ * Sends an android push notification to the selected user.
+ * @param {FirebaseFirestore.Firestore} db Firestore instance.
+ * @param {string} userId ID of the user.
+ * @param {AppNotification} notificationData Data to send to the user.
+ */
+async function sendPushNotificationToUser(
+  db: FirebaseFirestore.Firestore,
+  userId: string,
+  notificationData: AppNotification
+) {
+  try {
+    const userDoc = await db.collection('users').doc(userId).get();
+
+    if (!userDoc.exists) {
+      console.log(`User ${userId} does not exist.`);
+      return;
+    }
+    const userData = userDoc.data();
+    const fcmToken = userData?.fcmToken;
+
+    if (!fcmToken) {
+      logger.warn(
+        `No FCM token for user ${userId}. Cannot send push notification.`
+      );
+      return;
+    }
+
+    const message = {
+      token: fcmToken,
+      notification: {
+        title: notificationData.title,
+        body: notificationData.message,
+      },
+      data: {
+        eventId: notificationData.eventId,
+        type: notificationData.type,
+      },
+    };
+
+    await messaging().send(message);
+    console.log(`Successfully sent push notification to user ${userId}.`);
+  } catch (error) {
+    console.error(`Error sending push notification to user ${userId}:`, error);
+  }
 }
