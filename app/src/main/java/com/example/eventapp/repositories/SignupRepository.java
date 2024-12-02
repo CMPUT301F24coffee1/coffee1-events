@@ -33,11 +33,19 @@ public class SignupRepository {
     private final CollectionReference signupCollection;
     private final UserRepository userRepository;
 
+    /**
+     * Private constructor for initializing the repository with the default Firestore instance.
+     */
     private SignupRepository() {
         signupCollection = FirebaseFirestore.getInstance().collection("signups");
         userRepository = UserRepository.getInstance();
     }
 
+    /**
+     * Private constructor for initializing the repository with a test Firestore instance.
+     *
+     * @param testInstance The test Firestore instance.
+     */
     private SignupRepository(FirebaseFirestore testInstance) {
         signupCollection = testInstance.collection("signups");
         userRepository = UserRepository.getTestInstance(testInstance);

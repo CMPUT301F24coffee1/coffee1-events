@@ -6,9 +6,7 @@ import androidx.lifecycle.LiveData;
 
 import com.example.eventapp.models.Notification;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
