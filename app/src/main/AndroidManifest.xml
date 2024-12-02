@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32"
         tools:ignore="ScopedStorage" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
@@ -44,8 +43,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <service android:name=".SaveImageService" />
         <!-- referenced the zxing android embedded documentation -->
         </activity> <!-- referenced the zxing android embedded documentation -->
         <activity
@@ -53,9 +50,6 @@
             android:screenOrientation="fullSensor"
             tools:ignore="DiscouragedApi"
             tools:replace="screenOrientation" />
-
-            tools:replace="screenOrientation"
-            tools:ignore="DiscouragedApi" />
     </application>
 
 </manifest>
